@@ -9,6 +9,8 @@ export interface Level {
   difficulty: Difficulty
   size: number
   regions: number[]
+  /** Region ID → palette index. Generated with the level's adjacency graph. */
+  palette?: number[]
   /** One column index for each row, in solution row order. */
   solution: number[]
   title: string

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties, KeyboardEvent } from 'react'
 import { assets } from './config/assets'
+import { REGION_PALETTE } from './config/regionPalette'
 import { levelsByDifficulty, getLevel } from './data/levels'
 import { playSound, vibrate } from './audio/soundAdapter'
 import { getConflicts, getConstraintOverlay, isBoardSolved, toPosition } from './game/rules'
@@ -18,21 +19,6 @@ import { DIFFICULTY_META } from './types/game'
 import { formatTime } from './utils/format'
 
 type Screen = 'home' | 'levels' | 'game'
-
-const REGION_COLORS = [
-  '#f8d98a',
-  '#f5b4b1',
-  '#c9b6e8',
-  '#9fd8e5',
-  '#b7dfb1',
-  '#f6c29f',
-  '#efb9d5',
-  '#adb4e6',
-  '#b8e1dc',
-  '#e7cfad',
-]
-
-const REGION_NAMES = ['奶油黃', '珊瑚粉', '薄紫', '水藍', '薄荷綠', '柔橘', '桃粉', '藍紫', '淺青', '米杏']
 
 function normalizedProgress(level: Level, progress: LevelProgress | undefined): LevelProgress {
   const fallback = createEmptyProgress(level.size)
@@ -523,16 +509,17 @@ function GameScreen({ level, board, elapsed, mistakes, hintsRemaining, focusedCe
         <div className="board-shell"><div className="game-board" style={{ '--board-size': level.size } as CSSProperties} role="grid" aria-label={`${level.size}乘${level.size}水母數獨棋盤`}>
           {board.map((state, index) => {
             const region = level.regions[index]
+            const paletteIndex = level.palette?.[region] ?? region % REGION_PALETTE.length
             const { row, column } = toPosition(index, level.size)
             const hasConflict = conflictIndices.includes(index)
             const isHinted = hintIndex === index
             const isBlocked = overlay.has(index) && state === 'empty'
-            const cellLabel = `${row + 1} 行，第 ${column + 1} 列，${REGION_NAMES[region]}區域，${state === 'jelly' ? '水母' : state === 'marked' ? '排除標記' : '空白'}${isBlocked ? '，系統提示暫不可放置' : ''}`
+            const cellLabel = `${row + 1} 行，第 ${column + 1} 列，${REGION_PALETTE[paletteIndex].name}區域，${state === 'jelly' ? '水母' : state === 'marked' ? '排除標記' : '空白'}${isBlocked ? '，系統提示暫不可放置' : ''}`
             return <button
               key={`${level.id}-${index}`}
               ref={(element) => { cellRefs.current[index] = element }}
               className={`board-cell region-${region} state-${state} ${hasConflict ? 'has-conflict' : ''} ${isHinted ? 'is-hinted' : ''} ${isBlocked ? 'is-blocked' : ''} ${focusedCell === index ? 'is-focused' : ''}`}
-              style={{ '--region-color': REGION_COLORS[region] } as CSSProperties}
+              style={{ '--region-color': REGION_PALETTE[paletteIndex].color } as CSSProperties}
               role="gridcell"
               aria-label={cellLabel}
               aria-selected={focusedCell === index}
