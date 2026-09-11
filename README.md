@@ -1,0 +1,37 @@
+# 012S Jelly Sudoku｜水母數獨
+
+012S Jelly World 主題的區域型邏輯益智遊戲。每一關在 `N × N` 棋盤放置 `N` 隻水母，必須同時滿足：每行一隻、每列一隻、每個區域一隻，且水母不能以八方向相鄰。
+
+## Development
+
+```bash
+npm install
+npm run dev
+```
+
+驗證指令：
+
+```bash
+npm run typecheck
+npm test
+npm run build
+```
+
+正式 build 預設使用 `/012s-jelly-sudoku/` base，適合部署至 GitHub Pages 的 `012s-jelly-sudoku` repository；如需不同路徑，可設定 `VITE_BASE_PATH`。
+
+## Architecture
+
+- `src/game/`：純 TypeScript rules、solver 與 level validator。
+- `src/data/levels/`：30 個正式關卡的生成式資料來源；生成後逐關通過唯一解檢查。
+- `src/storage/`：`jellySudokuSave.v1` LocalStorage adapter、進度與解鎖。
+- `src/audio/`：可 graceful fallback 的音效與震動 adapter。
+- `src/config/assets.ts`：集中管理可替換的水母角色素材。
+- `src/App.tsx`、`src/styles.css`：手機優先的首頁、關卡頁與遊戲頁。
+
+## Phase 1 content
+
+- 基礎 6×6：10 關
+- 普通 8×8：10 關
+- 挑戰 10×10：10 關
+- EMPTY → JELLY → MARKED → EMPTY
+- 衝突回饋、系統輔助標示、提示、計時、重新開始、過關統計、鍵盤操作與進度恢復
