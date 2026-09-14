@@ -60,7 +60,7 @@ export function getConflicts(board: CellState[], level: Level): PlacementConflic
       const firstIndex = jellies[first]
       const secondIndex = jellies[second]
       if (isAdjacent(firstIndex, secondIndex, size)) {
-        conflicts.push({ type: 'adjacent', cells: [firstIndex, secondIndex], message: '水母不能相鄰' })
+        conflicts.push({ type: 'adjacent', cells: [firstIndex, secondIndex], message: '以每隻水母為中心，九宮格內不能有另一隻水母' })
       }
     }
   }

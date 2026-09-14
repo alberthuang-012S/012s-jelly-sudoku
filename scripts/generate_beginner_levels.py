@@ -87,4 +87,10 @@ for index,(regions,solution,score,strips) in enumerate(chosen):
   color=max(available,key=lambda c:min((sum((a-b)**2 for a,b in zip(rgb[c],rgb[n])) for n in assigned),default=100000-c))
   palette[r]=color;available.remove(color)
  level['palette']=palette
+# Preserve the requested swap of the first two authored puzzles.
+first=next(level for level in data if level['id']=='basic-001')
+second=next(level for level in data if level['id']=='basic-002')
+for key in ('regions','solution','palette'):
+ first[key],second[key]=second[key],first[key]
+first['revision']=second['revision']=3
 path.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')

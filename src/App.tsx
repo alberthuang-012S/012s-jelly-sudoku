@@ -417,7 +417,7 @@ function HomeScreen({ onDifficulty, completed, resumeLevel, onResume }: HomeScre
           <p className="eyebrow">A little logic, a lot of jelly</p>
           <h1>Jelly<br /><span>Sudoku</span></h1>
           <p className="hero-zh">水母數獨</p>
-          <p className="hero-description">把水母送回每一個區域。每行、每列一隻，還要記得留一點距離。</p>
+          <p className="hero-description">把水母送回每一個區域。每行、每列各一隻；以每隻水母為中心，九宮格內不能有另一隻水母。</p>
           <div className="hero-note"><span className="note-dot" /> 30 個精心設計的潮汐謎題</div>
         </div>
         <div className="hero-art" aria-hidden="true">
@@ -550,9 +550,9 @@ function GameScreen({ level, board, elapsed, mistakes, hintsRemaining, focusedCe
         <div className="stat-divider" />
         <div className="stat-block stat-mistake"><span className="stat-icon">○</span><div><small>提交錯誤</small><strong>{mistakes}</strong></div></div>
       </section>
-      <section className="rule-banner"><div className="rule-banner-icon">✦</div><div><strong>一個區域一隻水母</strong><span>每行、每列各一隻，水母不能相鄰</span></div><button aria-label="查看規則" onClick={onRules}>?</button></section>
-      {level.difficulty === 'basic' && <p className="beginner-tip">{Number(level.id.split('-')[1]) <= 3 ? '觀察起點：先找只有一格的顏色，再看看同行、同列。' : Number(level.id.split('-')[1]) <= 5 ? '觀察起點：直條區域的水母一定在這一列，可排除該列其他區域。' : Number(level.id.split('-')[1]) <= 7 ? '觀察起點：找找直條與橫條區域，把行列線索接起來。' : '進階練習：結合區域、行列與斜角限制，逐步排除。'}</p>}
-      {level.difficulty === 'normal' && <p className="beginner-tip">{Number(level.id.split('-')[1]) <= 3 ? '觀察起點：先找直條、橫條區域，排除同列、同行的其他顏色。' : Number(level.id.split('-')[1]) <= 6 ? '推理練習：從直條區域出發，搭配相鄰限制，逐步縮小範圍。' : '綜合練習：觀察區域剩餘位置，串接行列與斜角的排除線索。'}</p>}
+      <section className="rule-banner"><div className="rule-banner-icon">✦</div><div><strong>一個區域一隻水母</strong><span>每行、每列各一隻；以水母為中心，九宮格內不能有另一隻</span></div><button aria-label="查看規則" onClick={onRules}>?</button></section>
+      {level.difficulty === 'basic' && <p className="beginner-tip">{Number(level.id.split('-')[1]) <= 3 ? '觀察起點：先找只有一格的顏色，再看看同行、同列。' : Number(level.id.split('-')[1]) <= 5 ? '觀察起點：直條區域的水母一定在這一列，可排除該列其他區域。' : Number(level.id.split('-')[1]) <= 7 ? '觀察起點：找找直條與橫條區域，把行列線索接起來。' : '進階練習：結合區域、行列與九宮格限制，逐步排除。'}</p>}
+      {level.difficulty === 'normal' && <p className="beginner-tip">{Number(level.id.split('-')[1]) <= 3 ? '觀察起點：先找直條、橫條區域，排除同列、同行的其他顏色。' : Number(level.id.split('-')[1]) <= 6 ? '推理練習：從直條區域出發，搭配九宮格限制，逐步縮小範圍。' : '綜合練習：觀察區域剩餘位置，串接行列與九宮格的排除線索。'}</p>}
       <div className="assist-toolbar"><span id="assist-description">{assist ? '斜線＋圓點：目前不能放水母' : '輔助已關閉，自行推理'}</span><button className="assist-toggle" role="switch" aria-checked={assist} aria-describedby="assist-description" onClick={onToggleAssist}><span className="assist-switch" aria-hidden="true" />輔助標示 {assist ? '開' : '關'}</button></div>
       <section className="board-wrap" aria-label={`${level.title}遊戲棋盤`}>
         <div className="board-shell"><div className="game-board" style={{ '--board-size': level.size } as CSSProperties} role="grid" aria-label={`${level.size}乘${level.size}水母數獨棋盤`}>
@@ -609,7 +609,7 @@ function RuleList({ compact = false }: { compact?: boolean }) {
   return <ul className={`rule-list ${compact ? 'compact' : ''}`}>
     <li><span>01</span><div><strong>一個區域一隻水母</strong>{!compact && <small>同一種柔和顏色裡只能放一隻。</small>}</div></li>
     <li><span>02</span><div><strong>每行、每列各一隻</strong>{!compact && <small>讓整座棋盤的水母保持平衡。</small>}</div></li>
-    <li><span>03</span><div><strong>水母不能相鄰</strong>{!compact && <small>上下左右與四個斜角都要留一格距離。</small>}</div></li>
+    <li><span>03</span><div><strong>以水母為中心，九宮格內不能有另一隻</strong>{!compact && <small>水母所在格是九宮格的正中央，周圍八格（上下左右及四個斜角）都不能放另一隻水母。</small>}</div></li>
   </ul>
 }
 
@@ -655,7 +655,7 @@ function SettingsModal({ settings, onChange, onRules, onClose }: { settings: Set
     <div className="settings-list">
       <ToggleRow label="音效" description="放置與過關時的輕柔提示音" checked={settings.sound} onChange={(checked) => onChange({ ...settings, sound: checked })} />
       <ToggleRow label="震動" description="在支援的手機上提供微小回饋" checked={settings.vibration} onChange={(checked) => onChange({ ...settings, vibration: checked })} />
-      <ToggleRow label="輔助標示" description="自動標示同行、同列、同區及相鄰格；可隨時開關" checked={settings.assist} onChange={(checked) => onChange({ ...settings, assist: checked })} />
+      <ToggleRow label="輔助標示" description="自動標示同行、同列、同區及水母周圍八格；可隨時開關" checked={settings.assist} onChange={(checked) => onChange({ ...settings, assist: checked })} />
     </div>
     <button className="rules-link" onClick={onRules}>查看完整規則 <span>→</span></button>
   </Modal>

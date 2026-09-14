@@ -60,11 +60,13 @@ it('introduces vertical strips followed by mixed vertical and horizontal strips'
   })
 })
 
-it('solves every beginner puzzle without guessing, with increasing shared deductions', async () => {
+it('solves every beginner puzzle without guessing and preserves the requested opening swap', async () => {
   const { analyzeLogicalDifficulty } = await import('../game/difficulty')
   const ratings = levelsByDifficulty.basic.map(analyzeLogicalDifficulty)
   expect(ratings.every((rating) => rating.solved)).toBe(true)
-  expect(ratings.map((rating) => rating.deductions)).toEqual([...ratings.map((rating) => rating.deductions)].sort((a, b) => a - b))
+  // The user explicitly swapped the first two puzzles; later progression stays ordered.
+  const authoredOrder = [ratings[1], ratings[0], ...ratings.slice(2)].map((rating) => rating.deductions)
+  expect(authoredOrder).toEqual([...authoredOrder].sort((a, b) => a - b))
 })
 
 it('gives normal levels strip-based openings without singleton regions', () => {
