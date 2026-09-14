@@ -41,3 +41,9 @@ npm run build
 Basic 1–3 each contain exactly one singleton region. Basic 4–5 introduce vertical strips; 6–7 mix vertical and horizontal strips. Basic 8–10 require progressively more shared exclusions. All ten are connected, uniquely solvable, and accepted by a no-search logical solver (`src/game/difficulty.ts`). Its deduction count is a structural proxy for difficulty, not a measured player completion time.
 
 Regenerate this sequence deterministically with `python scripts/generate_beginner_levels.py`, then run `npm test`. Normal and challenge puzzles remain unchanged. Beginner puzzle revisions reset incompatible in-progress boards and separate best records, while retaining completion and unlock progress.
+
+## Normal progression (revision 2)
+
+Normal 1–3 start with both vertical and horizontal strip regions; 4–6 retain vertical openings; 7–10 introduce longer deduction chains. No normal puzzle has a singleton region. All ten must pass connectivity, unique-solution, and no-guess deduction tests with nondecreasing shared-exclusion counts.
+
+Regenerate with `python scripts/generate_normal_levels.py`. This updates only normal puzzles. Old normal boards reset on entry because their layout revision differs; unlocks and completion remain available, and new best records are stored separately.

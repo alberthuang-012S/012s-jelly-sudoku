@@ -214,8 +214,8 @@ function buildUniqueLevel(difficulty: Difficulty, size: number, index: number, s
 
 export function buildLevels(): Level[] {
   return difficultyConfigs.flatMap(({ difficulty, size, count }) => {
-    // Beginner levels follow the curated, no-guess teaching sequence.
-    if (difficulty === 'basic') return (staticLevelData as Level[]).filter((level) => level.difficulty === 'basic')
+    // Basic and normal levels follow curated, no-guess progressions.
+    if (difficulty !== 'challenge') return (staticLevelData as Level[]).filter((level) => level.difficulty === difficulty)
     const solutions = generateSolutions(size, count)
     return Array.from({ length: count }, (_, index) => buildUniqueLevel(difficulty, size, index, solutions[index]))
   })

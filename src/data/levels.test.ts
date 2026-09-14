@@ -66,3 +66,28 @@ it('solves every beginner puzzle without guessing, with increasing shared deduct
   expect(ratings.every((rating) => rating.solved)).toBe(true)
   expect(ratings.map((rating) => rating.deductions)).toEqual([...ratings.map((rating) => rating.deductions)].sort((a, b) => a - b))
 })
+
+it('gives normal levels strip-based openings without singleton regions', () => {
+  levelsByDifficulty.normal.forEach((level) => {
+    expect(regionShapes(level).some((shape) => shape.single)).toBe(false)
+    expect(level.revision).toBe(2)
+  })
+  levelsByDifficulty.normal.slice(0, 6).forEach((level) => {
+    expect(regionShapes(level).some((shape) => shape.vertical)).toBe(true)
+  })
+  levelsByDifficulty.normal.slice(0, 3).forEach((level) => {
+    expect(regionShapes(level).some((shape) => shape.horizontal)).toBe(true)
+  })
+})
+
+it('solves the normal progression by deductions alone in nondecreasing difficulty order', async () => {
+  const { analyzeLogicalDifficulty } = await import('../game/difficulty')
+  const ratings = levelsByDifficulty.normal.map(analyzeLogicalDifficulty)
+  expect(ratings.every((rating) => rating.solved)).toBe(true)
+  const deductions = ratings.map((rating) => rating.deductions)
+  expect(deductions).toEqual([...deductions].sort((a, b) => a - b))
+})
+
+it('uses a distinct solution for each normal puzzle', () => {
+  expect(new Set(levelsByDifficulty.normal.map((level) => level.solution.join(','))).size).toBe(10)
+})
