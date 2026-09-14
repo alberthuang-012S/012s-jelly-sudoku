@@ -372,7 +372,7 @@ button { touch-action: manipulation; }
 .assist-sample .constraint-x { font-size: 25px; }
 
 /* Keep every teaching step in the same slot so the board never moves on placement. */
-.tutorial-guide { height: 232px; overflow-y: auto; scrollbar-gutter: stable; overflow-anchor: none; }
+.tutorial-guide { width: min(100%, 460px); height: 232px; margin-inline: auto; overflow-y: auto; scrollbar-gutter: stable; overflow-anchor: none; }
 .tutorial-direction { display: flex; align-items: flex-start; gap: 12px; }
 .tutorial-direction > p { flex: 1; }
 .tutorial-guide .nine-example { flex: 0 0 78px; grid-template-columns: repeat(3, 24px); margin: 0; }
@@ -380,3 +380,8 @@ button { touch-action: manipulation; }
 .tutorial-guide .nine-example img { width: 24px; height: 24px; }
 .tutorial-guide .tutorial-assist-help { width: 100%; margin: 12px 0 0; padding: 10px; }
 .tutorial-page .tutorial-feedback { height: 76px; overflow-y: auto; }
+
+@media (min-width: 761px) {
+  .tutorial-direction { align-items: center; }
+  .tutorial-guide .nine-example { order: -1; }
+}
