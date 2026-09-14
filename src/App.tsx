@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import type { CSSProperties, KeyboardEvent } from 'react'
+import { TutorialScreen } from './components/TutorialScreen'
 import { assets } from './config/assets'
 import { REGION_PALETTE } from './config/regionPalette'
 import { levelsByDifficulty, getLevel } from './data/levels'
@@ -18,7 +19,7 @@ import type { CellState, Difficulty, Level, LevelProgress, ModalName, SaveData, 
 import { DIFFICULTY_META } from './types/game'
 import { formatTime } from './utils/format'
 
-type Screen = 'home' | 'levels' | 'game'
+type Screen = 'home' | 'levels' | 'game' | 'tutorial'
 
 function normalizedProgress(level: Level, progress: LevelProgress | undefined): LevelProgress {
   const fallback = createEmptyProgress(level.size)
@@ -319,8 +320,10 @@ function App() {
       <div className="sr-only" aria-live="polite">{announcement}</div>
 
       {screen === 'home' && (
-        <HomeScreen onDifficulty={openDifficulty} completed={save.completed} resumeLevel={resumableLevel} onResume={openLevel} />
+        <HomeScreen onTutorial={() => setScreen('tutorial')} onDifficulty={openDifficulty} completed={save.completed} resumeLevel={resumableLevel} onResume={openLevel} />
       )}
+
+      {screen === 'tutorial' && <TutorialScreen onExit={goHome} onStart={() => openLevel(levelsByDifficulty.basic[0])} />}
 
       {screen === 'levels' && (
         <LevelSelectScreen
@@ -401,13 +404,14 @@ function App() {
 }
 
 interface HomeScreenProps {
+  onTutorial: () => void
   onDifficulty: (difficulty: Difficulty) => void
   completed: string[]
   resumeLevel?: Level
   onResume: (level: Level) => void
 }
 
-function HomeScreen({ onDifficulty, completed, resumeLevel, onResume }: HomeScreenProps) {
+function HomeScreen({ onTutorial, onDifficulty, completed, resumeLevel, onResume }: HomeScreenProps) {
   return (
     <main className="home-page page-wrap">
       <header className="home-header">
@@ -429,6 +433,7 @@ function HomeScreen({ onDifficulty, completed, resumeLevel, onResume }: HomeScre
           <span className="sparkle sparkle-one">✦</span><span className="sparkle sparkle-two">✧</span><span className="sparkle sparkle-three">·</span>
         </div>
       </section>
+      <button className="resume-card tutorial-entry" onClick={onTutorial}><span><small>第一次玩？從這裡開始</small><strong>四關教學 · 一步一步學會</strong></span><span>開始練習 →</span></button>
       {resumeLevel && <button className="resume-card" onClick={() => onResume(resumeLevel)}><span><small>接著上次的潮汐</small><strong>{resumeLevel.title} · {resumeLevel.size}×{resumeLevel.size}</strong></span><span>繼續遊戲 →</span></button>}
       <section className="mode-section" aria-labelledby="mode-title">
         <div className="section-heading"><div><p className="eyebrow">Choose your current</p><h2 id="mode-title">選擇難度</h2></div><span className="progress-caption">{completed.length} / 30 完成</span></div>

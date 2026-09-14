@@ -343,3 +343,21 @@ button { touch-action: manipulation; }
 .submit-answer-wrap p { font-size: 12px; color: #635b70; margin: 10px 0 0; }
 
 .beginner-tip { font-size: 12px; line-height: 1.7; color: #635b70; background: #fff3d6; padding: 12px 16px; border-radius: 12px; margin: 0 0 12px; }
+
+.tutorial-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.tutorial-steps button { border: 1px solid #d9cfdf; border-radius: 12px; padding: 12px 8px; background: #fffdf9; cursor: pointer; font-size: 12px; }
+.tutorial-steps button[aria-current] { background: #eee5fa; border-color: #796191; font-weight: 700; }
+.tutorial-guide { background: #fff0ce; padding: 14px 18px; border-radius: 16px; margin-bottom: 16px; }
+.tutorial-guide p { font-size: 14px; line-height: 1.8; margin: 0; }
+.tutorial-highlight::after { content: ''; position: absolute; inset: 3px; border: 2px dashed #493664; border-radius: 5px; pointer-events: none; }
+.tutorial-arrow { font-size: 32px; color: #493664; }
+.nine-example { display: grid; grid-template-columns: repeat(3, 38px); justify-content: center; gap: 3px; margin: 0 0 18px; }
+.nine-example span { display: grid; place-items: center; height: 38px; background: #eadff4; border-radius: 5px; color: #635074; font-size: 25px; }
+.nine-example img { width: 36px; height: 36px; object-fit: contain; }
+.tutorial-feedback { font-size: 14px; line-height: 1.8; min-height: 26px; color: #634b68; text-align: center; }
+.tutorial-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; }
+.tutorial-success { text-align: center; padding: 20px; background: #eff6ee; border-radius: 20px; }
+.tutorial-success .text-button { display: block; margin: 16px auto 0; }
+.tutorial-page h1 { font-size: 28px; }
+@media (max-width: 540px) { .tutorial-steps { grid-template-columns: repeat(2, 1fr); } .tutorial-guide p { font-size: 13px; } }
+.tutorial-page .board-shell { width: min(100%, 460px); margin-inline: auto; }

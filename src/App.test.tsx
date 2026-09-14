@@ -53,8 +53,8 @@ it('uses one keyboard tab stop and restores progress from the home resume action
   click('.board-cell')
   click('[aria-label="返回關卡列表"]')
   click('[aria-label="返回首頁"]')
-  expect(host.querySelector('.resume-card')).not.toBeNull()
-  click('.resume-card')
+  expect(host.querySelector('.resume-card:not(.tutorial-entry)')).not.toBeNull()
+  click('.resume-card:not(.tutorial-entry)')
   expect(host.querySelectorAll('.state-jelly')).toHaveLength(1)
 })
 it('toggles automatic assistance immediately and remembers the choice', () => {

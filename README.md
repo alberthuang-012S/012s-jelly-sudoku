@@ -47,3 +47,7 @@ Regenerate this sequence deterministically with `python scripts/generate_beginne
 Normal 1–3 start with both vertical and horizontal strip regions; 4–6 retain vertical openings; 7–10 introduce longer deduction chains. No normal puzzle has a singleton region. All ten must pass connectivity, unique-solution, and no-guess deduction tests with nondecreasing shared-exclusion counts.
 
 Regenerate with `python scripts/generate_normal_levels.py`. This updates only normal puzzles. Old normal boards reset on entry because their layout revision differs; unlocks and completion remain available, and new best records are stored separately.
+
+## Tutorial mode
+
+The home page opens four independent lessons: click cycle and singleton regions, vertical/horizontal strips, the jelly-centred 3×3 exclusion area, and a 6×6 practice puzzle. Tutorials do not time or count mistakes, allow unlimited hints and assistance toggling, and validate only when submitted. Lesson three protects its preset jelly and includes a full 3×3 diagram for the edge-of-board example. Completion is saved separately under `jellySudokuTutorial.v1`; practice boards restart when selecting or reopening a lesson. Players can skip to basic level one or replay any lesson.
