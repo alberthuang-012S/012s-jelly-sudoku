@@ -560,7 +560,7 @@ function GameScreen({ level, board, elapsed, mistakes, hintsRemaining, focusedCe
       <section className="rule-banner"><div className="rule-banner-icon">✦</div><div><strong>一個區域一隻水母</strong><span>每行、每列各一隻；以水母為中心，九宮格內不能有另一隻</span></div><button aria-label="查看規則" onClick={onRules}>?</button></section>
       {level.difficulty === 'basic' && <p className="beginner-tip">{Number(level.id.split('-')[1]) <= 3 ? '觀察起點：先找只有一格的顏色，再看看同行、同列。' : Number(level.id.split('-')[1]) <= 5 ? '觀察起點：直條區域的水母一定在這一列，可排除該列其他區域。' : Number(level.id.split('-')[1]) <= 7 ? '觀察起點：找找直條與橫條區域，把行列線索接起來。' : '進階練習：結合區域、行列與九宮格限制，逐步排除。'}</p>}
       {level.difficulty === 'normal' && <p className="beginner-tip">{Number(level.id.split('-')[1]) <= 3 ? '觀察起點：先找直條、橫條區域，排除同列、同行的其他顏色。' : Number(level.id.split('-')[1]) <= 6 ? '推理練習：從直條區域出發，搭配九宮格限制，逐步縮小範圍。' : '綜合練習：觀察區域剩餘位置，串接行列與九宮格的排除線索。'}</p>}
-      <div className="assist-toolbar"><span id="assist-description">{assist ? '斜線＋圓點：目前不能放水母' : '輔助已關閉，自行推理'}</span><button className="assist-toggle" role="switch" aria-checked={assist} aria-describedby="assist-description" onClick={onToggleAssist}><span className="assist-switch" aria-hidden="true" />輔助標示 {assist ? '開' : '關'}</button></div>
+      <div className="assist-toolbar"><span id="assist-description">{assist ? '斜線＋×：目前不能放水母' : '輔助已關閉，自行推理'}</span><button className="assist-toggle" role="switch" aria-checked={assist} aria-describedby="assist-description" onClick={onToggleAssist}><span className="assist-switch" aria-hidden="true" />輔助標示 {assist ? '開' : '關'}</button></div>
       <section className="board-wrap" aria-label={`${level.title}遊戲棋盤`}>
         <div className="board-shell"><div className="game-board" style={{ '--board-size': level.size } as CSSProperties} role="grid" aria-label={`${level.size}乘${level.size}水母數獨棋盤`}>
           {board.map((state, index) => {
@@ -595,7 +595,7 @@ function GameScreen({ level, board, elapsed, mistakes, hintsRemaining, focusedCe
               {state === 'jelly' && <img className="jelly-token" src={assets.jellyCute} alt="" />}
               {state === 'marked' && <span className="mark-x" aria-hidden="true">×</span>}
               {isHinted && <span className="hint-star" aria-hidden="true">✦</span>}
-              {isBlocked && <span className="constraint-dot" aria-hidden="true" />}
+              {isBlocked && <span className="constraint-x" aria-hidden="true">×</span>}
             </button>
           })}
         </div></div>
