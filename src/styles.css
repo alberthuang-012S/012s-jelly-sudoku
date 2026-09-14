@@ -363,3 +363,8 @@ button { touch-action: manipulation; }
 .tutorial-rules { display: flex; flex-wrap: wrap; gap: 8px; padding: 0; margin: 14px 0; list-style: none; }
 .tutorial-rules li { font-size: 12px; background: #eee5fa; border-radius: 8px; padding: 8px 10px; }
 .tutorial-arrow { position: absolute; right: 8px; top: 5px; pointer-events: none; }
+
+.tutorial-assist-help { display: flex; align-items: flex-start; gap: 10px; width: min(100%, 460px); margin: 0 auto 14px; padding: 12px; background: #f2edf7; border-radius: 12px; color: #584b64; }
+.tutorial-assist-help p { margin: 0 0 6px; font-size: 12px; line-height: 1.7; }
+.tutorial-assist-help small { display: block; font-size: 11px; line-height: 1.6; }
+.assist-sample { position: relative; display: grid; place-items: center; flex: 0 0 32px; height: 32px; border-radius: 6px; background: repeating-linear-gradient(135deg, #e3d9ef 0 6px, #c4b5d7 6px 8px); }
