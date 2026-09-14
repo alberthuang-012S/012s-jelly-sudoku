@@ -22,7 +22,7 @@ type Screen = 'home' | 'levels' | 'game'
 
 function normalizedProgress(level: Level, progress: LevelProgress | undefined): LevelProgress {
   const fallback = createEmptyProgress(level.size)
-  if (!progress || progress.cells.length !== level.size * level.size) return fallback
+  if (!progress || (progress.revision ?? 1) !== (level.revision ?? 1) || progress.cells.length !== level.size * level.size) return fallback
   return { ...progress, cells: [...progress.cells] }
 }
 
@@ -73,13 +73,14 @@ function App() {
 
   const persistCurrentProgress = useCallback((next: Partial<LevelProgress> = {}) => {
     const progress: LevelProgress = {
+      revision: selectedLevel.revision ?? 1,
       cells: [...(next.cells ?? boardRef.current)],
       elapsedSeconds: next.elapsedSeconds ?? elapsedRef.current,
       mistakes: next.mistakes ?? mistakesRef.current,
       hintsRemaining: next.hintsRemaining ?? hintsRef.current,
     }
     persist(updateLevelProgress(saveRef.current, selectedLevel.id, progress))
-  }, [persist, selectedLevel.id])
+  }, [persist, selectedLevel.id, selectedLevel.revision])
 
   useEffect(() => {
     if (screen !== 'game' || isSolved || isClearOpen || modal || !isVisible) return
@@ -151,7 +152,7 @@ function App() {
     mistakesRef.current = progress.mistakes
     hintsRef.current = progress.hintsRemaining
     setHintIndex(null)
-    setConflictIndices([...new Set(getConflicts(progress.cells, level).flatMap((conflict) => conflict.cells))])
+    setConflictIndices([])
     setToast('')
     setFocusedCell(0)
     setIsSolved(false)
@@ -183,7 +184,7 @@ function App() {
   const handleCellAction = useCallback((index: number) => {
     if (isSolved || isClearOpen) return
     const current = boardRef.current[index]
-    const nextState: CellState = current === 'empty' ? 'jelly' : current === 'jelly' ? 'marked' : 'empty'
+    const nextState: CellState = current === 'empty' ? 'marked' : current === 'marked' ? 'jelly' : 'empty'
     const nextBoard = [...boardRef.current]
     nextBoard[index] = nextState
     boardRef.current = nextBoard
@@ -194,25 +195,32 @@ function App() {
     playSound(nextState === 'jelly' ? 'placeJelly' : nextState === 'marked' ? 'placeMark' : 'button', settings.sound)
     vibrate(nextState === 'jelly' ? 8 : 4, settings.vibration)
 
-    let nextMistakes = mistakesRef.current
-    const allConflicts = getConflicts(nextBoard, selectedLevel)
-    setConflictIndices([...new Set(allConflicts.flatMap((conflict) => conflict.cells))])
-    const conflicts = allConflicts.filter((conflict) => conflict.cells.includes(index))
-    if (conflicts.length > 0 && nextState === 'jelly') {
-      nextMistakes += 1
-      mistakesRef.current = nextMistakes
-      setMistakes(nextMistakes)
-      setToast(conflicts[0].message)
-      setAnnouncement(conflicts[0].message)
+    setConflictIndices([])
+    setToast('')
+    setAnnouncement(nextState === 'jelly' ? '放置一隻水母' : nextState === 'marked' ? '加上排除標記' : '清除格子')
+    persistCurrentProgress({ cells: nextBoard })
+  }, [isClearOpen, isSolved, persistCurrentProgress])
+
+  const submitAnswer = () => {
+    if (solvedRef.current || isClearOpen) return
+    const currentBoard = boardRef.current
+    const settings = saveRef.current.settings
+    if (!isBoardSolved(currentBoard, selectedLevel)) {
+      const conflicts = getConflicts(currentBoard, selectedLevel)
+      const count = currentBoard.filter((cell) => cell === 'jelly').length
+      const message = count !== selectedLevel.size
+        ? `需要放置 ${selectedLevel.size} 隻水母，目前有 ${count} 隻。請調整後再提交。`
+        : `${conflicts[0]?.message ?? '答案還不符合規則'}，請調整後再提交。`
+      mistakesRef.current += 1
+      setMistakes(mistakesRef.current)
+      setConflictIndices([...new Set(conflicts.flatMap((conflict) => conflict.cells))])
+      setToast(message)
+      setAnnouncement(message)
       playSound('error', settings.sound)
       vibrate([35, 25, 35], settings.vibration)
-    } else {
-      setToast('')
-      setAnnouncement(nextState === 'jelly' ? '放置一隻水母' : nextState === 'marked' ? '加上排除標記' : '清除格子')
+      persistCurrentProgress({ mistakes: mistakesRef.current })
+      return
     }
-
-    persistCurrentProgress({ cells: nextBoard, mistakes: nextMistakes })
-    if (isBoardSolved(nextBoard, selectedLevel) && !solvedRef.current) {
       solvedRef.current = true
       setIsSolved(true)
       setConflictIndices([])
@@ -226,12 +234,12 @@ function App() {
         selectedLevel.id,
         selectedLevel.difficulty,
         levelNumber,
-        { time: elapsedRef.current, mistakes: nextMistakes, hints: 3 - hintsRef.current },
+        { time: elapsedRef.current, mistakes: mistakesRef.current, hints: 3 - hintsRef.current },
         levelsByDifficulty[selectedLevel.difficulty].length,
+        selectedLevel.revision,
       )
       persist(completedSave)
-    }
-  }, [isClearOpen, isSolved, persist, persistCurrentProgress, selectedLevel])
+  }
 
   const restartLevel = () => {
     const progress = createEmptyProgress(selectedLevel.size)
@@ -296,11 +304,11 @@ function App() {
   }
 
   const overlay = useMemo(() => save.settings.assist ? getConstraintOverlay(board, selectedLevel) : new Set<number>(), [board, selectedLevel, save.settings.assist])
-  const resumableLevel = Object.keys(save.progress).reverse().map(getLevel).find((level) => level && (save.progress[level.id]?.elapsedSeconds > 0 || save.progress[level.id]?.cells.some((cell) => cell !== 'empty')) && difficultyNumber(level) <= save.unlocked[level.difficulty])
+  const resumableLevel = Object.keys(save.progress).reverse().map(getLevel).find((level) => level && (save.progress[level.id]?.revision ?? 1) === (level.revision ?? 1) && (save.progress[level.id]?.elapsedSeconds > 0 || save.progress[level.id]?.cells.some((cell) => cell !== 'empty')) && difficultyNumber(level) <= save.unlocked[level.difficulty])
   const completedCount = levelsByDifficulty[selectedDifficulty].filter((level) => save.completed.includes(level.id)).length
   const levelNumber = difficultyNumber(selectedLevel)
   const nextLevel = levelsByDifficulty[selectedLevel.difficulty].find((level) => difficultyNumber(level) === levelNumber + 1)
-  const bestRecord = save.best[selectedLevel.id]
+  const bestRecord = save.best[`${selectedLevel.id}@${selectedLevel.revision ?? 1}`] ?? (selectedLevel.revision ? undefined : save.best[selectedLevel.id])
 
   return (
     <div className={`app-shell screen-${screen}`}>
@@ -342,6 +350,8 @@ function App() {
           bestRecord={bestRecord}
           onBack={goToLevels}
           onCellAction={handleCellAction}
+          onSubmit={submitAnswer}
+          isSolved={isSolved}
           onKeyDown={handleKeyDown}
           onFocus={setFocusedCell}
           onHint={requestHint}
@@ -509,6 +519,8 @@ interface GameScreenProps {
   cellRefs: React.MutableRefObject<Array<HTMLButtonElement | null>>
   bestRecord?: { time: number; mistakes: number; hints: number }
   onBack: () => void
+  onSubmit: () => void
+  isSolved: boolean
   onCellAction: (index: number) => void
   onKeyDown: (event: KeyboardEvent<HTMLButtonElement>, index: number) => void
   onFocus: (index: number) => void
@@ -518,7 +530,7 @@ interface GameScreenProps {
   onRules: () => void
 }
 
-function GameScreen({ level, board, elapsed, mistakes, hintsRemaining, focusedCell, hintIndex, conflictIndices, overlay, assist, onToggleAssist, toast, cellRefs, bestRecord, onBack, onCellAction, onKeyDown, onFocus, onHint, onRestart, onSettings, onRules }: GameScreenProps) {
+function GameScreen({ level, board, elapsed, mistakes, hintsRemaining, focusedCell, hintIndex, conflictIndices, overlay, assist, onToggleAssist, toast, cellRefs, bestRecord, onBack, onCellAction, onSubmit, isSolved, onKeyDown, onFocus, onHint, onRestart, onSettings, onRules }: GameScreenProps) {
   const jellyCount = board.filter((state) => state === 'jelly').length
   return (
     <main className="game-page page-wrap">
@@ -536,9 +548,10 @@ function GameScreen({ level, board, elapsed, mistakes, hintsRemaining, focusedCe
         <div className="stat-divider" />
         <div className="stat-block"><span className="stat-icon hint-mini">✦</span><div><small>提示剩餘</small><strong>{hintsRemaining} <em>次</em></strong></div></div>
         <div className="stat-divider" />
-        <div className="stat-block stat-mistake"><span className="stat-icon">○</span><div><small>錯誤</small><strong>{mistakes}</strong></div></div>
+        <div className="stat-block stat-mistake"><span className="stat-icon">○</span><div><small>提交錯誤</small><strong>{mistakes}</strong></div></div>
       </section>
       <section className="rule-banner"><div className="rule-banner-icon">✦</div><div><strong>一個區域一隻水母</strong><span>每行、每列各一隻，水母不能相鄰</span></div><button aria-label="查看規則" onClick={onRules}>?</button></section>
+      {level.difficulty === 'basic' && <p className="beginner-tip">{Number(level.id.split('-')[1]) <= 3 ? '觀察起點：先找只有一格的顏色，再看看同行、同列。' : Number(level.id.split('-')[1]) <= 5 ? '觀察起點：直條區域的水母一定在這一列，可排除該列其他區域。' : Number(level.id.split('-')[1]) <= 7 ? '觀察起點：找找直條與橫條區域，把行列線索接起來。' : '進階練習：結合區域、行列與斜角限制，逐步排除。'}</p>}
       <div className="assist-toolbar"><span id="assist-description">{assist ? '斜線＋圓點：目前不能放水母' : '輔助已關閉，自行推理'}</span><button className="assist-toggle" role="switch" aria-checked={assist} aria-describedby="assist-description" onClick={onToggleAssist}><span className="assist-switch" aria-hidden="true" />輔助標示 {assist ? '開' : '關'}</button></div>
       <section className="board-wrap" aria-label={`${level.title}遊戲棋盤`}>
         <div className="board-shell"><div className="game-board" style={{ '--board-size': level.size } as CSSProperties} role="grid" aria-label={`${level.size}乘${level.size}水母數獨棋盤`}>
@@ -579,12 +592,13 @@ function GameScreen({ level, board, elapsed, mistakes, hintsRemaining, focusedCe
             </button>
           })}
         </div></div>
-        <p className="board-help">點擊循環：<b>空白</b><span>→</span><b className="help-jelly">水母</b><span>→</span><b className="help-x">×</b></p>
+        <p className="board-help">點擊循環：<b>空白</b><span>→</span><b className="help-x">×</b><span>→</span><b className="help-jelly">水母</b><span>→</span><b>空白</b></p>
         <div className="toast" role="status" aria-live="polite" data-visible={Boolean(toast)}>{toast || '　'}</div>
       </section>
+      <div className="submit-answer-wrap"><button className="button primary submit-answer" onClick={onSubmit} disabled={isSolved}>{isSolved ? '答案正確 ✓' : '提交答案'}</button><p>完成排列後再提交，作答途中不判定對錯。</p></div>
       <nav className="game-actions" aria-label="遊戲操作">
         <button className="action-button" onClick={onRestart}><span>↺</span><small>重新開始</small></button>
-        <button className="action-button hint-action" onClick={onHint} disabled={hintsRemaining <= 0}><span>✦<sup>{hintsRemaining}</sup></span><small>提示</small></button>
+        <button className="action-button hint-action" onClick={onHint} disabled={isSolved || hintsRemaining <= 0}><span>✦<sup>{hintsRemaining}</sup></span><small>提示</small></button>
         <button className="action-button" onClick={onSettings}><span>☼</span><small>設定</small></button>
       </nav>
     </main>
@@ -655,7 +669,7 @@ function ClearModal({ level, elapsed, mistakes, hintsUsed, nextLevel, onNext, on
   return <Modal title="CLEAR!" onClose={onLevels}>
     <div className="clear-art"><img src={assets.jellySparkle} alt="開心的水母" /><span>✦</span><span>✧</span></div>
     <p className="clear-copy">水母們都找到自己的位置了！<br /><small>這一片潮汐，完成得剛剛好。</small></p>
-    <div className="clear-stats"><div><small>完成時間</small><strong>{formatTime(elapsed)}</strong></div><div><small>錯誤</small><strong>{mistakes}</strong></div><div><small>提示</small><strong>{hintsUsed}</strong></div></div>
+    <div className="clear-stats"><div><small>完成時間</small><strong>{formatTime(elapsed)}</strong></div><div><small>提交錯誤</small><strong>{mistakes}</strong></div><div><small>提示</small><strong>{hintsUsed}</strong></div></div>
     <div className="modal-actions clear-actions"><button className="button primary" onClick={onNext}>{nextLevel ? '下一關' : '完成！'} <span>→</span></button><button className="button secondary" onClick={onReplay}>再玩一次</button><button className="text-button" onClick={onLevels}>返回關卡</button></div>
     <p className="clear-level-label">{level.title}</p>
   </Modal>

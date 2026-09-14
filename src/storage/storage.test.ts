@@ -39,3 +39,11 @@ it('discards malformed records and non-finite progress while preserving valid da
   expect(loaded.progress).toEqual({})
   expect(loaded.unlocked).toEqual({ basic: 10, normal: 1, challenge: 1 })
 })
+
+it('preserves the puzzle revision in saved progress', () => {
+  const save = createDefaultSave()
+  save.progress['basic-001'] = { revision: 2, cells: ['marked'], elapsedSeconds: 5, mistakes: 0, hintsRemaining: 3 }
+  const storage = memoryStorage()
+  saveData(storage, save)
+  expect(loadSave(storage).progress['basic-001'].revision).toBe(2)
+})

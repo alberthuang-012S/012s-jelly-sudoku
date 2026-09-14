@@ -5,6 +5,7 @@ export type CellState = 'empty' | 'jelly' | 'marked'
 export type ModalName = 'restart' | 'settings' | 'rules' | 'clear' | null
 
 export interface Level {
+  revision?: number
   id: string
   difficulty: Difficulty
   size: number
@@ -29,6 +30,7 @@ export interface BestRecord {
 }
 
 export interface LevelProgress {
+  revision?: number
   cells: CellState[]
   elapsedSeconds: number
   mistakes: number
@@ -56,4 +58,4 @@ export const DIFFICULTY_META: Record<Difficulty, { label: string; english: strin
   challenge: { label: '挑戰', english: 'Deep Dive', size: 10, accent: '#a99bdd' },
 }
 
-export const CELL_STATES: CellState[] = ['empty', 'jelly', 'marked']
+export const CELL_STATES: CellState[] = ['empty', 'marked', 'jelly']

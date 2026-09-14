@@ -33,5 +33,11 @@ npm run build
 - 基礎 6×6：10 關
 - 普通 8×8：10 關
 - 挑戰 10×10：10 關
-- EMPTY → JELLY → MARKED → EMPTY
-- 衝突回饋、系統輔助標示、提示、計時、重新開始、過關統計、鍵盤操作與進度恢復
+- EMPTY → MARKED → JELLY → EMPTY
+- 提交答案後統一判定與衝突回饋、系統輔助標示、提示、計時、重新開始、過關統計、鍵盤操作與進度恢復
+
+## Beginner progression (revision 2)
+
+Basic 1–3 each contain exactly one singleton region. Basic 4–5 introduce vertical strips; 6–7 mix vertical and horizontal strips. Basic 8–10 require progressively more shared exclusions. All ten are connected, uniquely solvable, and accepted by a no-search logical solver (`src/game/difficulty.ts`). Its deduction count is a structural proxy for difficulty, not a measured player completion time.
+
+Regenerate this sequence deterministically with `python scripts/generate_beginner_levels.py`, then run `npm test`. Normal and challenge puzzles remain unchanged. Beginner puzzle revisions reset incompatible in-progress boards and separate best records, while retaining completion and unlock progress.

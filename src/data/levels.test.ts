@@ -37,3 +37,32 @@ describe('official level data', () => {
     expect(levelResult.errors.join(' ')).toContain('Region 0')
   })
 })
+
+function regionShapes(level: typeof levels[number]) {
+  return Array.from({ length: level.size }, (_, region) => {
+    const cells = level.regions.flatMap((r, i) => r === region ? [i] : [])
+    return { single: cells.length === 1, vertical: cells.length > 1 && new Set(cells.map((i) => i % level.size)).size === 1, horizontal: cells.length > 1 && new Set(cells.map((i) => Math.floor(i / level.size))).size === 1 }
+  })
+}
+
+it('provides exactly one singleton in each of the first three levels and none later', () => {
+  levelsByDifficulty.basic.forEach((level, index) => {
+    expect(regionShapes(level).filter((shape) => shape.single)).toHaveLength(index < 3 ? 1 : 0)
+  })
+})
+
+it('introduces vertical strips followed by mixed vertical and horizontal strips', () => {
+  levelsByDifficulty.basic.slice(3, 7).forEach((level) => {
+    expect(regionShapes(level).some((shape) => shape.vertical)).toBe(true)
+  })
+  levelsByDifficulty.basic.slice(5, 7).forEach((level) => {
+    expect(regionShapes(level).some((shape) => shape.horizontal)).toBe(true)
+  })
+})
+
+it('solves every beginner puzzle without guessing, with increasing shared deductions', async () => {
+  const { analyzeLogicalDifficulty } = await import('../game/difficulty')
+  const ratings = levelsByDifficulty.basic.map(analyzeLogicalDifficulty)
+  expect(ratings.every((rating) => rating.solved)).toBe(true)
+  expect(ratings.map((rating) => rating.deductions)).toEqual([...ratings.map((rating) => rating.deductions)].sort((a, b) => a - b))
+})

@@ -37,6 +37,7 @@ function normalizeProgress(value: unknown): LevelProgress | null {
   if (!isCount(candidate.mistakes)) return null
   if (!isCount(candidate.hintsRemaining) || candidate.hintsRemaining > 3) return null
   return {
+    ...(isCount(candidate.revision) ? { revision: candidate.revision } : {}),
     cells: [...candidate.cells],
     elapsedSeconds: Math.floor(candidate.elapsedSeconds),
     mistakes: Math.floor(candidate.mistakes),
@@ -125,15 +126,16 @@ export function updateSettings(save: SaveData, settings: Settings): SaveData {
   return { ...save, settings: { ...settings } }
 }
 
-export function markLevelCompleted(save: SaveData, levelId: string, difficulty: Difficulty, levelNumber: number, record: { time: number; mistakes: number; hints: number }, levelCount: number): SaveData {
+export function markLevelCompleted(save: SaveData, levelId: string, difficulty: Difficulty, levelNumber: number, record: { time: number; mistakes: number; hints: number }, levelCount: number, revision?: number): SaveData {
   const completed = save.completed.includes(levelId) ? save.completed : [...save.completed, levelId]
-  const previous = save.best[levelId]
+  const recordKey = revision ? `${levelId}@${revision}` : levelId
+  const previous = save.best[recordKey]
   const shouldUpdate = !previous || record.time < previous.time || (record.time === previous.time && record.mistakes < previous.mistakes)
   return {
     ...save,
     completed,
     unlocked: { ...save.unlocked, [difficulty]: Math.min(levelCount, Math.max(save.unlocked[difficulty], levelNumber + 1)) },
-    best: shouldUpdate ? { ...save.best, [levelId]: record } : save.best,
+    best: shouldUpdate ? { ...save.best, [recordKey]: record } : save.best,
     progress: Object.fromEntries(Object.entries(save.progress).filter(([id]) => id !== levelId)),
   }
 }
