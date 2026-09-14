@@ -80,13 +80,16 @@ export function TutorialScreen({ onExit, onStart }: { onExit: () => void; onStar
     <h1>{level.title}</h1>
     <p className="tutorial-intro">把 4 隻水母放進棋盤，就學會了。{completed && ' 已完成過，可以再練一次。'}</p>
     <ul className="tutorial-rules"><li>每種顏色一隻</li><li>每橫排、直排一隻</li><li>水母周圍八格不能有另一隻</li></ul>
-    <section className="tutorial-guide" aria-label="教學說明"><p aria-live="polite">{direction}</p></section>
-    {target === 8 && <div className="nine-example" role="img" aria-label="以水母為中心的九宮格：周圍八格都不能放另一隻">{Array.from({ length: 9 }, (_, i) => <span key={i}>{i === 4 ? <img src={assets.jellyCute} alt="" /> : '×'}</span>)}</div>}
+    <section className="tutorial-guide" aria-label="教學說明" tabIndex={0}>
+      <div className="tutorial-direction"><p aria-live="polite">{direction}</p>
+        {target === 8 && <div className="nine-example" role="img" aria-label="以水母為中心的九宮格：周圍八格都不能放另一隻">{Array.from({ length: 9 }, (_, i) => <span key={i}>{i === 4 ? <img src={assets.jellyCute} alt="" /> : '×'}</span>)}</div>}
+      </div>
+      {hasPlacedJelly && <div className="tutorial-assist-help" id="tutorial-assist-help">
+        <span className="assist-sample" aria-hidden="true"><span className="constraint-x">×</span></span>
+        <div><p><strong>斜線＋×＝這裡先別放。</strong>標示會隨水母的位置自動更新。</p><p>可用下方開關關閉；自己加的 × 會保留。</p><small>輔助不代表答對，提交後才檢查。</small></div>
+      </div>}
+    </section>
     <div className="assist-toolbar"><span>箭頭指的格子，可以試試看</span><button className="assist-toggle" role="switch" aria-checked={assist} aria-describedby={hasPlacedJelly ? 'tutorial-assist-help' : undefined} onClick={() => setAssist(!assist)}>輔助標示 {assist ? '開' : '關'}</button></div>
-    {hasPlacedJelly && <div className="tutorial-assist-help" id="tutorial-assist-help">
-      <span className="assist-sample" aria-hidden="true"><span className="constraint-x">×</span></span>
-      <div><p><strong>斜線＋×＝這裡先別放。</strong>放上水母後，系統會依牠的位置，自動標出不能再放的空格。</p><p>移動或移除水母，標示也會跟著更新。試試上方開關：關掉後，自己加的 × 還會保留。</p><small>輔助只幫忙排除位置，不代表答案正確；按「提交答案」才檢查。</small></div>
-    </div>}
     <div className="board-shell"><div className="game-board" style={{ '--board-size': level.size } as CSSProperties} role="group" aria-label="教學棋盤">{board.map((state, i) => {
       const region = level.regions[i], row = Math.floor(i / level.size), column = i % level.size
       return <button key={i} ref={(el) => { cells.current[i] = el }} className={`board-cell state-${state} ${overlay.has(i) && state === 'empty' ? 'is-blocked' : ''} ${target === i ? 'tutorial-highlight' : ''} ${hint === i ? 'is-hinted' : ''} ${conflicts.includes(i) ? 'has-conflict' : ''}`} style={{ '--region-color': REGION_PALETTE[level.palette?.[region] ?? region].color, borderTop: row === 0 || level.regions[i - level.size] !== region ? '3px solid #554e67' : undefined, borderLeft: column === 0 || level.regions[i - 1] !== region ? '3px solid #554e67' : undefined } as CSSProperties} tabIndex={focus === i ? 0 : -1} aria-disabled={solved} aria-label={`第 ${row + 1} 行，第 ${column + 1} 列，${REGION_PALETTE[level.palette?.[region] ?? region].name}區域，${state === 'jelly' ? '水母' : state === 'marked' ? '排除標記' : '空白'}`} onFocus={() => setFocus(i)} onKeyDown={(e) => keyDown(e, i)} onClick={() => cycle(i)}>
