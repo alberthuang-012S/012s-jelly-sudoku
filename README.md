@@ -50,4 +50,4 @@ Regenerate with `python scripts/generate_normal_levels.py`. This updates only no
 
 ## Tutorial mode
 
-The home page opens four independent lessons: click cycle and singleton regions, vertical/horizontal strips, the jelly-centred 3×3 exclusion area, and a 6×6 practice puzzle. Tutorials do not time or count mistakes, allow unlimited hints and assistance toggling, and validate only when submitted. Lesson three protects its preset jelly and includes a full 3×3 diagram for the edge-of-board example. Completion is saved separately under `jellySudokuTutorial.v1`; practice boards restart when selecting or reopening a lesson. Players can skip to basic level one or replay any lesson.
+One 4×4 puzzle teaches the click cycle, one jelly per colour/row/column, and the jelly-centred 3×3 exclusion area. Short instructions and an arrow guide placements on the same board; the diagonal rule includes a nine-cell illustration. No timer or mistake count, unlimited hints, optional assistance, and checking only on submission. Completion is stored separately under `jellySudokuTutorial.v2`. Players may replay or skip to basic level one.
