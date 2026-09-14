@@ -76,6 +76,9 @@ export function validatePlacement(index: number, board: CellState[], level: Leve
 export function getConstraintOverlay(board: CellState[], level: Level): Set<number> {
   const overlay = new Set<number>()
   for (const index of jellyIndices(board)) {
+    level.regions.forEach((region, candidate) => {
+      if (region === level.regions[index]) overlay.add(candidate)
+    })
     const { row, column } = toPosition(index, level.size)
     for (let current = 0; current < level.size; current += 1) {
       overlay.add(toIndex(row, current, level.size))

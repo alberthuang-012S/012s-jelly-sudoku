@@ -7,17 +7,17 @@ export interface RegionPaletteColor {
 
 /**
  * One color per hue family keeps adjacent regions distinguishable while the
- * board mixes each swatch with white for a soft Jelly World finish.
+ * board preserves saturation and adds numbered region boundaries.
  */
 export const REGION_PALETTE: RegionPaletteColor[] = [
-  { name: '奶油黃', color: '#f2c95f', family: 'yellow', hue: 50 },
-  { name: '珊瑚粉', color: '#ed969e', family: 'coral', hue: 355 },
-  { name: '杏橘', color: '#efaf78', family: 'apricot', hue: 27 },
-  { name: '草綠', color: '#a6d275', family: 'grass', hue: 88 },
-  { name: '薄荷綠', color: '#82cfb2', family: 'mint', hue: 157 },
-  { name: '水藍', color: '#70c8d5', family: 'aqua', hue: 187 },
-  { name: '晴藍', color: '#80afe0', family: 'blue', hue: 212 },
-  { name: '藍紫', color: '#a996d8', family: 'purple', hue: 257 },
-  { name: '桃粉', color: '#dc86b7', family: 'magenta', hue: 326 },
-  { name: '米杏', color: '#d6b29b', family: 'almond', hue: 21 },
+  { name: '奶油黃', color: '#f4cf46', family: 'yellow', hue: 50 },
+  { name: '珊瑚粉', color: '#ee7d85', family: 'coral', hue: 355 },
+  { name: '杏橘', color: '#f4a34f', family: 'apricot', hue: 27 },
+  { name: '草綠', color: '#add35a', family: 'grass', hue: 88 },
+  { name: '薄荷綠', color: '#53c49d', family: 'mint', hue: 157 },
+  { name: '水藍', color: '#66d5e7', family: 'aqua', hue: 187 },
+  { name: '晴藍', color: '#6595e3', family: 'blue', hue: 212 },
+  { name: '藍紫', color: '#a28bdb', family: 'purple', hue: 257 },
+  { name: '桃粉', color: '#e378c4', family: 'magenta', hue: 326 },
+  { name: '霧灰', color: '#a5b0bf', family: 'slate', hue: 217 },
 ]

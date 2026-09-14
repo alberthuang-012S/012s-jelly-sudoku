@@ -31,3 +31,11 @@ describe('save adapter', () => {
     expect(STORAGE_KEY).toBe('jellySudokuSave.v1')
   })
 })
+
+it('discards malformed records and non-finite progress while preserving valid data', () => {
+  const raw = JSON.stringify({ ...createDefaultSave(), best: { broken: { time: 'bad' }, valid: { time: 12, mistakes: 0, hints: 1 } }, progress: { broken: { cells: ['empty'], elapsedSeconds: 1, mistakes: 0, hintsRemaining: 3 } }, unlocked: { basic: 999, normal: -1, challenge: 'bad' } }).replace('"elapsedSeconds":1', '"elapsedSeconds":1e400')
+  const loaded = loadSave(memoryStorage(raw))
+  expect(loaded.best).toEqual({ valid: { time: 12, mistakes: 0, hints: 1 } })
+  expect(loaded.progress).toEqual({})
+  expect(loaded.unlocked).toEqual({ basic: 10, normal: 1, challenge: 1 })
+})

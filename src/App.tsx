@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import type { CSSProperties, KeyboardEvent } from 'react'
 import { assets } from './config/assets'
 import { REGION_PALETTE } from './config/regionPalette'
@@ -34,6 +34,7 @@ function App() {
   const storage = useMemo(() => getBrowserStorage(), [])
   const [save, setSave] = useState<SaveData>(() => loadSave(storage))
   const saveRef = useRef(save)
+  const [isVisible, setIsVisible] = useState(() => !document.hidden)
   const [screen, setScreen] = useState<Screen>('home')
   const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>('basic')
   const [selectedLevelId, setSelectedLevelId] = useState<string>(levelsByDifficulty.basic[0].id)
@@ -81,17 +82,42 @@ function App() {
   }, [persist, selectedLevel.id])
 
   useEffect(() => {
-    if (screen !== 'game' || isSolved || isClearOpen) return undefined
+    if (screen !== 'game' || isSolved || isClearOpen || modal || !isVisible) return
+    let lastTick = Date.now()
     const timerId = window.setInterval(() => {
-      setElapsed((current) => {
-        const next = current + 1
-        elapsedRef.current = next
-        persistCurrentProgress({ elapsedSeconds: next })
-        return next
-      })
+      const now = Date.now()
+      const seconds = Math.floor((now - lastTick) / 1000)
+      if (seconds < 1) return
+      lastTick += seconds * 1000
+      elapsedRef.current += seconds
+      setElapsed(elapsedRef.current)
     }, 1000)
     return () => window.clearInterval(timerId)
-  }, [isClearOpen, isSolved, persistCurrentProgress, screen])
+  }, [isClearOpen, isSolved, modal, isVisible, screen])
+
+  useEffect(() => {
+    const flush = () => {
+      if (screen === 'game' && !solvedRef.current) persistCurrentProgress()
+    }
+    const onVisibility = () => {
+      setIsVisible(!document.hidden)
+      if (document.hidden) flush()
+    }
+    const saveTimer = window.setInterval(flush, 10000)
+    document.addEventListener('visibilitychange', onVisibility)
+    window.addEventListener('pagehide', flush)
+    return () => {
+      window.clearInterval(saveTimer)
+      document.removeEventListener('visibilitychange', onVisibility)
+      window.removeEventListener('pagehide', flush)
+    }
+  }, [persistCurrentProgress, screen])
+
+  useEffect(() => {
+    if (!isSolved || screen !== 'game') return
+    const timeout = window.setTimeout(() => setIsClearOpen(true), 520)
+    return () => window.clearTimeout(timeout)
+  }, [isSolved, screen, selectedLevelId])
 
   useEffect(() => {
     if (!toast) return undefined
@@ -125,7 +151,7 @@ function App() {
     mistakesRef.current = progress.mistakes
     hintsRef.current = progress.hintsRemaining
     setHintIndex(null)
-    setConflictIndices([])
+    setConflictIndices([...new Set(getConflicts(progress.cells, level).flatMap((conflict) => conflict.cells))])
     setToast('')
     setFocusedCell(0)
     setIsSolved(false)
@@ -169,18 +195,19 @@ function App() {
     vibrate(nextState === 'jelly' ? 8 : 4, settings.vibration)
 
     let nextMistakes = mistakesRef.current
-    const conflicts = nextState === 'jelly' ? getConflicts(nextBoard, selectedLevel) : []
+    const allConflicts = getConflicts(nextBoard, selectedLevel)
+    setConflictIndices([...new Set(allConflicts.flatMap((conflict) => conflict.cells))])
+    const conflicts = allConflicts.filter((conflict) => conflict.cells.includes(index))
     if (conflicts.length > 0 && nextState === 'jelly') {
       nextMistakes += 1
       mistakesRef.current = nextMistakes
       setMistakes(nextMistakes)
-      setConflictIndices([...new Set(conflicts.flatMap((conflict) => conflict.cells))])
       setToast(conflicts[0].message)
       setAnnouncement(conflicts[0].message)
       playSound('error', settings.sound)
       vibrate([35, 25, 35], settings.vibration)
     } else {
-      setConflictIndices([])
+      setToast('')
       setAnnouncement(nextState === 'jelly' ? '放置一隻水母' : nextState === 'marked' ? '加上排除標記' : '清除格子')
     }
 
@@ -203,7 +230,6 @@ function App() {
         levelsByDifficulty[selectedLevel.difficulty].length,
       )
       persist(completedSave)
-      window.setTimeout(() => setIsClearOpen(true), 520)
     }
   }, [isClearOpen, isSolved, persist, persistCurrentProgress, selectedLevel])
 
@@ -239,7 +265,7 @@ function App() {
     hintsRef.current = nextHints
     setHintIndex(target)
     setToast('看看這個閃閃發亮的位置')
-    setAnnouncement(`提示：第 ${toPosition(target, selectedLevel.size).row + 1} 行的位置`)
+    setAnnouncement(`提示：第 ${toPosition(target, selectedLevel.size).row + 1} 行、第 ${toPosition(target, selectedLevel.size).column + 1} 列`)
     vibrate(10, saveRef.current.settings.vibration)
     persistCurrentProgress({ hintsRemaining: nextHints })
   }
@@ -269,7 +295,8 @@ function App() {
     cellRefs.current[nextIndex]?.focus()
   }
 
-  const overlay = save.settings.assist ? getConstraintOverlay(board, selectedLevel) : new Set<number>()
+  const overlay = useMemo(() => save.settings.assist ? getConstraintOverlay(board, selectedLevel) : new Set<number>(), [board, selectedLevel, save.settings.assist])
+  const resumableLevel = Object.keys(save.progress).reverse().map(getLevel).find((level) => level && (save.progress[level.id]?.elapsedSeconds > 0 || save.progress[level.id]?.cells.some((cell) => cell !== 'empty')) && difficultyNumber(level) <= save.unlocked[level.difficulty])
   const completedCount = levelsByDifficulty[selectedDifficulty].filter((level) => save.completed.includes(level.id)).length
   const levelNumber = difficultyNumber(selectedLevel)
   const nextLevel = levelsByDifficulty[selectedLevel.difficulty].find((level) => difficultyNumber(level) === levelNumber + 1)
@@ -282,7 +309,7 @@ function App() {
       <div className="sr-only" aria-live="polite">{announcement}</div>
 
       {screen === 'home' && (
-        <HomeScreen onDifficulty={openDifficulty} completed={save.completed} />
+        <HomeScreen onDifficulty={openDifficulty} completed={save.completed} resumeLevel={resumableLevel} onResume={openLevel} />
       )}
 
       {screen === 'levels' && (
@@ -308,6 +335,8 @@ function App() {
           hintIndex={hintIndex}
           conflictIndices={conflictIndices}
           overlay={overlay}
+          assist={save.settings.assist}
+          onToggleAssist={() => handleSettings({ ...saveRef.current.settings, assist: !saveRef.current.settings.assist })}
           toast={toast}
           cellRefs={cellRefs}
           bestRecord={bestRecord}
@@ -362,9 +391,11 @@ function App() {
 interface HomeScreenProps {
   onDifficulty: (difficulty: Difficulty) => void
   completed: string[]
+  resumeLevel?: Level
+  onResume: (level: Level) => void
 }
 
-function HomeScreen({ onDifficulty, completed }: HomeScreenProps) {
+function HomeScreen({ onDifficulty, completed, resumeLevel, onResume }: HomeScreenProps) {
   return (
     <main className="home-page page-wrap">
       <header className="home-header">
@@ -386,6 +417,7 @@ function HomeScreen({ onDifficulty, completed }: HomeScreenProps) {
           <span className="sparkle sparkle-one">✦</span><span className="sparkle sparkle-two">✧</span><span className="sparkle sparkle-three">·</span>
         </div>
       </section>
+      {resumeLevel && <button className="resume-card" onClick={() => onResume(resumeLevel)}><span><small>接著上次的潮汐</small><strong>{resumeLevel.title} · {resumeLevel.size}×{resumeLevel.size}</strong></span><span>繼續遊戲 →</span></button>}
       <section className="mode-section" aria-labelledby="mode-title">
         <div className="section-heading"><div><p className="eyebrow">Choose your current</p><h2 id="mode-title">選擇難度</h2></div><span className="progress-caption">{completed.length} / 30 完成</span></div>
         <div className="mode-grid">
@@ -470,6 +502,8 @@ interface GameScreenProps {
   focusedCell: number
   hintIndex: number | null
   conflictIndices: number[]
+  assist: boolean
+  onToggleAssist: () => void
   overlay: Set<number>
   toast: string
   cellRefs: React.MutableRefObject<Array<HTMLButtonElement | null>>
@@ -484,7 +518,7 @@ interface GameScreenProps {
   onRules: () => void
 }
 
-function GameScreen({ level, board, elapsed, mistakes, hintsRemaining, focusedCell, hintIndex, conflictIndices, overlay, toast, cellRefs, bestRecord, onBack, onCellAction, onKeyDown, onFocus, onHint, onRestart, onSettings, onRules }: GameScreenProps) {
+function GameScreen({ level, board, elapsed, mistakes, hintsRemaining, focusedCell, hintIndex, conflictIndices, overlay, assist, onToggleAssist, toast, cellRefs, bestRecord, onBack, onCellAction, onKeyDown, onFocus, onHint, onRestart, onSettings, onRules }: GameScreenProps) {
   const jellyCount = board.filter((state) => state === 'jelly').length
   return (
     <main className="game-page page-wrap">
@@ -505,6 +539,7 @@ function GameScreen({ level, board, elapsed, mistakes, hintsRemaining, focusedCe
         <div className="stat-block stat-mistake"><span className="stat-icon">○</span><div><small>錯誤</small><strong>{mistakes}</strong></div></div>
       </section>
       <section className="rule-banner"><div className="rule-banner-icon">✦</div><div><strong>一個區域一隻水母</strong><span>每行、每列各一隻，水母不能相鄰</span></div><button aria-label="查看規則" onClick={onRules}>?</button></section>
+      <div className="assist-toolbar"><span id="assist-description">{assist ? '斜線＋圓點：目前不能放水母' : '輔助已關閉，自行推理'}</span><button className="assist-toggle" role="switch" aria-checked={assist} aria-describedby="assist-description" onClick={onToggleAssist}><span className="assist-switch" aria-hidden="true" />輔助標示 {assist ? '開' : '關'}</button></div>
       <section className="board-wrap" aria-label={`${level.title}遊戲棋盤`}>
         <div className="board-shell"><div className="game-board" style={{ '--board-size': level.size } as CSSProperties} role="grid" aria-label={`${level.size}乘${level.size}水母數獨棋盤`}>
           {board.map((state, index) => {
@@ -514,19 +549,29 @@ function GameScreen({ level, board, elapsed, mistakes, hintsRemaining, focusedCe
             const hasConflict = conflictIndices.includes(index)
             const isHinted = hintIndex === index
             const isBlocked = overlay.has(index) && state === 'empty'
-            const cellLabel = `${row + 1} 行，第 ${column + 1} 列，${REGION_PALETTE[paletteIndex].name}區域，${state === 'jelly' ? '水母' : state === 'marked' ? '排除標記' : '空白'}${isBlocked ? '，系統提示暫不可放置' : ''}`
+            const cellLabel = `${row + 1} 行，第 ${column + 1} 列，第 ${region + 1} 區（${REGION_PALETTE[paletteIndex].name}），${state === 'jelly' ? '水母' : state === 'marked' ? '排除標記' : '空白'}${isBlocked ? '，系統提示暫不可放置' : ''}`
             return <button
               key={`${level.id}-${index}`}
               ref={(element) => { cellRefs.current[index] = element }}
               className={`board-cell region-${region} state-${state} ${hasConflict ? 'has-conflict' : ''} ${isHinted ? 'is-hinted' : ''} ${isBlocked ? 'is-blocked' : ''} ${focusedCell === index ? 'is-focused' : ''}`}
-              style={{ '--region-color': REGION_PALETTE[paletteIndex].color } as CSSProperties}
+              style={{
+                '--region-color': REGION_PALETTE[paletteIndex].color,
+                borderTopWidth: row === 0 || level.regions[index - level.size] !== region ? 3 : 1,
+                borderLeftWidth: column === 0 || level.regions[index - 1] !== region ? 3 : 1,
+                borderRightWidth: column === level.size - 1 ? 3 : 1,
+                borderBottomWidth: row === level.size - 1 ? 3 : 1,
+                borderTopColor: row === 0 || level.regions[index - level.size] !== region ? '#554e67' : undefined,
+                borderLeftColor: column === 0 || level.regions[index - 1] !== region ? '#554e67' : undefined,
+              } as CSSProperties}
               role="gridcell"
               aria-label={cellLabel}
               aria-selected={focusedCell === index}
+              tabIndex={focusedCell === index ? 0 : -1}
               onClick={() => onCellAction(index)}
               onFocus={() => onFocus(index)}
               onKeyDown={(event) => onKeyDown(event, index)}
             >
+              <span className="region-number" aria-hidden="true">{region + 1}</span>
               {state === 'jelly' && <img className="jelly-token" src={assets.jellyCute} alt="" />}
               {state === 'marked' && <span className="mark-x" aria-hidden="true">×</span>}
               {isHinted && <span className="hint-star" aria-hidden="true">✦</span>}
@@ -555,7 +600,40 @@ function RuleList({ compact = false }: { compact?: boolean }) {
 }
 
 function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
-  return <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose() }}><section className="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title"><button className="modal-close" onClick={onClose} aria-label="關閉">×</button><p className="eyebrow">012S JELLY WORLD</p><h2 id="modal-title">{title}</h2>{children}</section></div>
+  const dialogRef = useRef<HTMLElement>(null)
+  const closeRef = useRef(onClose)
+  closeRef.current = onClose
+  const titleId = useId()
+  useEffect(() => {
+    const previous = document.activeElement as HTMLElement | null
+    const oldOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    dialogRef.current?.querySelector<HTMLButtonElement>('button')?.focus()
+    const handleKey = (event: globalThis.KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        closeRef.current()
+      }
+      if (event.key !== 'Tab') return
+      const controls = Array.from(dialogRef.current?.querySelectorAll<HTMLElement>('button:not(:disabled), input:not(:disabled), [href], [tabindex="0"]') ?? [])
+      const first = controls[0]
+      const last = controls[controls.length - 1]
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last?.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first?.focus()
+      }
+    }
+    document.addEventListener('keydown', handleKey)
+    return () => {
+      document.body.style.overflow = oldOverflow
+      document.removeEventListener('keydown', handleKey)
+      if (previous?.isConnected) previous.focus()
+    }
+  }, [])
+  return <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose() }}><section ref={dialogRef} className="modal-card" role="dialog" aria-modal="true" aria-labelledby={titleId}><button className="modal-close" onClick={onClose} aria-label="關閉">×</button><p className="eyebrow">012S JELLY WORLD</p><h2 id={titleId}>{title}</h2>{children}</section></div>
 }
 
 function SettingsModal({ settings, onChange, onRules, onClose }: { settings: Settings; onChange: (settings: Settings) => void; onRules: () => void; onClose: () => void }) {
@@ -563,7 +641,7 @@ function SettingsModal({ settings, onChange, onRules, onClose }: { settings: Set
     <div className="settings-list">
       <ToggleRow label="音效" description="放置與過關時的輕柔提示音" checked={settings.sound} onChange={(checked) => onChange({ ...settings, sound: checked })} />
       <ToggleRow label="震動" description="在支援的手機上提供微小回饋" checked={settings.vibration} onChange={(checked) => onChange({ ...settings, vibration: checked })} />
-      <ToggleRow label="輔助標示" description="水母周圍顯示明確不能放置的位置" checked={settings.assist} onChange={(checked) => onChange({ ...settings, assist: checked })} />
+      <ToggleRow label="輔助標示" description="自動標示同行、同列、同區及相鄰格；可隨時開關" checked={settings.assist} onChange={(checked) => onChange({ ...settings, assist: checked })} />
     </div>
     <button className="rules-link" onClick={onRules}>查看完整規則 <span>→</span></button>
   </Modal>

@@ -1,4 +1,4 @@
-import type { CellState, Difficulty, LevelProgress, SaveData, Settings } from '../types/game'
+import type { BestRecord, CellState, Difficulty, LevelProgress, SaveData, Settings } from '../types/game'
 
 export const STORAGE_KEY = 'jellySudokuSave.v1'
 export const SAVE_VERSION = 1 as const
@@ -25,13 +25,17 @@ function isCellState(value: unknown): value is CellState {
   return value === 'empty' || value === 'jelly' || value === 'marked'
 }
 
+function isCount(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0
+}
+
 function normalizeProgress(value: unknown): LevelProgress | null {
   if (!value || typeof value !== 'object') return null
   const candidate = value as Partial<LevelProgress>
   if (!Array.isArray(candidate.cells) || !candidate.cells.every(isCellState)) return null
-  if (typeof candidate.elapsedSeconds !== 'number' || candidate.elapsedSeconds < 0) return null
-  if (typeof candidate.mistakes !== 'number' || candidate.mistakes < 0) return null
-  if (typeof candidate.hintsRemaining !== 'number' || candidate.hintsRemaining < 0 || candidate.hintsRemaining > 3) return null
+  if (!isCount(candidate.elapsedSeconds)) return null
+  if (!isCount(candidate.mistakes)) return null
+  if (!isCount(candidate.hintsRemaining) || candidate.hintsRemaining > 3) return null
   return {
     cells: [...candidate.cells],
     elapsedSeconds: Math.floor(candidate.elapsedSeconds),
@@ -55,7 +59,14 @@ export function loadSave(storage: StorageLike | null | undefined): SaveData {
     const settings = candidate.settings
     if (!settings || typeof settings !== 'object') return fallback
     const completed = Array.isArray(candidate.completed) && candidate.completed.every((id) => typeof id === 'string') ? candidate.completed : []
-    const best = candidate.best && typeof candidate.best === 'object' ? candidate.best : {}
+    const best: Record<string, BestRecord> = {}
+    if (candidate.best && typeof candidate.best === 'object') {
+      for (const [id, record] of Object.entries(candidate.best)) {
+        if (record && isCount(record.time) && isCount(record.mistakes) && isCount(record.hints) && record.hints <= 3) {
+          best[id] = { time: Math.floor(record.time), mistakes: Math.floor(record.mistakes), hints: Math.floor(record.hints) }
+        }
+      }
+    }
     const progress: Record<string, LevelProgress> = {}
     if (candidate.progress && typeof candidate.progress === 'object') {
       for (const [levelId, value] of Object.entries(candidate.progress)) {
@@ -65,11 +76,11 @@ export function loadSave(storage: StorageLike | null | undefined): SaveData {
     }
     return {
       version: SAVE_VERSION,
-      completed: [...completed],
+      completed: [...new Set(completed)],
       unlocked: {
-        basic: Math.max(1, Math.floor(Number(unlocked.basic) || 1)),
-        normal: Math.max(1, Math.floor(Number(unlocked.normal) || 1)),
-        challenge: Math.max(1, Math.floor(Number(unlocked.challenge) || 1)),
+        basic: isCount(unlocked.basic) ? Math.min(10, Math.max(1, Math.floor(unlocked.basic))) : 1,
+        normal: isCount(unlocked.normal) ? Math.min(10, Math.max(1, Math.floor(unlocked.normal))) : 1,
+        challenge: isCount(unlocked.challenge) ? Math.min(10, Math.max(1, Math.floor(unlocked.challenge))) : 1,
       },
       best: { ...best },
       progress,
@@ -106,7 +117,8 @@ export function createEmptyProgress(size: number): LevelProgress {
 }
 
 export function updateLevelProgress(save: SaveData, levelId: string, progress: LevelProgress): SaveData {
-  return { ...save, progress: { ...save.progress, [levelId]: { ...progress, cells: [...progress.cells] } } }
+  const remaining = Object.fromEntries(Object.entries(save.progress).filter(([id]) => id !== levelId))
+  return { ...save, progress: { ...remaining, [levelId]: { ...progress, cells: [...progress.cells] } } }
 }
 
 export function updateSettings(save: SaveData, settings: Settings): SaveData {
