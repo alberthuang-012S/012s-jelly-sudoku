@@ -166,6 +166,7 @@ function App() {
   const goHome = () => {
     if (screen === 'game' && !isSolved) persistCurrentProgress()
     setModal(null)
+    setIsClearOpen(false)
     setScreen('home')
     playSound('button', saveRef.current.settings.sound)
   }
@@ -173,6 +174,7 @@ function App() {
   const goToLevels = () => {
     if (screen === 'game' && !isSolved) persistCurrentProgress()
     setModal(null)
+    setIsClearOpen(false)
     setScreen('levels')
     playSound('button', saveRef.current.settings.sound)
   }
@@ -382,7 +384,7 @@ function App() {
         </Modal>
       )}
 
-      {isClearOpen && (
+      {screen === 'game' && isClearOpen && (
         <ClearModal
           level={selectedLevel}
           elapsed={elapsed}

@@ -132,3 +132,33 @@ it('resets old normal layouts and restores a new normal board with its revision'
   click('.level-card:not(:disabled)')
   expect(host.querySelectorAll('.state-jelly')).toHaveLength(1)
 })
+
+it.each(['basic', 'normal', 'challenge'] as const)('closes every %s completion dialog and finishes level ten', (difficulty) => {
+  act(() => root.unmount())
+  localStorage.clear()
+  root = createRoot(host)
+  act(() => root.render(<App />))
+  click(`.mode-${difficulty}`)
+  levelsByDifficulty[difficulty].forEach((level, index) => {
+    click(`.level-card:nth-child(${index + 1})`)
+    level.solution.forEach((column, row) => {
+      const selector = `.board-cell:nth-child(${row * level.size + column + 1})`
+      click(selector)
+      click(selector)
+    })
+    click('.submit-answer')
+    advance(600)
+    expect(host.querySelector('[role="dialog"]')?.textContent).toContain('CLEAR!')
+    if (index === 9) {
+      expect(host.querySelector('.clear-actions .primary')?.textContent).toContain('完成！')
+      click('.clear-actions .primary')
+    } else {
+      click('[aria-label="關閉"]')
+    }
+    expect(host.querySelector('[role="dialog"]')).toBeNull()
+    expect(host.querySelector('.levels-page')).not.toBeNull()
+    expect(document.body.style.overflow).not.toBe('hidden')
+    advance(1000)
+    expect(host.querySelector('[role="dialog"]')).toBeNull()
+  })
+})
