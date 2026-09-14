@@ -585,7 +585,6 @@ function GameScreen({ level, board, elapsed, mistakes, hintsRemaining, focusedCe
               onFocus={() => onFocus(index)}
               onKeyDown={(event) => onKeyDown(event, index)}
             >
-              <span className="region-number" aria-hidden="true">{region + 1}</span>
               {state === 'jelly' && <img className="jelly-token" src={assets.jellyCute} alt="" />}
               {state === 'marked' && <span className="mark-x" aria-hidden="true">×</span>}
               {isHinted && <span className="hint-star" aria-hidden="true">✦</span>}
