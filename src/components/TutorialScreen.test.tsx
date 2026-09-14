@@ -73,3 +73,15 @@ it('allows free edits, assistance toggling, restart and skipping without early e
   expect(host.querySelector('.game-heading .eyebrow')?.textContent).toContain('LEVEL 01')
   expect(localStorage.getItem(TUTORIAL_KEY)).toBeNull()
 })
+
+it('explains assistance only after the first jelly and resets the explanation on replay', () => {
+  expect(host.querySelector('.tutorial-assist-help')).toBeNull()
+  click('.board-cell:nth-child(2)')
+  expect(host.querySelector('.tutorial-assist-help')).toBeNull()
+  click('.board-cell:nth-child(2)')
+  expect(host.querySelector('.tutorial-assist-help')).not.toBeNull()
+  click('.board-cell:nth-child(2)')
+  expect(host.querySelector('.tutorial-assist-help')).not.toBeNull()
+  click('.tutorial-actions .text-button')
+  expect(host.querySelector('.tutorial-assist-help')).toBeNull()
+})
