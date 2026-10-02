@@ -15,6 +15,7 @@ export interface Level {
   /** One column index for each row, in solution row order. */
   solution: number[]
   title: string
+  rating?: { rank: number; score: number; deductions: number; steps: number; techniques: string[] }
 }
 
 export interface PlacementConflict {

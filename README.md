@@ -1,53 +1,68 @@
 # 012S Jelly Sudoku｜水母數獨
 
-012S Jelly World 主題的區域型邏輯益智遊戲。每一關在 `N × N` 棋盤放置 `N` 隻水母，必須同時滿足：每行一隻、每列一隻、每個區域一隻，且以每隻水母為中心的九宮格內不能有另一隻水母（周圍八格都不能放置）。
+區域型邏輯益智遊戲：在 N×N 盤面放 N 隻水母，每橫排、每直列、每個顏色區域各一隻，水母周圍八格不可放另一隻。
 
-## Development
+## 開發與驗證
+
+使用 Node.js 24 以上。
 
 ```bash
 npm install
 npm run dev
-```
-
-驗證指令：
-
-```bash
 npm run typecheck
 npm test
 npm run build
 ```
 
-正式 build 預設使用 `/012s-jelly-sudoku/` base，適合部署至 GitHub Pages 的 `012s-jelly-sudoku` repository；如需不同路徑，可設定 `VITE_BASE_PATH`。
+正式版預設 base 為 `/012s-jelly-sudoku/`，可用 `VITE_BASE_PATH` 調整。
 
-## Architecture
+## 關卡目錄（revision 4）
 
-- `src/game/`：純 TypeScript rules、solver 與 level validator。
-- `src/data/levels/`：30 個正式關卡的生成式資料來源；生成後逐關通過唯一解檢查。
-- `src/storage/`：`jellySudokuSave.v1` LocalStorage adapter、進度與解鎖。
-- `src/audio/`：可 graceful fallback 的音效與震動 adapter。
-- `src/config/assets.ts`：集中管理可替換的水母角色素材。
-- `src/App.tsx`、`src/styles.css`：手機優先的首頁、關卡頁與遊戲頁。
+6×6 基礎、8×8 普通、10×10 挑戰各 100 關，共 300 關。每種盤面分 10 章，每章 10 關，完成目前關卡後解鎖下一關。
 
-## Phase 1 content
+所有正式題都通過連通性、配色、完整解答、唯一解及無猜測推理驗證。去除旋轉、鏡射與換色的同題；相鄰題若答案相同，至少 12% 的格子區域歸屬不同，避免連續只玩到微調邊界的題目。
 
-- 基礎 6×6：10 關
-- 普通 8×8：10 關
-- 挑戰 10×10：10 關
-- EMPTY → MARKED → JELLY → EMPTY
-- 提交答案後統一判定與衝突回饋、系統輔助標示、提示、計時、重新開始、過關統計、鍵盤操作與進度恢復
+難度排序先看必要技巧層級，再看排除步數與觀察範圍。基礎從唯一位置開始，逐漸引入直線、形狀與多區鎖定；普通加強推理鏈；挑戰最後 20 關需要兩區組合推理。這是結構上的難度指標，尚未用玩家完成時間校準。
 
-## Beginner progression (revision 2)
+```bash
+npm run generate:levels
+```
 
-Basic 1–3 each contain exactly one singleton region. Basic 4–5 introduce vertical strips; 6–7 mix vertical and horizontal strips. Basic 8–10 require progressively more shared exclusions. All ten are connected, uniquely solvable, and accepted by a no-search logical solver (`src/game/difficulty.ts`). Its deduction count is a structural proxy for difficulty, not a measured player completion time.
+`scripts/generate_catalogue.mjs` 用固定種子、歷史開局資料及相同的 TypeScript 推理引擎離線生成、篩選與排序關卡。生成途中不修改正式資料，全部成功後才寫入 `src/data/levels/generated-levels.json`。頁面載入只讀靜態資料，不執行生成器。
 
-Regenerate this sequence deterministically with `python scripts/generate_beginner_levels.py`, then run `npm test`. Normal and challenge puzzles remain unchanged. Beginner puzzle revisions reset incompatible in-progress boards and separate best records, while retaining completion and unlock progress.
+`scripts/catalogue-seeds.json` 與 `scripts/normal-seeds.json` 是固定種子來源。舊 Python 生成指令已轉接到整份目錄生成流程。
 
-## Normal progression (revision 2)
+## 推理與提示
 
-Normal 1–3 start with both vertical and horizontal strip regions; 4–6 retain vertical openings; 7–10 introduce longer deduction chains. No normal puzzle has a singleton region. All ten must pass connectivity, unique-solution, and no-guess deduction tests with nondecreasing shared-exclusion counts.
+`src/game/logic.ts` 提供單一共用引擎：唯一位置、直線鎖定、反向鎖定、相鄰兩格、三格直線、L／Z 形、共同禁區、雙色／三色鎖定、兩區合法組合排除。每一步包含觀察方向、候選來源、排除或放置目標與中文理由；推理從不讀取儲存的 `solution`。
 
-Regenerate with `python scripts/generate_normal_levels.py`. This updates only normal puzzles. Old normal boards reset on entry because their layout revision differs; unlocks and completion remain available, and new best records are stored separately.
+提示分成「觀察方向 → 解釋理由 → 顯示結果」，同一步合計消耗一次。顯示結果後可由玩家套用；修改盤面會清除過期提示。玩家的叉號與水母先用獨立邏輯證明確認，再作為提示前提；不一致時標示待修正位置，不扣提示。作答途中不自動判定對錯，提交或主動要求提示時才檢查。
 
-## Tutorial mode
+## 定石教室
 
-One 4×4 puzzle teaches the click cycle, one jelly per colour/row/column, and the jelly-centred 3×3 exclusion area. Short instructions and an arrow guide placements on the same board; the diagonal rule includes a nine-cell illustration. No timer or mistake count, unlimited hints, optional assistance, and checking only on submission. Completion is stored separately under `jellySudokuTutorial.v2`. Players may replay or skip to basic level one.
+保留原本 4×4 操作教學，另有 9 個可隨時重看的定石課程，分為三種可自由選擇的學習難度，每級顯示學習進度，不必依序解鎖：
+
+- 基礎：直線、相鄰兩格、三格直線。
+- 進階：轉一個彎、Z 型、這一排。
+- 挑戰：雙色雙排、三色三排、兩區合法組合。
+
+每課使用兩個正式關卡盤面，示範、比較與練習皆直接顯示完整盤面，保留實際顏色與已知叉號。桌面版並排比較；手機版上下排列完整盤面，讓水母與叉號保持清晰。遊戲提示連到定石教室時，自動選中對應難度與課程。
+
+示範每 3.5 秒前進一步：先圈候選位置，讓水母逐個試住，最後並排比較所有位置的共同叉號。多色多排先展示兩種安排，再解釋顏色數與排數相同的原因。L 形示範包含凹角與彎角外側兩格，逐格標明同排、同列或相鄰的排除理由。兩色組合課程以反證呈現：單看一色不能排除的格子，假設放水母後會迫使兩色擠同排或同列，所以該格能畫叉，適合基本技巧卡住時再用。支援暫停、上一步、下一步及重播；系統偏好減少動態時預設暫停。練習每次只問一個問號格能否確定畫叉，答錯可重試；完成兩個不同盤面的判斷才記為學會，之後可展開誤用提醒。
+
+完成紀錄存於 `jellySudokuAcademy.v1`，與正式關卡分開。教室不計時、不扣提示；從遊戲進入時暫停遊戲計時，返回後保留盤面及提示。`npm run generate:teaching` 用同一推理引擎從正式關卡擷取教學例子，寫入 `src/data/teaching-scenes.json`。
+
+兩格定石固定側邊排除四格，三格直線排除中心兩側。共同禁區仍是推理引擎的能力，教室取消其獨立課程。L／Z 外形有額外候選格時不可直接套用，靠邊界時可畫叉的格數可能減少。移除課程的學習紀錄保留在儲存資料中，不計入現有課程總數；不再顯示對應的失效提示連結。
+
+## 進度與相容性
+
+正式進度仍使用 `jellySudokuSave.v1`，解鎖上限為 100。保留既有完成與解鎖進度，舊版已完成前 10 關會自動開放第 11 關；舊布局的未完成盤面因 revision 不同而重置；最佳紀錄依 `關卡 ID@revision` 分開保存。原操作教學仍使用 `jellySudokuTutorial.v2`。
+
+## 結構
+
+- `src/game/`：規則、唯一解求解器、推理引擎與驗證。
+- `src/data/levels/`：300 關靜態目錄。
+- `src/data/lessons.ts`、`teaching-scenes.json`：9 課教學規則與 18 個正式盤面例子。
+- `src/components/AcademyScreen.tsx`：定石教室。
+- `src/storage/`：存檔、解鎖、版本與最佳紀錄。
+- `src/App.tsx`、`src/styles.css`：首頁、章節、盤面與三段提示。

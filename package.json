@@ -3,7 +3,10 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "engines": { "node": ">=24" },
   "scripts": {
+    "generate:levels": "node scripts/generate_catalogue.mjs",
+    "generate:teaching": "node scripts/generate_teaching_scenes.mjs",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "typecheck": "tsc -b --pretty false",

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { STORAGE_KEY, createDefaultSave, loadSave, saveData } from './storage'
+import { STORAGE_KEY, createDefaultSave, loadSave, saveData, markLevelCompleted } from './storage'
 
 function memoryStorage(initial: string | null = null) {
   let value = initial
@@ -37,7 +37,7 @@ it('discards malformed records and non-finite progress while preserving valid da
   const loaded = loadSave(memoryStorage(raw))
   expect(loaded.best).toEqual({ valid: { time: 12, mistakes: 0, hints: 1 } })
   expect(loaded.progress).toEqual({})
-  expect(loaded.unlocked).toEqual({ basic: 10, normal: 1, challenge: 1 })
+  expect(loaded.unlocked).toEqual({ basic: 100, normal: 1, challenge: 1 })
 })
 
 it('preserves the puzzle revision in saved progress', () => {
@@ -46,4 +46,24 @@ it('preserves the puzzle revision in saved progress', () => {
   const storage = memoryStorage()
   saveData(storage, save)
   expect(loadSave(storage).progress['basic-001'].revision).toBe(2)
+})
+
+it('unlocks level eleven and one hundred and keeps those unlocks after reloading', () => {
+  for (const number of [10, 99, 100]) {
+    const save = markLevelCompleted(createDefaultSave(), `normal-${String(number).padStart(3, '0')}`, 'normal', number, { time: 10, mistakes: 0, hints: 0 }, 100, 4)
+    const storage = memoryStorage(); saveData(storage, save)
+    expect(loadSave(storage).unlocked.normal).toBe(Math.min(100, number + 1))
+    expect(loadSave(storage).best[`normal-${String(number).padStart(3, '0')}@4`]).toBeDefined()
+  }
+})
+
+it('opens level eleven for a player who completed the old ten-level catalogue', () => {
+  const save = createDefaultSave()
+  save.completed = Array.from({ length: 10 }, (_, i) => `basic-${String(i + 1).padStart(3, '0')}`)
+  save.unlocked.basic = 10
+  save.best['basic-010@3'] = { time: 90, mistakes: 0, hints: 1 }
+  const loaded = loadSave(memoryStorage(JSON.stringify(save)))
+  expect(loaded.unlocked.basic).toBe(11)
+  expect(loaded.completed).toEqual(save.completed)
+  expect(loaded.best).toEqual(save.best)
 })

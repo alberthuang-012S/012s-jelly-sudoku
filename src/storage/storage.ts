@@ -60,6 +60,12 @@ export function loadSave(storage: StorageLike | null | undefined): SaveData {
     const settings = candidate.settings
     if (!settings || typeof settings !== 'object') return fallback
     const completed = Array.isArray(candidate.completed) && candidate.completed.every((id) => typeof id === 'string') ? candidate.completed : []
+    const normalizeUnlock = (difficulty: Difficulty) => {
+      let prefix = 0
+      while (prefix < 100 && completed.includes(`${difficulty}-${String(prefix + 1).padStart(3, '0')}`)) prefix += 1
+      const stored = isCount(unlocked[difficulty]) ? Math.floor(unlocked[difficulty]) : 1
+      return Math.min(100, Math.max(1, stored, prefix + 1))
+    }
     const best: Record<string, BestRecord> = {}
     if (candidate.best && typeof candidate.best === 'object') {
       for (const [id, record] of Object.entries(candidate.best)) {
@@ -79,9 +85,9 @@ export function loadSave(storage: StorageLike | null | undefined): SaveData {
       version: SAVE_VERSION,
       completed: [...new Set(completed)],
       unlocked: {
-        basic: isCount(unlocked.basic) ? Math.min(10, Math.max(1, Math.floor(unlocked.basic))) : 1,
-        normal: isCount(unlocked.normal) ? Math.min(10, Math.max(1, Math.floor(unlocked.normal))) : 1,
-        challenge: isCount(unlocked.challenge) ? Math.min(10, Math.max(1, Math.floor(unlocked.challenge))) : 1,
+        basic: normalizeUnlock('basic'),
+        normal: normalizeUnlock('normal'),
+        challenge: normalizeUnlock('challenge'),
       },
       best: { ...best },
       progress,

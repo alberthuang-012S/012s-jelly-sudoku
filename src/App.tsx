@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import type { CSSProperties, KeyboardEvent } from 'react'
 import { TutorialScreen } from './components/TutorialScreen'
+import { AcademyScreen } from './components/AcademyScreen'
+import { getLogicalHint, TECHNIQUES, type LogicStep, type Technique } from './game/logic'
 import { assets } from './config/assets'
 import { REGION_PALETTE } from './config/regionPalette'
 import { levelsByDifficulty, getLevel } from './data/levels'
+import { lessons, canTeach } from './data/lessons'
 import { playSound, vibrate } from './audio/soundAdapter'
 import { getConflicts, getConstraintOverlay, isBoardSolved, toPosition } from './game/rules'
 import {
@@ -19,7 +22,7 @@ import type { CellState, Difficulty, Level, LevelProgress, ModalName, SaveData, 
 import { DIFFICULTY_META } from './types/game'
 import { formatTime } from './utils/format'
 
-type Screen = 'home' | 'levels' | 'game' | 'tutorial'
+type Screen = 'home' | 'levels' | 'game' | 'tutorial' | 'academy'
 
 function normalizedProgress(level: Level, progress: LevelProgress | undefined): LevelProgress {
   const fallback = createEmptyProgress(level.size)
@@ -44,7 +47,10 @@ function App() {
   const [elapsed, setElapsed] = useState(0)
   const [mistakes, setMistakes] = useState(0)
   const [hintsRemaining, setHintsRemaining] = useState(3)
-  const [hintIndex, setHintIndex] = useState<number | null>(null)
+  const [logicalHint, setLogicalHint] = useState<{ step: LogicStep; stage: number } | null>(null)
+  const [hintCollapsed, setHintCollapsed] = useState(false)
+  const [academyReturn, setAcademyReturn] = useState<Screen>('home')
+  const [academyTechnique, setAcademyTechnique] = useState<Technique | undefined>()
   const [conflictIndices, setConflictIndices] = useState<number[]>([])
   const [toast, setToast] = useState('')
   const [focusedCell, setFocusedCell] = useState(0)
@@ -58,6 +64,11 @@ function App() {
   const hintsRef = useRef(hintsRemaining)
   const solvedRef = useRef(isSolved)
   const cellRefs = useRef<Array<HTMLButtonElement | null>>([])
+
+  useEffect(() => {
+    document.documentElement.scrollTop = 0
+    document.body.scrollTop = 0
+  }, [screen])
 
   useEffect(() => { saveRef.current = save }, [save])
   useEffect(() => { boardRef.current = board }, [board])
@@ -127,11 +138,12 @@ function App() {
     return () => window.clearTimeout(timeoutId)
   }, [toast])
 
-  useEffect(() => {
-    if (hintIndex === null) return undefined
-    const timeoutId = window.setTimeout(() => setHintIndex(null), 1800)
-    return () => window.clearTimeout(timeoutId)
-  }, [hintIndex])
+  const openAcademy = (technique?: Technique) => {
+    setAcademyReturn(screen)
+    setAcademyTechnique(technique)
+    setModal(null)
+    setScreen('academy')
+  }
 
   const openDifficulty = (difficulty: Difficulty) => {
     setSelectedDifficulty(difficulty)
@@ -152,7 +164,7 @@ function App() {
     elapsedRef.current = progress.elapsedSeconds
     mistakesRef.current = progress.mistakes
     hintsRef.current = progress.hintsRemaining
-    setHintIndex(null)
+    setLogicalHint(null)
     setConflictIndices([])
     setToast('')
     setFocusedCell(0)
@@ -199,6 +211,7 @@ function App() {
     vibrate(nextState === 'jelly' ? 8 : 4, settings.vibration)
 
     setConflictIndices([])
+    setLogicalHint(null)
     setToast('')
     setAnnouncement(nextState === 'jelly' ? '放置一隻水母' : nextState === 'marked' ? '加上排除標記' : '清除格子')
     persistCurrentProgress({ cells: nextBoard })
@@ -250,7 +263,7 @@ function App() {
     setElapsed(0)
     setMistakes(0)
     setHintsRemaining(3)
-    setHintIndex(null)
+    setLogicalHint(null)
     setConflictIndices([])
     setToast('')
     setIsSolved(false)
@@ -266,19 +279,40 @@ function App() {
   }
 
   const requestHint = () => {
+    if (logicalHint) {
+      if (hintCollapsed) setHintCollapsed(false)
+      else setLogicalHint({ ...logicalHint, stage: Math.min(2, logicalHint.stage + 1) })
+      return
+    }
     if (isSolved || hintsRemaining <= 0) return
-    const target = selectedLevel.solution
-      .map((column, row) => row * selectedLevel.size + column)
-      .find((index) => boardRef.current[index] !== 'jelly')
-    if (target === undefined) return
+    const result = getLogicalHint(selectedLevel, boardRef.current)
+    if (!result) { setToast('目前已完成排列，準備好就提交答案。'); return }
+    if (result.conflicts) {
+      setConflictIndices(result.conflicts)
+      setToast(result.message)
+      setAnnouncement(result.message)
+      return
+    }
     const nextHints = hintsRemaining - 1
     setHintsRemaining(nextHints)
     hintsRef.current = nextHints
-    setHintIndex(target)
-    setToast('看看這個閃閃發亮的位置')
-    setAnnouncement(`提示：第 ${toPosition(target, selectedLevel.size).row + 1} 行、第 ${toPosition(target, selectedLevel.size).column + 1} 列`)
+    setLogicalHint({ step: result.step, stage: 0 })
+    setHintCollapsed(false)
+    setAnnouncement(result.step.observation)
     vibrate(10, saveRef.current.settings.vibration)
     persistCurrentProgress({ hintsRemaining: nextHints })
+  }
+
+  const applyHint = () => {
+    if (!logicalHint || logicalHint.stage !== 2 || isSolved) return
+    const nextBoard = [...boardRef.current]
+    logicalHint.step.targets.forEach((i) => { nextBoard[i] = logicalHint.step.action === 'place' ? 'jelly' : 'marked' })
+    boardRef.current = nextBoard
+    setBoard(nextBoard)
+    setLogicalHint(null)
+    setConflictIndices([])
+    persistCurrentProgress({ cells: nextBoard })
+    setAnnouncement('已套用這一步推理。')
   }
 
   const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
@@ -320,10 +354,11 @@ function App() {
       <div className="sr-only" aria-live="polite">{announcement}</div>
 
       {screen === 'home' && (
-        <HomeScreen onTutorial={() => setScreen('tutorial')} onDifficulty={openDifficulty} completed={save.completed} resumeLevel={resumableLevel} onResume={openLevel} />
+        <HomeScreen onAcademy={() => openAcademy()} onTutorial={() => setScreen('tutorial')} onDifficulty={openDifficulty} completed={save.completed} resumeLevel={resumableLevel} onResume={openLevel} />
       )}
 
       {screen === 'tutorial' && <TutorialScreen onExit={goHome} onStart={() => openLevel(levelsByDifficulty.basic[0])} />}
+      {screen === 'academy' && <AcademyScreen initialTechnique={academyTechnique} onExit={() => setScreen(academyReturn)} />}
 
       {screen === 'levels' && (
         <LevelSelectScreen
@@ -345,7 +380,11 @@ function App() {
           mistakes={mistakes}
           hintsRemaining={hintsRemaining}
           focusedCell={focusedCell}
-          hintIndex={hintIndex}
+          logicalHint={logicalHint}
+          hintCollapsed={hintCollapsed}
+          onApplyHint={applyHint}
+          onCloseHint={() => setHintCollapsed(true)}
+          onAcademy={openAcademy}
           conflictIndices={conflictIndices}
           overlay={overlay}
           assist={save.settings.assist}
@@ -383,6 +422,7 @@ function App() {
       {modal === 'rules' && (
         <Modal title="水母數獨怎麼玩？" onClose={() => setModal(null)}>
           <RuleList />
+          <button className="button secondary" onClick={() => openAcademy()}>定石教室：學會在哪裡畫叉</button>
           <div className="modal-actions"><button className="button primary" onClick={() => setModal(null)}>知道了</button></div>
         </Modal>
       )}
@@ -404,6 +444,7 @@ function App() {
 }
 
 interface HomeScreenProps {
+  onAcademy: () => void
   onTutorial: () => void
   onDifficulty: (difficulty: Difficulty) => void
   completed: string[]
@@ -411,7 +452,7 @@ interface HomeScreenProps {
   onResume: (level: Level) => void
 }
 
-function HomeScreen({ onTutorial, onDifficulty, completed, resumeLevel, onResume }: HomeScreenProps) {
+function HomeScreen({ onAcademy, onTutorial, onDifficulty, completed, resumeLevel, onResume }: HomeScreenProps) {
   return (
     <main className="home-page page-wrap">
       <header className="home-header">
@@ -424,7 +465,7 @@ function HomeScreen({ onTutorial, onDifficulty, completed, resumeLevel, onResume
           <h1>Jelly<br /><span>Sudoku</span></h1>
           <p className="hero-zh">水母數獨</p>
           <p className="hero-description">把水母送回每一個區域。每行、每列各一隻；以每隻水母為中心，九宮格內不能有另一隻水母。</p>
-          <div className="hero-note"><span className="note-dot" /> 30 個精心設計的潮汐謎題</div>
+          <div className="hero-note"><span className="note-dot" /> 300 個漸進關卡 · {lessons.length} 堂定石教學</div>
         </div>
         <div className="hero-art" aria-hidden="true">
           <div className="art-ring ring-back" />
@@ -434,9 +475,10 @@ function HomeScreen({ onTutorial, onDifficulty, completed, resumeLevel, onResume
         </div>
       </section>
       <button className="resume-card tutorial-entry" onClick={onTutorial}><span><small>第一次玩？從這裡開始</small><strong>一關就會 · 跟著箭頭玩</strong></span><span>開始練習 →</span></button>
+      <button className="academy-entry" onClick={onAcademy}><span>✦ 定石教室</span><span>看水母試住，一次判斷一格 →</span></button>
       {resumeLevel && <button className="resume-card" onClick={() => onResume(resumeLevel)}><span><small>接著上次的潮汐</small><strong>{resumeLevel.title} · {resumeLevel.size}×{resumeLevel.size}</strong></span><span>繼續遊戲 →</span></button>}
       <section className="mode-section" aria-labelledby="mode-title">
-        <div className="section-heading"><div><p className="eyebrow">Choose your current</p><h2 id="mode-title">選擇難度</h2></div><span className="progress-caption">{completed.length} / 30 完成</span></div>
+        <div className="section-heading"><div><p className="eyebrow">Choose your current</p><h2 id="mode-title">選擇難度</h2></div><span className="progress-caption">{completed.filter((id) => getLevel(id)).length} / 300 完成</span></div>
         <div className="mode-grid">
           <ModeCard difficulty="basic" onClick={onDifficulty} />
           <ModeCard difficulty="normal" onClick={onDifficulty} />
@@ -460,7 +502,7 @@ function ModeCard({ difficulty, onClick }: { difficulty: Difficulty; onClick: (d
       <span className="mode-badge" style={{ backgroundColor: meta.accent }} />
       <span className="mode-label">{meta.label}</span>
       <span className="mode-size">{meta.size}×{meta.size}</span>
-      <span className="mode-subtitle">{meta.english}</span>
+      <span className="mode-subtitle">{meta.english} · 100 關</span>
       <span className="mode-arrow">↗</span>
     </button>
   )
@@ -479,6 +521,10 @@ interface LevelSelectProps {
 function LevelSelectScreen({ difficulty, completed, unlocked, onBack, onSelect, onDifficulty, completedCount }: LevelSelectProps) {
   const meta = DIFFICULTY_META[difficulty]
   const modeLevels = levelsByDifficulty[difficulty]
+  const [chapter, setChapter] = useState(Math.min(9, Math.floor((unlocked - 1) / 10)))
+  useEffect(() => { setChapter(Math.min(9, Math.floor((unlocked - 1) / 10))) }, [difficulty, unlocked])
+  const chapterLevels = modeLevels.slice(chapter * 10, chapter * 10 + 10)
+  const rankLabels = ['觀察入門', '直線鎖定', '形狀與共同禁區', '多區鎖定', '組合推理']
   return (
     <main className="levels-page page-wrap">
       <header className="subpage-header">
@@ -493,14 +539,16 @@ function LevelSelectScreen({ difficulty, completed, unlocked, onBack, onSelect, 
       <nav className="difficulty-tabs" aria-label="切換難度">
         {(Object.keys(DIFFICULTY_META) as Difficulty[]).map((item) => <button key={item} className={item === difficulty ? 'active' : ''} onClick={() => onDifficulty(item)}>{DIFFICULTY_META[item].label}<small>{DIFFICULTY_META[item].size}×{DIFFICULTY_META[item].size}</small></button>)}
       </nav>
+      <nav className="chapter-tabs" aria-label="選擇章節">{Array.from({ length: 10 }, (_, i) => <button key={i} aria-pressed={chapter === i} onClick={() => setChapter(i)}>第 {i + 1} 章<small>{i * 10 + 1}–{i * 10 + 10}</small></button>)}</nav>
+      <p className="chapter-summary">第 {chapter + 1} 章 · {rankLabels[chapterLevels[0]?.rating?.rank ?? 0]} · 從觀察接起下一步推理</p>
       <section className="level-list" aria-label={`${meta.label}關卡`}>
-        {modeLevels.map((level, index) => {
-          const number = index + 1
+        {chapterLevels.map((level) => {
+          const number = difficultyNumber(level)
           const isCompleted = completed.includes(level.id)
           const isUnlocked = number <= unlocked
           return <button key={level.id} className={`level-card ${isCompleted ? 'completed' : ''} ${isUnlocked ? '' : 'locked'}`} disabled={!isUnlocked} onClick={() => onSelect(level)}>
             <span className="level-number">{String(number).padStart(2, '0')}</span>
-            <span className="level-info"><strong>{isCompleted ? '已完成' : number === unlocked ? '準備好了嗎？' : '潮汐謎題'}</strong><small>{number === 1 ? '從這裡開始你的水母旅程' : `${meta.label} · ${meta.size}×${meta.size}`}</small></span>
+            <span className="level-info"><strong>{isCompleted ? '已完成' : number === unlocked ? '準備好了嗎？' : '潮汐謎題'}</strong><small>{rankLabels[level.rating?.rank ?? 0]} · {level.rating?.deductions ? level.rating.deductions < 6 ? '短連鎖練習' : '多步連鎖練習' : '從唯一位置開始'}</small></span>
             <span className="level-status">{isCompleted ? '✓' : isUnlocked ? '→' : '🔒'}</span>
           </button>
         })}
@@ -517,7 +565,11 @@ interface GameScreenProps {
   mistakes: number
   hintsRemaining: number
   focusedCell: number
-  hintIndex: number | null
+  logicalHint: { step: LogicStep; stage: number } | null
+  hintCollapsed: boolean
+  onApplyHint: () => void
+  onCloseHint: () => void
+  onAcademy: (technique?: Technique) => void
   conflictIndices: number[]
   assist: boolean
   onToggleAssist: () => void
@@ -537,7 +589,7 @@ interface GameScreenProps {
   onRules: () => void
 }
 
-function GameScreen({ level, board, elapsed, mistakes, hintsRemaining, focusedCell, hintIndex, conflictIndices, overlay, assist, onToggleAssist, toast, cellRefs, bestRecord, onBack, onCellAction, onSubmit, isSolved, onKeyDown, onFocus, onHint, onRestart, onSettings, onRules }: GameScreenProps) {
+function GameScreen({ level, board, elapsed, mistakes, hintsRemaining, focusedCell, logicalHint, hintCollapsed, onApplyHint, onCloseHint, onAcademy, conflictIndices, overlay, assist, onToggleAssist, toast, cellRefs, bestRecord, onBack, onCellAction, onSubmit, isSolved, onKeyDown, onFocus, onHint, onRestart, onSettings, onRules }: GameScreenProps) {
   const jellyCount = board.filter((state) => state === 'jelly').length
   return (
     <main className="game-page page-wrap">
@@ -558,8 +610,7 @@ function GameScreen({ level, board, elapsed, mistakes, hintsRemaining, focusedCe
         <div className="stat-block stat-mistake"><span className="stat-icon">○</span><div><small>提交錯誤</small><strong>{mistakes}</strong></div></div>
       </section>
       <section className="rule-banner"><div className="rule-banner-icon">✦</div><div><strong>一個區域一隻水母</strong><span>每行、每列各一隻；以水母為中心，九宮格內不能有另一隻</span></div><button aria-label="查看規則" onClick={onRules}>?</button></section>
-      {level.difficulty === 'basic' && <p className="beginner-tip">{Number(level.id.split('-')[1]) <= 3 ? '觀察起點：先找只有一格的顏色，再看看同行、同列。' : Number(level.id.split('-')[1]) <= 5 ? '觀察起點：直條區域的水母一定在這一列，可排除該列其他區域。' : Number(level.id.split('-')[1]) <= 7 ? '觀察起點：找找直條與橫條區域，把行列線索接起來。' : '進階練習：結合區域、行列與九宮格限制，逐步排除。'}</p>}
-      {level.difficulty === 'normal' && <p className="beginner-tip">{Number(level.id.split('-')[1]) <= 3 ? '觀察起點：先找直條、橫條區域，排除同列、同行的其他顏色。' : Number(level.id.split('-')[1]) <= 6 ? '推理練習：從直條區域出發，搭配九宮格限制，逐步縮小範圍。' : '綜合練習：觀察區域剩餘位置，串接行列與九宮格的排除線索。'}</p>}
+      <div className="beginner-tip">本關練習：{level.rating?.techniques.filter((t) => t !== 'single').map((t) => TECHNIQUES[t as Technique]?.name).join('、') || '唯一位置與基本排除'}。<button className="text-button" onClick={() => onAcademy(level.rating?.techniques.find((t) => canTeach(t as Technique)) as Technique | undefined)}>查看定石示範 →</button></div>
       <div className="assist-toolbar"><span id="assist-description">{assist ? '斜線＋×：目前不能放水母' : '輔助已關閉，自行推理'}</span><button className="assist-toggle" role="switch" aria-checked={assist} aria-describedby="assist-description" onClick={onToggleAssist}><span className="assist-switch" aria-hidden="true" />輔助標示 {assist ? '開' : '關'}</button></div>
       <section className="board-wrap" aria-label={`${level.title}遊戲棋盤`}>
         <div className="board-shell"><div className="game-board" style={{ '--board-size': level.size } as CSSProperties} role="grid" aria-label={`${level.size}乘${level.size}水母數獨棋盤`}>
@@ -568,13 +619,14 @@ function GameScreen({ level, board, elapsed, mistakes, hintsRemaining, focusedCe
             const paletteIndex = level.palette?.[region] ?? region % REGION_PALETTE.length
             const { row, column } = toPosition(index, level.size)
             const hasConflict = conflictIndices.includes(index)
-            const isHinted = hintIndex === index
+            const isHinted = Boolean(!hintCollapsed && logicalHint && logicalHint.stage === 2 && logicalHint.step.targets.includes(index))
+            const isSource = Boolean(!hintCollapsed && logicalHint?.step.sources.includes(index))
             const isBlocked = overlay.has(index) && state === 'empty'
             const cellLabel = `${row + 1} 行，第 ${column + 1} 列，第 ${region + 1} 區（${REGION_PALETTE[paletteIndex].name}），${state === 'jelly' ? '水母' : state === 'marked' ? '排除標記' : '空白'}${isBlocked ? '，系統提示暫不可放置' : ''}`
             return <button
               key={`${level.id}-${index}`}
               ref={(element) => { cellRefs.current[index] = element }}
-              className={`board-cell region-${region} state-${state} ${hasConflict ? 'has-conflict' : ''} ${isHinted ? 'is-hinted' : ''} ${isBlocked ? 'is-blocked' : ''} ${focusedCell === index ? 'is-focused' : ''}`}
+              className={`board-cell region-${region} state-${state} ${hasConflict ? 'has-conflict' : ''} ${isHinted ? 'is-hinted' : ''} ${isSource ? 'logic-source' : ''} ${isBlocked ? 'is-blocked' : ''} ${focusedCell === index ? 'is-focused' : ''}`}
               style={{
                 '--region-color': REGION_PALETTE[paletteIndex].color,
                 borderTopWidth: row === 0 || level.regions[index - level.size] !== region ? 3 : 1,
@@ -602,10 +654,17 @@ function GameScreen({ level, board, elapsed, mistakes, hintsRemaining, focusedCe
         <p className="board-help">點擊循環：<b>空白</b><span>→</span><b className="help-x">×</b><span>→</span><b className="help-jelly">水母</b><span>→</span><b>空白</b></p>
         <div className="toast" role="status" aria-live="polite" data-visible={Boolean(toast)}>{toast || '　'}</div>
       </section>
+      {logicalHint && !hintCollapsed && <section className="logic-hint" aria-label="推理提示" aria-live="polite">
+        <div className="hint-heading"><strong>{TECHNIQUES[logicalHint.step.technique].name}</strong><button className="text-button" onClick={onCloseHint}>收起提示</button></div>
+        <p>{logicalHint.step.observation}</p>
+        {logicalHint.stage >= 1 && <p>{logicalHint.step.reason}</p>}
+        {logicalHint.stage === 2 && <p>亮起的 {logicalHint.step.targets.length} 格{logicalHint.step.action === 'place' ? '可以放水母' : '可以畫叉'}。</p>}
+        <div className="hint-controls">{logicalHint.stage < 2 ? <button className="button secondary" onClick={onHint}>{logicalHint.stage === 0 ? '解釋理由' : '顯示結果'}（不再扣次數）</button> : <button className="button primary" onClick={onApplyHint}>套用這一步</button>}{canTeach(logicalHint.step.technique) && <button className="text-button" onClick={() => onAcademy(logicalHint.step.technique)}>學習這個定石</button>}</div>
+      </section>}
       <div className="submit-answer-wrap"><button className="button primary submit-answer" onClick={onSubmit} disabled={isSolved}>{isSolved ? '答案正確 ✓' : '提交答案'}</button><p>完成排列後再提交，作答途中不判定對錯。</p></div>
       <nav className="game-actions" aria-label="遊戲操作">
         <button className="action-button" onClick={onRestart}><span>↺</span><small>重新開始</small></button>
-        <button className="action-button hint-action" onClick={onHint} disabled={isSolved || hintsRemaining <= 0}><span>✦<sup>{hintsRemaining}</sup></span><small>提示</small></button>
+        <button className="action-button hint-action" onClick={onHint} disabled={isSolved || (!logicalHint && hintsRemaining <= 0)}><span>✦<sup>{hintsRemaining}</sup></span><small>提示</small></button>
         <button className="action-button" onClick={onSettings}><span>☼</span><small>設定</small></button>
       </nav>
     </main>

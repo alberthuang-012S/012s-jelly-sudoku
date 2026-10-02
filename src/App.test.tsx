@@ -133,32 +133,80 @@ it('resets old normal layouts and restores a new normal board with its revision'
   expect(host.querySelectorAll('.state-jelly')).toHaveLength(1)
 })
 
-it.each(['basic', 'normal', 'challenge'] as const)('closes every %s completion dialog and finishes level ten', (difficulty) => {
+it.each(['basic', 'normal', 'challenge'] as const)('crosses chapter boundaries and completes level 100 for %s', (difficulty) => {
   act(() => root.unmount())
   localStorage.clear()
+  localStorage.setItem('jellySudokuSave.v1', JSON.stringify({ version: 1, completed: [], unlocked: { basic: 100, normal: 100, challenge: 100 }, best: {}, progress: {}, settings: { sound: false, vibration: false, assist: true } }))
   root = createRoot(host)
   act(() => root.render(<App />))
   click(`.mode-${difficulty}`)
-  levelsByDifficulty[difficulty].forEach((level, index) => {
-    click(`.level-card:nth-child(${index + 1})`)
+  for (const number of [9, 10, 11, 99, 100]) {
+    const level = levelsByDifficulty[difficulty][number - 1]
+    click(`.chapter-tabs button:nth-child(${Math.floor((number - 1) / 10) + 1})`)
+    click(`.level-card:nth-child(${(number - 1) % 10 + 1})`)
     level.solution.forEach((column, row) => {
       const selector = `.board-cell:nth-child(${row * level.size + column + 1})`
-      click(selector)
-      click(selector)
+      click(selector); click(selector)
     })
     click('.submit-answer')
     advance(600)
     expect(host.querySelector('[role="dialog"]')?.textContent).toContain('CLEAR!')
-    if (index === 9) {
+    if (number === 100) {
       expect(host.querySelector('.clear-actions .primary')?.textContent).toContain('完成！')
       click('.clear-actions .primary')
+      expect(host.querySelector('.levels-page')).not.toBeNull()
     } else {
-      click('[aria-label="關閉"]')
+      click('.clear-actions .primary')
+      expect(host.querySelector('.game-heading .eyebrow')?.textContent).toContain(`LEVEL ${String(number + 1).padStart(2, '0')}`)
+      click('[aria-label="返回關卡列表"]')
     }
     expect(host.querySelector('[role="dialog"]')).toBeNull()
-    expect(host.querySelector('.levels-page')).not.toBeNull()
     expect(document.body.style.overflow).not.toBe('hidden')
-    advance(1000)
-    expect(host.querySelector('[role="dialog"]')).toBeNull()
-  })
+  }
+})
+
+it('charges one hint for all three explanation layers and applies only on request', () => {
+  click('.hint-action')
+  expect(host.querySelector('.logic-hint')).not.toBeNull()
+  expect(host.querySelectorAll('.is-hinted')).toHaveLength(0)
+  expect(host.querySelector('.hint-action sup')?.textContent).toBe('2')
+  click('.hint-heading .text-button')
+  expect(host.querySelector('.logic-hint')).toBeNull()
+  click('.hint-action')
+  expect(host.querySelector('.logic-hint')).not.toBeNull()
+  expect(host.querySelector('.hint-action sup')?.textContent).toBe('2')
+  click('.hint-controls .secondary')
+  expect(host.querySelector('.logic-hint')?.textContent).toContain('只剩一格')
+  click('.hint-controls .secondary')
+  expect(host.querySelectorAll('.is-hinted')).toHaveLength(1)
+  expect(host.querySelector('.hint-action sup')?.textContent).toBe('2')
+  expect(host.querySelectorAll('.state-jelly')).toHaveLength(0)
+  click('.hint-controls .primary')
+  expect(host.querySelectorAll('.state-jelly')).toHaveLength(1)
+  expect(host.querySelector('.logic-hint')).toBeNull()
+})
+
+it('pauses during technique practice and returns to the same game and explanation', () => {
+  advance(2000)
+  click('.hint-action')
+  expect(host.querySelector('.hint-controls .text-button')).toBeNull()
+  click('.beginner-tip .text-button')
+  expect(host.querySelector('.academy-page')).not.toBeNull()
+  advance(10000)
+  click('[aria-label="離開定石教室"]')
+  expect(host.querySelector('.timer-box strong')?.textContent).toBe('00:02')
+  expect(host.querySelector('.logic-hint')).not.toBeNull()
+  expect(host.querySelector('.hint-action sup')?.textContent).toBe('2')
+  advance(1000)
+  expect(host.querySelector('.timer-box strong')?.textContent).toBe('00:03')
+})
+
+it('flags an incorrect cross when a hint is requested without consuming the hint', () => {
+  const column = levelsByDifficulty.basic[0].solution[0]
+  click(`.board-cell:nth-child(${column + 1})`)
+  click('.hint-action')
+  expect(host.querySelector('.hint-action sup')?.textContent).toBe('3')
+  expect(host.querySelector('.logic-hint')).toBeNull()
+  expect(host.querySelectorAll('.has-conflict')).toHaveLength(1)
+  expect(host.querySelector('.toast')?.textContent).toContain('本次不扣提示')
 })
