@@ -491,3 +491,225 @@ button { touch-action: manipulation; }
   .chapter-tabs button { font-size: 12px; padding: 10px 3px; }
 }
 @media (prefers-reduced-motion: reduce) { .teaching-cell img, .teaching-x { animation: none; } }
+
+/* Keep the board and frequent actions in the available viewport. */
+.screen-game .game-page { max-width: 1120px; padding-block: 12px; }
+.screen-game .game-header { margin-bottom: 12px; }
+.screen-game .game-heading { margin-bottom: 12px; }
+.screen-game .game-heading h1 { font-size: 30px; }
+.screen-game .game-heading .eyebrow { margin-bottom: 2px; }
+.screen-game .timer-box { padding: 6px 12px; }
+.play-layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 12px 24px; align-items: start; }
+.play-sidebar { grid-column: 2; grid-row: 1; }
+.play-board-area { grid-column: 1; grid-row: 1 / span 3; min-width: 0; }
+.play-board-area .board-shell { width: min(100%, 600px, calc(100dvh - 240px)); }
+.assist-description { font-size: 12px; text-align: center; margin: 0 0 8px; color: #635b70; }
+.play-board-area .board-help { justify-content: center; margin-top: 8px; }
+.play-board-area .toast { margin-top: 4px; text-align: center; }
+.play-sidebar .game-stats { padding: 10px; min-height: 60px; gap: 8px; }
+.play-sidebar .stat-block { min-width: 0; gap: 4px; }
+.play-sidebar .stat-icon { display: none; }
+.game-info { position: relative; margin-top: 12px; border: 1px solid #e5dce9; border-radius: 14px; background: #fffdf9; padding: 10px 12px; }
+.game-info-content { position: absolute; z-index: 8; top: 48px; right: 0; width: 300px; max-height: min(40dvh, 300px); overflow: auto; padding: 12px; border: 1px solid #e5dce9; border-radius: 14px; background: #fffdf9; box-shadow: var(--shadow); }
+.game-info summary { cursor: pointer; font-size: 13px; min-height: 24px; line-height: 24px; }
+.game-info .rule-banner { margin: 10px 0; }
+.game-info .beginner-tip { margin: 0; }
+.play-layout > .logic-hint { grid-column: 2; grid-row: 2; margin: 0; max-height: max(100px, min(30dvh, calc(100dvh - 470px))); overflow: auto; }
+.game-toolbar { grid-column: 2; grid-row: 3; border: 1px solid #e5dce9; border-radius: 18px; background: #fffdf9; padding: 12px; }
+.game-toolbar .game-actions { display: grid; grid-template-columns: 52px 1fr 36px; align-items: center; gap: 8px; margin: 0; }
+.game-toolbar .hint-action { min-width: 0; padding: 0; gap: 2px; }
+.game-toolbar .action-button > span { width: 32px; height: 32px; border-radius: 10px; }
+.game-toolbar .assist-toggle { justify-content: center; padding: 8px; }
+.game-toolbar .submit-answer { grid-column: 1 / -1; grid-row: 2; width: 100%; margin: 0; }
+.game-more { grid-column: 3; grid-row: 1; position: relative; }
+.game-more summary { list-style: none; cursor: pointer; display: grid; place-items: center; width: 36px; height: 44px; border-radius: 12px; background: #f3eef5; font-size: 25px; }
+.game-more summary::-webkit-details-marker { display: none; }
+.game-more > div { position: absolute; right: 0; bottom: 52px; width: 150px; padding: 8px; border: 1px solid #e1d5e8; border-radius: 14px; background: #fffdf9; box-shadow: var(--shadow); z-index: 8; }
+.game-more .text-button { display: block; width: 100%; min-height: 44px; text-align: left; }
+.submit-note { margin: 8px 0 0; font-size: 11px; color: #635b70; text-align: center; }
+
+.academy-v2 { max-width: 1200px; padding-block: 12px; }
+.academy-v2 .subpage-header { margin-bottom: 12px; }
+.academy-workspace { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 16px; }
+.course-toggle, .course-backdrop { display: none; }
+.academy-workspace .learning-levels { margin: 0; padding: 16px 12px; border: 1px solid #e3d7eb; border-radius: 18px; background: #fffdf9; }
+.academy-workspace .lesson-tiers, .academy-workspace .tier-lessons { grid-template-columns: 1fr; }
+.academy-workspace .lesson-tiers button { padding: 8px 10px; }
+.academy-workspace .lesson-tiers span { display: none; }
+.academy-workspace .lesson-tiers strong { font-size: 15px; }
+.academy-workspace .tier-description span { display: none; }
+.academy-workspace .tier-lessons small { display: inline; margin-right: 8px; }
+.academy-v2 .lesson-card { display: grid; grid-template-columns: minmax(0, 1fr) minmax(210px, .65fr); grid-template-rows: auto auto auto auto auto auto; gap: 8px 20px; padding: 16px; align-items: start; min-width: 0; }
+.lesson-card .lesson-card-heading { grid-column: 2; grid-row: 1; flex-wrap: wrap; }
+.lesson-card .lesson-card-heading h2 { font-size: 18px; }
+.lesson-card .demo-progress { grid-column: 2; grid-row: 2; margin: 0; min-height: 32px; }
+.lesson-card .teaching-caption { grid-column: 2; grid-row: 3; margin: 0; min-height: 110px; font-size: 15px; padding: 12px; }
+.lesson-card .teaching-caption p { margin: 0; }
+.lesson-card .teaching-board { grid-column: 1; grid-row: 2 / span 4; width: min(100%, 500px, calc(100dvh - 270px)); margin: 0 auto; }
+.lesson-card .board-context { grid-column: 1; grid-row: 6; margin: 0; font-size: 11px; min-height: 20px; }
+.lesson-card .takeaway { grid-column: 2; grid-row: 4; margin: 0; font-size: 13px; padding: 12px; }
+.lesson-card .lesson-actions { grid-column: 2; grid-row: 5; margin: 0; }
+.lesson-card .quiz-feedback { border: 0; padding: 0; margin: 0; background: transparent; font-size: 14px; }
+.lesson-card .quiz-feedback p { font-size: 13px; line-height: 1.7; margin-top: 4px; }
+.lesson-card .quiz-actions, .lesson-card .practice-controls { margin: 0; gap: 8px; }
+.lesson-card .quiz-actions { display: grid; grid-template-columns: 1fr; }
+.lesson-card .quiz-actions[hidden] { display: none; }
+.lesson-card .practice-controls { margin-top: 8px; }
+.lesson-card .practice-controls .button { width: 100%; font-size: 13px; }
+.lesson-card .lesson-caution { grid-column: 2; grid-row: 6; margin: 0; }
+.comparison-switcher { grid-column: 1; grid-row: 1; height: 44px; min-width: 0; }
+.comparison-switcher nav { display: flex; gap: 4px; height: 100%; }
+.comparison-switcher button { flex: 1; min-width: 0; padding: 4px; border: 1px solid #d5c7e1; border-radius: 10px; background: #fffafc; font-size: 12px; cursor: pointer; }
+.comparison-switcher button[aria-pressed=true] { background: #eadef4; border-color: #9674b2; font-weight: 700; }
+.mobile-takeaway { display: none; }
+.academy-v2 .academy-footnote { margin: 8px 0 0; font-size: 11px; }
+
+.tutorial-page { max-width: 1080px; padding-block: 12px; }
+.tutorial-page .game-header { margin-bottom: 12px; }
+.tutorial-page h1 { margin-bottom: 6px; font-size: 24px; }
+.tutorial-page .tutorial-intro { margin-bottom: 12px; }
+.tutorial-workspace { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1fr); gap: 12px 24px; align-items: start; }
+.tutorial-workspace[hidden] { display: none; }
+.tutorial-workspace .tutorial-rules { grid-column: 1; grid-row: 1; margin: 0; }
+.tutorial-workspace .tutorial-guide { grid-column: 1; grid-row: 2; width: 100%; height: 190px; margin: 0; padding: 14px; scrollbar-gutter: auto; }
+.tutorial-workspace .tutorial-board-area { grid-column: 2; grid-row: 1 / span 3; min-width: 0; }
+.tutorial-board-area .board-shell { width: min(100%, 440px, calc(100dvh - 250px)); }
+.tutorial-board-area .board-help { justify-content: center; margin-top: 8px; }
+.tutorial-workspace .tutorial-feedback { grid-column: 1; grid-row: 3; height: auto; min-height: 36px; margin: 0; font-size: 13px; }
+.tutorial-page .tutorial-actions { margin-top: 12px; align-items: center; }
+.tutorial-page .tutorial-success { max-width: 600px; margin: 40px auto; }
+.tutorial-page.is-complete > h1, .tutorial-page.is-complete > .tutorial-intro { display: none; }
+
+@media (max-width: 899px) {
+  .screen-game .page-wrap, .academy-v2, .tutorial-page { width: calc(100% - 24px); }
+  .screen-game .game-heading h1 { font-size: 20px; }
+  .screen-game .game-heading { position: absolute; top: 12px; left: 68px; right: 68px; min-height: 56px; margin: 0; }
+  .screen-game .game-heading .difficulty-english { display: none; }
+  .screen-game .game-header { min-height: 56px; margin-bottom: 8px; }
+  .screen-game .game-header .mini-brand { visibility: hidden; }
+  .screen-game .timer-box { min-width: 68px; border: 0; padding: 4px; background: transparent; }
+  .screen-game .timer-box span { display: none; }
+  .screen-game .timer-box strong { font-size: 18px; }
+  .play-layout { display: flex; flex-direction: column; align-items: stretch; gap: 8px; }
+  .play-sidebar { display: contents; }
+  .play-sidebar .game-stats { order: 0; min-height: 44px; border-radius: 14px; padding: 6px 12px; }
+  .play-sidebar .stat-block { display: block; text-align: center; }
+  .play-sidebar .stat-block small, .play-sidebar .stat-block strong { display: inline; font-size: 11px; }
+  .play-sidebar .stat-block strong { margin-left: 5px; font-size: 14px; }
+  .play-sidebar .stat-divider { height: 22px; }
+  .game-info { order: 1; margin: 0; padding: 4px 12px; }
+  .game-info[open] { position: fixed; top: 120px; left: 12px; right: 12px; max-height: calc(100dvh - 230px); overflow: auto; z-index: 10; box-shadow: var(--shadow); padding: 12px; }
+  .game-info-content { position: static; width: 100%; padding: 0; border: 0; box-shadow: none; max-height: none; overflow: visible; }
+  .play-board-area { order: 2; }
+  .play-board-area .board-shell { width: min(100%, 600px, calc(100dvh - 320px - env(safe-area-inset-bottom))); padding: 6px; }
+  .assist-description { font-size: 11px; margin-bottom: 6px; }
+  .play-board-area .toast { position: fixed; z-index: 7; left: 12px; right: 12px; bottom: calc(94px + env(safe-area-inset-bottom)); min-height: 0; max-height: 60px; overflow: auto; margin: 0; padding: 8px; border: 1px solid #efd5de; border-radius: 12px; background: #fffaf2; box-shadow: var(--tiny-shadow); }
+  .play-board-area .toast[data-visible=false] { display: none; }
+  .game-toolbar { position: fixed; z-index: 6; bottom: 0; left: 0; right: 0; border-radius: 18px 18px 0 0; padding: 8px 12px calc(8px + env(safe-area-inset-bottom)); box-shadow: 0 -4px 20px #63527110; }
+  .game-toolbar .game-actions { grid-template-columns: 44px minmax(80px, .9fr) minmax(100px, 1.2fr) 36px; max-width: 600px; margin: auto; }
+  .game-toolbar .submit-answer { grid-column: 3; grid-row: 1; min-width: 0; padding: 10px; font-size: 13px; }
+  .game-toolbar .game-more { grid-column: 4; }
+  .game-toolbar .assist-toggle { font-size: 12px; min-width: 0; gap: 4px; }
+  .submit-note { font-size: 10px; margin-top: 6px; }
+  .play-layout > .logic-hint { position: fixed; z-index: 7; left: 12px; right: 12px; bottom: calc(92px + env(safe-area-inset-bottom)); max-height: 34dvh; box-shadow: var(--shadow); padding: 12px; }
+  .logic-hint p { font-size: 13px; margin: 6px 0; }
+
+  .academy-v2 { padding-block: 8px 12px; }
+  .academy-v2 .subpage-header { margin-bottom: 6px; }
+  .course-toggle { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 44px; width: 100%; padding: 8px 12px; border: 1px solid #ddd0e6; border-radius: 12px; background: #f3edf9; font-size: 13px; cursor: pointer; margin-bottom: 8px; }
+  .course-toggle span { flex-shrink: 0; color: #695279; font-size: 12px; }
+  .academy-workspace { display: block; }
+  .academy-workspace .learning-levels { display: none; }
+  .academy-workspace .learning-levels.is-open { display: block; position: fixed; z-index: 12; left: 12px; right: 12px; top: 110px; max-height: calc(100dvh - 140px); overflow: auto; box-shadow: var(--shadow); }
+  .academy-workspace .lesson-tiers, .academy-workspace .tier-lessons { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .academy-workspace .tier-lessons small { display: block; }
+  .course-backdrop { display: block; position: fixed; z-index: 11; inset: 104px 0 0; border: 0; background: #40334835; }
+  .course-toggle { position: relative; z-index: 13; }
+  .academy-v2 .lesson-card { display: flex; flex-direction: column; gap: 6px; padding: 10px; }
+  .lesson-card .lesson-card-heading { position: absolute; width: 1px; height: 1px; min-height: 0; overflow: hidden; clip-path: inset(50%); }
+  .lesson-card .lesson-card-heading h2 { font-size: 15px; }
+  .lesson-card .lesson-card-heading > span { padding: 4px 6px; font-size: 10px; }
+  .lesson-card .demo-progress { min-height: 24px; width: 100%; }
+  .lesson-card .demo-progress button { min-height: 24px; padding: 0 4px; }
+  .lesson-card .teaching-caption { height: 84px; min-height: 84px; overflow: auto; width: 100%; font-size: 14px; padding: 8px 10px; line-height: 1.6; }
+  .lesson-card .teaching-caption.is-conclusion .demo-caption { display: none; }
+  .lesson-card .teaching-caption .mobile-takeaway { display: block; }
+  .comparison-switcher { width: 100%; height: 38px; flex-shrink: 0; }
+  .lesson-card .teaching-board { width: min(100%, 440px, calc(100dvh - 428px - env(safe-area-inset-bottom))); }
+  .lesson-card .teaching-board > small { display: none; }
+  .lesson-card .board-context { width: 100%; min-height: 18px; font-size: 10px; }
+  .lesson-card .takeaway { display: none; }
+  .lesson-card .lesson-actions { position: fixed; bottom: 0; left: 0; right: 0; z-index: 6; min-height: 96px; padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); border: 1px solid #e3d7eb; border-radius: 18px 18px 0 0; background: #fffdf9; box-shadow: 0 -4px 20px #63527110; }
+  .lesson-card .demo-controls { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); align-content: center; gap: 8px; }
+  .lesson-card .demo-controls .button { min-width: 0; min-height: 48px; font-size: 13px; padding: 10px; }
+  .lesson-card .quiz-actions { grid-template-columns: 1fr 1fr; }
+  .lesson-card .quiz-actions .button { font-size: 13px; min-height: 44px; padding: 8px; }
+  .lesson-card .practice-controls { flex-wrap: nowrap; margin-top: 6px; }
+  .lesson-card .practice-controls .text-button { min-height: 32px; font-size: 11px; flex-shrink: 0; padding: 4px; }
+  .lesson-card .practice-controls .button { width: auto; flex: 1; min-height: 36px; padding: 6px; font-size: 12px; }
+  .lesson-card .lesson-caution { width: 100%; font-size: 11px; }
+  .academy-v2 .academy-footnote { display: none; }
+
+  .tutorial-page { padding-bottom: 12px; }
+  .tutorial-page h1, .tutorial-page .tutorial-intro, .tutorial-workspace .tutorial-rules { display: none; }
+  .tutorial-page .game-header { margin-bottom: 8px; }
+  .tutorial-page .game-header .text-button { min-height: 44px; }
+  .tutorial-workspace { display: flex; flex-direction: column; gap: 8px; }
+  .tutorial-workspace .tutorial-guide { width: 100%; height: 128px; padding: 10px; }
+  .tutorial-guide p { font-size: 13px; line-height: 1.6; }
+  .tutorial-guide .nine-example { flex-basis: 60px; grid-template-columns: repeat(3, 18px); }
+  .tutorial-guide .nine-example span { height: 18px; font-size: 14px; }
+  .tutorial-guide .nine-example img { width: 18px; height: 18px; }
+  .tutorial-guide .tutorial-assist-help { margin-top: 6px; padding: 4px; }
+  .tutorial-guide .tutorial-assist-help p { margin: 0; font-size: 11px; line-height: 1.4; }
+  .tutorial-guide .assist-sample { flex-basis: 24px; height: 24px; }
+  .tutorial-workspace .tutorial-board-area { width: 100%; }
+  .tutorial-board-area .board-shell { width: min(100%, 440px, calc(100dvh - 380px - env(safe-area-inset-bottom))); padding: 6px; }
+  .tutorial-workspace .tutorial-feedback { width: 100%; font-size: 12px; min-height: 28px; }
+  .tutorial-page .tutorial-actions { position: fixed; bottom: 0; left: 0; right: 0; z-index: 6; margin: 0; display: grid; grid-template-columns: 1fr 1fr 80px; gap: 6px; padding: 10px 12px calc(8px + env(safe-area-inset-bottom)); border: 1px solid #e3d7eb; border-radius: 18px 18px 0 0; background: #fffdf9; }
+  .tutorial-actions .button { font-size: 12px; padding: 10px 6px; min-height: 48px; }
+  .tutorial-actions .assist-toggle { padding: 8px; font-size: 12px; justify-content: center; }
+  .tutorial-actions .text-button { grid-column: 1 / -1; min-height: 32px; padding: 4px; }
+  .tutorial-page.is-complete { padding-bottom: 24px; }
+  .tutorial-page .tutorial-success { margin: 24px auto 0; }
+}
+
+@media (max-width: 899px) and (orientation: landscape) {
+  .screen-game .game-header .mini-brand { visibility: hidden; }
+  .screen-game .game-header { min-height: 44px; }
+  .screen-game .game-heading { position: absolute; top: 12px; left: 78px; right: 76px; min-height: 44px; margin: 0; }
+  .screen-game .game-heading h1 { font-size: 20px; }
+  .screen-game .timer-box { border: 0; background: transparent; }
+  .screen-game .timer-box span { display: none; }
+  .play-layout { display: grid; grid-template-columns: calc(100dvh - 110px) minmax(0, 1fr); gap: 8px 20px; }
+  .play-board-area { grid-column: 1; grid-row: 1 / span 3; }
+  .play-board-area .board-shell { width: 100%; }
+  .play-board-area .board-help { display: none; }
+  .play-board-area .toast { z-index: 9; bottom: 4px; left: 12px; max-width: calc(100% - 24px); padding: 4px; }
+  .play-layout .game-stats { grid-column: 2; grid-row: 1; }
+  .play-layout .game-info { grid-column: 2; grid-row: 2; }
+  .play-layout .game-info[open] { top: 64px; max-height: calc(100dvh - 80px); }
+  .play-layout .game-toolbar { position: static; grid-column: 2; grid-row: 3; box-shadow: none; border-radius: 16px; }
+  .play-layout > .logic-hint { bottom: 12px; left: calc(100dvh - 78px); max-height: calc(100dvh - 80px); }
+
+  .academy-v2 .course-toggle { position: absolute; top: 8px; left: 70px; width: calc(100% - 200px); margin: 0; }
+  .academy-v2 .subpage-header > strong { visibility: hidden; }
+  .academy-v2 .lesson-card { display: grid; grid-template-columns: calc(100dvh - 150px) minmax(0, 1fr); gap: 4px 16px; }
+  .lesson-card .teaching-board { width: 100%; grid-column: 1; grid-row: 1 / span 5; }
+  .lesson-card .lesson-card-heading { position: static; width: 100%; height: auto; min-height: 26px; overflow: visible; clip-path: none; grid-column: 2; grid-row: 1; }
+  .lesson-card .demo-progress { grid-column: 2; grid-row: 2; }
+  .lesson-card .teaching-caption { grid-column: 2; grid-row: 3; min-height: 72px; height: 72px; }
+  .lesson-card .comparison-switcher { grid-column: 2; grid-row: 4; height: 32px; }
+  .lesson-card .board-context { grid-column: 1; grid-row: 6; }
+  .lesson-card .lesson-actions { position: static; grid-column: 2; grid-row: 5 / span 2; min-height: 68px; padding: 6px 0; border: 0; box-shadow: none; }
+  .lesson-card .demo-controls .button { min-height: 44px; }
+  .academy-workspace .learning-levels.is-open { top: 64px; max-height: calc(100dvh - 80px); }
+  .course-backdrop { inset: 58px 0 0; }
+
+  .tutorial-workspace { display: grid; grid-template-columns: calc(100dvh - 130px) minmax(0, 1fr); grid-template-rows: 128px minmax(0, 1fr); gap: 8px 20px; }
+  .tutorial-workspace .tutorial-board-area { grid-column: 1; grid-row: 1 / span 2; }
+  .tutorial-board-area .board-shell { width: 100%; }
+  .tutorial-workspace .tutorial-guide { grid-column: 2; grid-row: 1; }
+  .tutorial-workspace .tutorial-feedback { grid-column: 2; grid-row: 2; }
+  .tutorial-page .tutorial-actions { position: absolute; left: auto; right: 12px; bottom: 12px; width: calc(100% - (100dvh - 130px) - 56px); border-radius: 16px; }
+}

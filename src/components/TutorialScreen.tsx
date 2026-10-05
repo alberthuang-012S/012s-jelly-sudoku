@@ -75,21 +75,22 @@ export function TutorialScreen({ onExit, onStart, onAcademy }: { onExit: () => v
     : target === 14 ? '最後一隻！讓每種顏色都有一隻水母，再按「提交答案」。'
     : '準備好了嗎？按「提交答案」一起檢查。'
 
-  return <main className="tutorial-page game-page page-wrap">
-    <header className="game-header"><button className="icon-button" aria-label="返回首頁" onClick={onExit}>←</button><span>教學模式 · 不計時</span><button className="text-button" onClick={onStart}>跳過教學</button></header>
+  return <main className={`tutorial-page game-page page-wrap ${solved ? 'is-complete' : ''}`}>
+    <header className="game-header"><button className="icon-button" aria-label="返回首頁" onClick={onExit}>←</button><span>教學模式 · 不計時</span>{!solved && <button className="text-button" onClick={onStart}>跳過教學</button>}</header>
     <h1>{level.title}</h1>
     <p className="tutorial-intro">把 4 隻水母放進棋盤，就學會了。{completed && ' 已完成過，可以再練一次。'}</p>
-    <ul className="tutorial-rules"><li>每種顏色一隻</li><li>每橫排、直排一隻</li><li>水母周圍八格不能有另一隻</li></ul>
+    <div className="tutorial-workspace" hidden={solved}>
+    <ul className="tutorial-rules"><li>每種顏色一隻</li><li>每橫排、直排一隻</li><li>周圍八格不能有另一隻</li></ul>
     <section className="tutorial-guide" aria-label="教學說明" tabIndex={0}>
       <div className="tutorial-direction"><p aria-live="polite">{direction}</p>
         {target === 8 && <div className="nine-example" role="img" aria-label="以水母為中心的九宮格：周圍八格都不能放另一隻">{Array.from({ length: 9 }, (_, i) => <span key={i}>{i === 4 ? <img src={assets.jellyCute} alt="" /> : '×'}</span>)}</div>}
       </div>
       {hasPlacedJelly && <div className="tutorial-assist-help" id="tutorial-assist-help">
         <span className="assist-sample" aria-hidden="true"><span className="constraint-x">×</span></span>
-        <div><p><strong>斜線＋×＝這裡先別放。</strong>標示會隨水母的位置自動更新。</p><p>可用下方開關關閉；自己加的 × 會保留。</p><small>輔助不代表答對，提交後才檢查。</small></div>
+        <div><p><strong>斜線＋×＝這裡先別放。</strong></p><p>輔助會自動更新；自己畫的 × 會保留。</p></div>
       </div>}
     </section>
-    <div className="assist-toolbar"><span>箭頭指的格子，可以試試看</span><button className="assist-toggle" role="switch" aria-checked={assist} aria-describedby={hasPlacedJelly ? 'tutorial-assist-help' : undefined} onClick={() => setAssist(!assist)}>輔助標示 {assist ? '開' : '關'}</button></div>
+    <div className="tutorial-board-area">
     <div className="board-shell"><div className="game-board" style={{ '--board-size': level.size } as CSSProperties} role="group" aria-label="教學棋盤">{board.map((state, i) => {
       const region = level.regions[i], row = Math.floor(i / level.size), column = i % level.size
       return <button key={i} ref={(el) => { cells.current[i] = el }} className={`board-cell state-${state} ${overlay.has(i) && state === 'empty' ? 'is-blocked' : ''} ${target === i ? 'tutorial-highlight' : ''} ${hint === i ? 'is-hinted' : ''} ${conflicts.includes(i) ? 'has-conflict' : ''}`} style={{ '--region-color': REGION_PALETTE[level.palette?.[region] ?? region].color, borderTop: row === 0 || level.regions[i - level.size] !== region ? '3px solid #554e67' : undefined, borderLeft: column === 0 || level.regions[i - 1] !== region ? '3px solid #554e67' : undefined } as CSSProperties} tabIndex={focus === i ? 0 : -1} aria-disabled={solved} aria-label={`第 ${row + 1} 行，第 ${column + 1} 列，${REGION_PALETTE[level.palette?.[region] ?? region].name}區域，${state === 'jelly' ? '水母' : state === 'marked' ? '排除標記' : '空白'}`} onFocus={() => setFocus(i)} onKeyDown={(e) => keyDown(e, i)} onClick={() => cycle(i)}>
@@ -97,7 +98,9 @@ export function TutorialScreen({ onExit, onStart, onAcademy }: { onExit: () => v
       </button>
     })}</div></div>
     <p className="board-help">點擊循環：空白 → × → 水母 → 空白</p>
-    <p className="tutorial-feedback" role="status">{message || '作答途中不判定對錯，提交後才檢查。'}</p>
+    </div>
+    <p className="tutorial-feedback" role="status">{message || '跟著箭頭練習，提交後才檢查。'}</p>
+    </div>
     {solved ? <section className="tutorial-success">
       <h2 ref={feedback} tabIndex={-1}>教學完成！</h2>
       <p>你學會操作了！接著學習在哪裡畫叉，或直接挑戰第一關。</p>
@@ -106,6 +109,6 @@ export function TutorialScreen({ onExit, onStart, onAcademy }: { onExit: () => v
         <button className="button primary" onClick={onStart}>開始基礎第一關</button>
       </div>
       <button className="text-button" onClick={onExit}>返回首頁</button>
-    </section> : <div className="tutorial-actions"><button className="button primary" onClick={submit}>提交答案</button><button className="button secondary" onClick={requestHint}>提示（不限次數）</button><button className="text-button" onClick={restart}>重新練習</button></div>}
+    </section> : <div className="tutorial-actions"><button className="button primary" onClick={submit}>提交答案</button><button className="button secondary" onClick={requestHint}>提示（不限次數）</button><button className="assist-toggle" role="switch" aria-checked={assist} aria-describedby={hasPlacedJelly ? 'tutorial-assist-help' : undefined} onClick={() => setAssist(!assist)}>輔助 {assist ? '開' : '關'}</button><button className="text-button" onClick={restart}>重新練習</button></div>}
   </main>
 }

@@ -599,9 +599,11 @@ function GameScreen({ level, board, elapsed, mistakes, hintsRemaining, focusedCe
         <button className="icon-button" aria-label="設定" onClick={onSettings}>☼</button>
       </header>
       <section className="game-heading">
-        <div><p className="eyebrow">{DIFFICULTY_META[level.difficulty].english} · LEVEL {String(Number(level.id.split('-')[1])).padStart(2, '0')}</p><h1>{DIFFICULTY_META[level.difficulty].label} <span>{level.size}×{level.size}</span></h1></div>
+        <div><p className="eyebrow"><span className="difficulty-english">{DIFFICULTY_META[level.difficulty].english} · </span>LEVEL {String(Number(level.id.split('-')[1])).padStart(2, '0')}</p><h1>{DIFFICULTY_META[level.difficulty].label} <span>{level.size}×{level.size}</span></h1></div>
         <div className="timer-box"><span>TIME</span><strong>{formatTime(elapsed)}</strong>{bestRecord && <small>BEST {formatTime(bestRecord.time)}</small>}</div>
       </section>
+      <div className="play-layout">
+      <aside className="play-sidebar">
       <section className="game-stats" aria-label="遊戲進度">
         <div className="stat-block"><span className="stat-icon jelly-mini">✦</span><div><small>水母進度</small><strong>{jellyCount} <em>/ {level.size}</em></strong></div></div>
         <div className="stat-divider" />
@@ -609,9 +611,13 @@ function GameScreen({ level, board, elapsed, mistakes, hintsRemaining, focusedCe
         <div className="stat-divider" />
         <div className="stat-block stat-mistake"><span className="stat-icon">○</span><div><small>提交錯誤</small><strong>{mistakes}</strong></div></div>
       </section>
+      <details className="game-info"><summary>規則與本關練習</summary><div className="game-info-content">
       <section className="rule-banner"><div className="rule-banner-icon">✦</div><div><strong>一個區域一隻水母</strong><span>每行、每列各一隻；以水母為中心，九宮格內不能有另一隻</span></div><button aria-label="查看規則" onClick={onRules}>?</button></section>
       <div className="beginner-tip">本關練習：{level.rating?.techniques.filter((t) => t !== 'single').map((t) => TECHNIQUES[t as Technique]?.name).join('、') || '唯一位置與基本排除'}。<button className="text-button" onClick={() => onAcademy(level.rating?.techniques.find((t) => canTeach(t as Technique)) as Technique | undefined)}>查看定石示範 →</button></div>
-      <div className="assist-toolbar"><span id="assist-description">{assist ? '斜線＋×：目前不能放水母' : '輔助已關閉，自行推理'}</span><button className="assist-toggle" role="switch" aria-checked={assist} aria-describedby="assist-description" onClick={onToggleAssist}><span className="assist-switch" aria-hidden="true" />輔助標示 {assist ? '開' : '關'}</button></div>
+      </div></details>
+      </aside>
+      <div className="play-board-area">
+      <p className="assist-description" id="assist-description">{assist ? '斜線＋×：目前不能放水母' : '輔助已關閉，自行推理'}</p>
       <section className="board-wrap" aria-label={`${level.title}遊戲棋盤`}>
         <div className="board-shell"><div className="game-board" style={{ '--board-size': level.size } as CSSProperties} role="grid" aria-label={`${level.size}乘${level.size}水母數獨棋盤`}>
           {board.map((state, index) => {
@@ -654,6 +660,7 @@ function GameScreen({ level, board, elapsed, mistakes, hintsRemaining, focusedCe
         <p className="board-help">點擊循環：<b>空白</b><span>→</span><b className="help-x">×</b><span>→</span><b className="help-jelly">水母</b><span>→</span><b>空白</b></p>
         <div className="toast" role="status" aria-live="polite" data-visible={Boolean(toast)}>{toast || '　'}</div>
       </section>
+      </div>
       {logicalHint && !hintCollapsed && <section className="logic-hint" aria-label="推理提示" aria-live="polite">
         <div className="hint-heading"><strong>{TECHNIQUES[logicalHint.step.technique].name}</strong><button className="text-button" onClick={onCloseHint}>收起提示</button></div>
         <p>{logicalHint.step.observation}</p>
@@ -661,12 +668,16 @@ function GameScreen({ level, board, elapsed, mistakes, hintsRemaining, focusedCe
         {logicalHint.stage === 2 && <p>亮起的 {logicalHint.step.targets.length} 格{logicalHint.step.action === 'place' ? '可以放水母' : '可以畫叉'}。</p>}
         <div className="hint-controls">{logicalHint.stage < 2 ? <button className="button secondary" onClick={onHint}>{logicalHint.stage === 0 ? '解釋理由' : '顯示結果'}（不再扣次數）</button> : <button className="button primary" onClick={onApplyHint}>套用這一步</button>}{canTeach(logicalHint.step.technique) && <button className="text-button" onClick={() => onAcademy(logicalHint.step.technique)}>學習這個定石</button>}</div>
       </section>}
-      <div className="submit-answer-wrap"><button className="button primary submit-answer" onClick={onSubmit} disabled={isSolved}>{isSolved ? '答案正確 ✓' : '提交答案'}</button><p>完成排列後再提交，作答途中不判定對錯。</p></div>
+      <div className="game-toolbar">
       <nav className="game-actions" aria-label="遊戲操作">
-        <button className="action-button" onClick={onRestart}><span>↺</span><small>重新開始</small></button>
         <button className="action-button hint-action" onClick={onHint} disabled={isSolved || (!logicalHint && hintsRemaining <= 0)}><span>✦<sup>{hintsRemaining}</sup></span><small>提示</small></button>
-        <button className="action-button" onClick={onSettings}><span>☼</span><small>設定</small></button>
+        <button className="assist-toggle" role="switch" aria-checked={assist} aria-describedby="assist-description" onClick={onToggleAssist}><span className="assist-switch" aria-hidden="true" />輔助 {assist ? '開' : '關'}</button>
+        <button className="button primary submit-answer" onClick={onSubmit} disabled={isSolved}>{isSolved ? '答案正確 ✓' : '提交答案'}</button>
+        <details className="game-more"><summary aria-label="更多遊戲操作">⋯</summary><div><button className="text-button" onClick={onRestart}>重新開始</button><button className="text-button" onClick={onRules}>完整規則</button></div></details>
       </nav>
+      <p className="submit-note">完成後再提交，作答途中不判定對錯。</p>
+      </div>
+      </div>
     </main>
   )
 }
