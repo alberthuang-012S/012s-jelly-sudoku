@@ -1,0 +1,1858 @@
+{
+  "revision": 5,
+  "window": 10,
+  "maximumLayoutSimilarity": 0.85,
+  "modes": {
+    "basic": {
+      "maximumSimilarity": 0.8333333333333334,
+      "chapterScores": [
+        517.6,
+        1746.7,
+        1869.1,
+        2074.6,
+        2090.5,
+        2106.6,
+        2126.3,
+        2147.2,
+        2463.1,
+        2922.9
+      ],
+      "levels": [
+        {
+          "id": "basic-001",
+          "family": "0,0,0,0,1,1,1,1,1,1,1,1,2,1,1,1,1,3,2,2,3,3,3,3,3,3,3,3,4,4,3,3,3,5,4,4",
+          "opening": "single-only",
+          "location": "2,1"
+        },
+        {
+          "id": "basic-002",
+          "family": "0,0,0,0,0,1,0,0,0,1,1,1,2,2,2,2,1,1,3,4,2,2,5,5,3,4,2,5,5,5,3,2,2,2,5,5",
+          "opening": "single-only",
+          "location": "0,1"
+        },
+        {
+          "id": "basic-003",
+          "family": "legacy-2,5,3,1,4,0",
+          "opening": "single-only",
+          "location": "0,2"
+        },
+        {
+          "id": "basic-004",
+          "family": "0,0,0,0,0,0,0,0,0,0,1,1,2,2,2,3,3,3,2,2,2,3,3,3,4,4,5,3,3,3,4,4,4,3,3,3",
+          "opening": "single-only",
+          "location": "0,0"
+        },
+        {
+          "id": "basic-005",
+          "family": "0,0,0,0,0,0,0,0,0,0,1,1,2,0,0,3,3,1,2,4,0,0,0,5,2,4,4,4,4,5,4,4,4,5,5,5",
+          "opening": "single-only",
+          "location": "1,1"
+        },
+        {
+          "id": "basic-006",
+          "family": "0,0,0,0,0,1,0,2,0,0,0,0,3,2,4,0,5,0,3,2,4,4,4,4,3,2,4,4,4,4,3,3,4,4,4,4",
+          "opening": "reverse",
+          "location": "1,0"
+        },
+        {
+          "id": "basic-007",
+          "family": "0,0,0,0,0,1,0,2,3,0,1,1,2,2,2,1,1,1,2,2,2,4,4,5,4,4,4,4,4,5,4,4,4,5,5,5",
+          "opening": "line",
+          "location": "1,2"
+        },
+        {
+          "id": "basic-008",
+          "family": "legacy-4,1,3,5,2,0",
+          "opening": "line>line",
+          "location": "2,0"
+        },
+        {
+          "id": "basic-009",
+          "family": "0,0,0,0,0,1,0,0,0,0,2,1,0,0,0,0,2,2,3,3,3,2,2,2,4,3,3,3,5,5,3,3,5,5,5,5",
+          "opening": "reverse>reverse",
+          "location": "2,2"
+        },
+        {
+          "id": "basic-010",
+          "family": "0,0,0,0,0,1,0,0,0,2,2,2,3,3,3,4,2,2,3,3,4,4,2,2,3,3,3,4,4,4,3,5,4,4,4,4",
+          "opening": "reverse>line",
+          "location": "0,1"
+        },
+        {
+          "id": "basic-011",
+          "family": "0,0,0,1,1,1,0,0,2,2,2,1,0,2,2,2,2,2,2,2,2,2,2,3,4,5,2,2,2,2,4,5,5,2,2,2",
+          "opening": "line>reverse",
+          "location": "0,2"
+        },
+        {
+          "id": "basic-012",
+          "family": "0,0,0,1,1,1,0,0,0,2,1,1,2,2,2,2,1,1,3,2,2,4,4,5,2,2,2,4,4,5,2,2,2,5,5,5",
+          "opening": "line>line>reverse",
+          "location": "2,1"
+        },
+        {
+          "id": "basic-013",
+          "family": "0,0,0,0,1,1,2,2,0,0,1,1,3,3,1,1,1,1,3,3,3,3,4,4,3,3,3,5,4,4,3,3,3,4,4,4",
+          "opening": "reverse>reverse>line",
+          "location": "0,0"
+        },
+        {
+          "id": "basic-014",
+          "family": "0,0,0,0,0,1,2,2,2,0,3,1,4,2,3,3,3,3,2,2,3,3,3,3,2,2,2,3,3,3,2,2,2,3,5,3",
+          "opening": "pair",
+          "location": "1,1"
+        },
+        {
+          "id": "basic-015",
+          "family": "0,0,0,0,1,2,0,0,0,0,1,2,0,0,3,0,1,1,3,3,3,3,3,3,4,4,3,3,3,3,4,3,3,5,5,3",
+          "opening": "triple",
+          "location": "1,0"
+        },
+        {
+          "id": "basic-016",
+          "family": "0,0,0,0,0,0,0,1,0,0,2,2,1,1,3,1,2,2,1,1,1,1,4,2,5,5,1,4,4,2,5,5,4,4,4,4",
+          "opening": "reverse>triple",
+          "location": "0,2"
+        },
+        {
+          "id": "basic-017",
+          "family": "0,0,0,0,0,1,0,0,0,1,1,1,0,0,2,1,3,3,4,4,4,3,3,3,5,3,3,3,3,3,5,5,5,3,3,3",
+          "opening": "reverse>pair",
+          "location": "0,0"
+        },
+        {
+          "id": "basic-018",
+          "family": "0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,2,2,3,4,0,2,2,2,3,3,3,5,2,2,3,5,5,5,2,2",
+          "opening": "reverse>common",
+          "location": "1,2"
+        },
+        {
+          "id": "basic-019",
+          "family": "0,0,0,0,0,1,0,0,0,1,1,1,2,2,2,2,1,1,3,4,2,2,5,5,3,4,2,5,5,5,3,2,2,2,5,5",
+          "opening": "line>common",
+          "location": "2,0"
+        },
+        {
+          "id": "basic-020",
+          "family": "legacy-2,5,3,1,4,0",
+          "opening": "reverse>reverse>common",
+          "location": "2,2"
+        },
+        {
+          "id": "basic-021",
+          "family": "0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1,2,2,3,0,4,1,2,2,0,0,4,1,2,2,4,4,4,5,5,5",
+          "opening": "reverse>reverse>reverse",
+          "location": "0,1"
+        },
+        {
+          "id": "basic-022",
+          "family": "0,0,0,0,0,0,1,1,1,1,2,2,1,1,3,3,3,4,3,3,5,3,4,4,3,3,3,3,3,4,3,3,3,3,4,4",
+          "opening": "triple>common",
+          "location": "0,2"
+        },
+        {
+          "id": "basic-023",
+          "family": "0,0,0,0,0,1,0,2,0,2,1,1,2,2,2,2,1,1,3,3,4,1,1,4,3,3,4,4,4,4,5,3,3,4,4,4",
+          "opening": "reverse>line>pair",
+          "location": "2,1"
+        },
+        {
+          "id": "basic-024",
+          "family": "0,0,0,0,0,0,1,0,2,1,1,1,1,0,2,1,3,3,1,1,1,1,4,4,1,1,1,1,5,4,1,1,5,5,5,4",
+          "opening": "line>line>line",
+          "location": "1,0"
+        },
+        {
+          "id": "basic-025",
+          "family": "0,0,0,0,0,0,1,0,2,3,4,4,1,5,5,3,3,4,1,5,5,3,4,4,1,1,3,3,4,4,1,1,3,3,4,4",
+          "opening": "line>common>line",
+          "location": "1,1"
+        },
+        {
+          "id": "basic-026",
+          "family": "0,0,0,0,0,1,0,0,0,0,0,1,0,2,2,2,2,1,2,2,2,3,1,1,4,4,2,5,1,5,4,4,5,5,5,5",
+          "opening": "line>line>common",
+          "location": "0,0"
+        },
+        {
+          "id": "basic-027",
+          "family": "0,0,0,0,1,1,0,0,2,0,1,1,3,3,2,2,2,1,3,3,2,2,2,2,3,3,3,2,4,2,5,3,2,2,2,2",
+          "opening": "line>pair>common",
+          "location": "0,1"
+        },
+        {
+          "id": "basic-028",
+          "family": "0,0,0,0,1,1,2,0,3,1,1,1,2,2,3,1,1,1,2,1,1,1,1,1,2,1,1,1,1,4,1,1,5,5,5,5",
+          "opening": "reverse>reverse>pair",
+          "location": "2,2"
+        },
+        {
+          "id": "basic-029",
+          "family": "0,0,0,0,0,1,0,0,0,0,0,0,2,0,3,0,4,0,2,3,3,0,0,0,2,3,3,3,5,0,2,2,5,5,5,0",
+          "opening": "common>line>pair",
+          "location": "1,2"
+        },
+        {
+          "id": "basic-030",
+          "family": "0,0,0,0,0,1,2,0,0,3,0,1,3,3,3,3,4,1,3,3,3,4,4,4,3,3,3,4,4,4,3,3,3,5,5,5",
+          "opening": "reverse>line>common",
+          "location": "2,0"
+        },
+        {
+          "id": "basic-031",
+          "family": "legacy-3,5,2,0,4,1",
+          "opening": "reverse>reverse>triple",
+          "location": "2,2"
+        },
+        {
+          "id": "basic-032",
+          "family": "0,0,0,0,1,1,0,0,0,0,0,2,0,3,0,0,4,2,0,3,4,4,4,4,5,3,4,4,4,4,5,5,4,4,4,4",
+          "opening": "line>reverse>triple",
+          "location": "0,0"
+        },
+        {
+          "id": "basic-033",
+          "family": "0,0,0,0,0,0,1,1,1,1,2,2,1,1,3,3,3,4,3,3,5,3,4,4,3,3,3,3,3,4,3,3,3,3,4,4",
+          "opening": "line>triple>common",
+          "location": "0,2"
+        },
+        {
+          "id": "basic-034",
+          "family": "0,0,0,0,1,1,0,0,0,1,1,1,0,0,0,2,1,3,4,0,4,2,2,3,4,4,4,4,3,3,5,4,4,4,3,3",
+          "opening": "reverse>line>pair",
+          "location": "2,1"
+        },
+        {
+          "id": "basic-035",
+          "family": "0,0,0,0,0,0,0,1,0,0,2,2,0,1,1,1,1,3,1,1,1,1,3,3,4,4,4,3,3,3,5,4,3,3,3,3",
+          "opening": "reverse>common>line",
+          "location": "1,0"
+        },
+        {
+          "id": "basic-036",
+          "family": "0,0,0,0,0,0,0,0,0,1,2,2,3,3,0,1,1,1,3,4,4,4,1,1,3,4,4,4,1,1,3,4,4,4,5,1",
+          "opening": "line>line>pair",
+          "location": "1,1"
+        },
+        {
+          "id": "basic-037",
+          "family": "0,0,0,0,0,1,0,2,2,1,1,1,0,2,1,1,1,1,2,2,3,4,1,5,2,3,3,4,4,4,2,3,3,4,4,4",
+          "opening": "reverse>common>common",
+          "location": "1,0"
+        },
+        {
+          "id": "basic-038",
+          "family": "0,0,0,0,0,0,0,1,1,1,1,2,0,3,1,1,2,2,3,3,1,4,2,2,3,3,3,3,5,5,3,3,3,5,5,5",
+          "opening": "reverse>line>triple",
+          "location": "0,1"
+        },
+        {
+          "id": "basic-039",
+          "family": "0,0,0,0,1,1,2,2,0,0,0,0,2,2,3,3,0,0,2,3,3,3,3,3,2,4,3,3,5,3,4,4,4,3,3,3",
+          "opening": "line>common>reverse",
+          "location": "1,2"
+        },
+        {
+          "id": "basic-040",
+          "family": "0,0,0,1,1,1,0,0,0,2,1,1,2,2,2,2,1,1,3,2,2,4,4,5,2,2,2,4,4,5,2,2,2,5,5,5",
+          "opening": "line>line>reverse",
+          "location": "2,1"
+        },
+        {
+          "id": "basic-041",
+          "family": "0,0,0,0,1,1,2,0,0,0,0,0,2,0,3,3,3,3,4,4,4,3,3,3,4,4,4,3,3,3,4,4,4,4,3,5",
+          "opening": "line>common>line",
+          "location": "2,0"
+        },
+        {
+          "id": "basic-042",
+          "family": "0,0,0,0,1,2,0,0,0,0,2,2,3,3,0,2,2,2,3,3,3,2,4,4,5,3,2,2,4,4,5,2,2,4,4,4",
+          "opening": "reverse>line>reverse",
+          "location": "2,2"
+        },
+        {
+          "id": "basic-043",
+          "family": "0,0,0,0,0,1,0,0,0,0,1,1,2,0,0,2,3,3,2,2,2,2,3,3,4,5,2,5,3,3,5,5,5,5,3,3",
+          "opening": "line>line>line",
+          "location": "0,0"
+        },
+        {
+          "id": "basic-044",
+          "family": "0,0,0,0,1,1,0,0,0,0,1,1,2,2,3,0,1,1,2,2,2,2,4,1,2,5,5,4,4,4,2,5,5,4,4,4",
+          "opening": "line>reverse>line",
+          "location": "0,2"
+        },
+        {
+          "id": "basic-045",
+          "family": "0,0,0,0,0,1,0,0,0,0,0,0,2,2,0,0,0,0,2,2,2,3,4,4,3,3,3,3,4,4,5,5,3,3,4,4",
+          "opening": "reverse>reverse>line",
+          "location": "0,0"
+        },
+        {
+          "id": "basic-046",
+          "family": "0,0,0,0,0,0,1,0,2,3,2,2,1,4,2,2,2,5,1,4,2,4,2,5,4,4,4,4,4,5,4,4,4,4,5,5",
+          "opening": "line>common>common",
+          "location": "1,1"
+        },
+        {
+          "id": "basic-047",
+          "family": "legacy-2,5,3,1,4,0",
+          "opening": "line>line>common",
+          "location": "2,0"
+        },
+        {
+          "id": "basic-048",
+          "family": "0,0,0,0,0,1,0,0,0,0,0,2,0,0,2,2,2,2,3,3,3,3,3,3,3,4,4,4,3,4,5,4,4,4,4,4",
+          "opening": "reverse>reverse>common",
+          "location": "1,0"
+        },
+        {
+          "id": "basic-049",
+          "family": "0,0,0,0,0,0,1,1,0,2,2,2,0,0,0,2,2,2,3,0,4,4,2,2,3,3,3,2,2,2,3,5,5,2,2,2",
+          "opening": "reverse>line>line",
+          "location": "0,1"
+        },
+        {
+          "id": "basic-050",
+          "family": "0,0,0,0,0,1,2,0,0,0,1,1,3,3,4,4,4,1,3,3,3,3,4,4,3,3,5,4,4,5,3,3,5,5,5,5",
+          "opening": "line>reverse>reverse",
+          "location": "1,2"
+        },
+        {
+          "id": "basic-051",
+          "family": "0,0,0,0,0,0,0,0,1,1,2,2,3,0,3,1,1,2,3,3,3,1,2,2,4,3,3,3,5,2,3,3,3,3,5,5",
+          "opening": "reverse>reverse>reverse",
+          "location": "2,1"
+        },
+        {
+          "id": "basic-052",
+          "family": "0,0,0,0,0,1,0,2,2,1,1,1,0,2,1,1,1,1,2,2,3,4,1,5,2,3,3,4,4,4,2,3,3,4,4,4",
+          "opening": "reverse>common>common",
+          "location": "1,0"
+        },
+        {
+          "id": "basic-053",
+          "family": "0,0,0,0,0,1,0,0,0,0,0,1,0,2,2,2,2,1,2,2,2,3,1,1,4,4,2,5,1,5,4,4,5,5,5,5",
+          "opening": "line>reverse>common",
+          "location": "2,2"
+        },
+        {
+          "id": "basic-054",
+          "family": "0,0,0,0,1,1,0,0,0,0,1,1,0,0,0,2,2,1,3,3,4,4,2,2,3,3,4,4,2,2,3,3,5,5,2,2",
+          "opening": "line>pair>line",
+          "location": "1,2"
+        },
+        {
+          "id": "basic-055",
+          "family": "0,0,0,0,0,1,0,0,0,0,1,1,0,0,2,1,1,1,3,3,4,4,4,1,3,5,4,4,4,4,3,5,4,4,4,4",
+          "opening": "line>line>reverse",
+          "location": "0,2"
+        },
+        {
+          "id": "basic-056",
+          "family": "0,0,0,0,1,1,2,3,3,0,0,0,3,3,3,0,4,4,3,3,3,0,4,4,3,3,3,5,5,4,3,3,5,5,4,4",
+          "opening": "reverse>line>reverse",
+          "location": "0,0"
+        },
+        {
+          "id": "basic-057",
+          "family": "0,0,0,1,1,2,0,0,0,1,1,2,3,3,1,1,1,1,3,3,3,1,4,4,3,3,3,1,4,4,5,1,1,1,1,4",
+          "opening": "reverse>line>common",
+          "location": "1,1"
+        },
+        {
+          "id": "basic-058",
+          "family": "0,0,0,0,1,2,0,0,0,0,1,2,3,3,0,0,2,2,3,4,4,5,5,5,4,4,4,5,5,5,4,4,4,5,5,5",
+          "opening": "line>line>line",
+          "location": "2,0"
+        },
+        {
+          "id": "basic-059",
+          "family": "0,0,0,0,1,1,2,2,2,1,1,1,2,2,2,3,3,1,2,2,3,3,3,3,2,2,2,3,3,4,5,2,2,3,3,3",
+          "opening": "line>line>common",
+          "location": "2,1"
+        },
+        {
+          "id": "basic-060",
+          "family": "legacy-2,5,3,1,4,0",
+          "opening": "reverse>line>line",
+          "location": "0,1"
+        },
+        {
+          "id": "basic-061",
+          "family": "0,0,0,0,0,1,0,0,0,1,1,1,2,2,2,2,1,1,3,4,2,2,5,5,3,4,2,5,5,5,3,2,2,2,5,5",
+          "opening": "line>reverse>reverse",
+          "location": "0,0"
+        },
+        {
+          "id": "basic-062",
+          "family": "0,0,0,0,0,0,0,0,1,1,2,2,3,0,3,1,1,2,3,3,3,1,2,2,4,3,3,3,5,2,3,3,3,3,5,5",
+          "opening": "reverse>reverse>reverse",
+          "location": "2,1"
+        },
+        {
+          "id": "basic-063",
+          "family": "0,0,0,0,0,0,0,0,0,0,0,1,0,2,3,4,1,1,2,2,3,4,5,5,2,2,3,4,4,5,2,3,3,5,5,5",
+          "opening": "reverse>common>line",
+          "location": "1,0"
+        },
+        {
+          "id": "basic-064",
+          "family": "0,0,0,0,0,1,0,0,2,2,1,1,0,0,2,1,1,1,3,3,3,3,1,1,4,3,3,1,1,1,4,4,4,5,5,5",
+          "opening": "line>common>common",
+          "location": "2,2"
+        },
+        {
+          "id": "basic-065",
+          "family": "0,0,0,0,1,1,2,2,1,1,1,1,2,2,3,3,3,1,3,2,3,3,3,3,3,3,3,3,3,4,5,3,3,3,3,4",
+          "opening": "line>triple>common",
+          "location": "1,2"
+        },
+        {
+          "id": "basic-066",
+          "family": "0,0,0,0,1,1,0,0,0,0,2,2,3,4,0,0,2,2,4,4,5,0,2,2,4,4,5,5,5,5,4,4,4,4,5,5",
+          "opening": "line>reverse>common",
+          "location": "0,2"
+        },
+        {
+          "id": "basic-067",
+          "family": "0,0,0,0,1,1,2,2,0,0,1,1,3,3,1,1,1,1,3,3,3,3,4,4,3,3,3,5,4,4,3,3,3,4,4,4",
+          "opening": "reverse>reverse>line",
+          "location": "1,0"
+        },
+        {
+          "id": "basic-068",
+          "family": "0,0,0,0,1,1,0,2,0,1,1,1,0,2,2,2,3,1,2,2,3,3,3,4,2,2,3,3,4,4,2,2,5,4,4,4",
+          "opening": "line>line>reverse",
+          "location": "1,1"
+        },
+        {
+          "id": "basic-069",
+          "family": "legacy-4,1,3,5,2,0",
+          "opening": "line>line>line",
+          "location": "2,0"
+        },
+        {
+          "id": "basic-070",
+          "family": "legacy-3,0,4,1,5,2",
+          "opening": "reverse>line>common",
+          "location": "1,2"
+        },
+        {
+          "id": "basic-071",
+          "family": "legacy-2,5,3,1,4,0",
+          "opening": "reverse>line>line",
+          "location": "0,1"
+        },
+        {
+          "id": "basic-072",
+          "family": "0,0,0,0,1,1,0,0,1,1,1,2,3,0,4,1,2,2,0,0,4,1,2,2,4,4,4,4,2,5,4,4,4,4,2,5",
+          "opening": "line>reverse>line",
+          "location": "0,0"
+        },
+        {
+          "id": "basic-073",
+          "family": "0,0,0,0,0,1,0,0,0,0,0,1,2,2,3,3,3,1,2,2,2,3,4,4,2,2,2,2,4,4,5,2,2,4,4,4",
+          "opening": "reverse>common>common",
+          "location": "2,1"
+        },
+        {
+          "id": "basic-074",
+          "family": "legacy-2,5,3,0,4,1",
+          "opening": "reverse>line>reverse",
+          "location": "1,0"
+        },
+        {
+          "id": "basic-075",
+          "family": "0,0,0,0,0,1,0,0,2,2,0,1,0,0,2,2,1,1,0,3,3,1,1,1,4,4,3,1,5,1,3,3,3,5,5,5",
+          "opening": "line>line>common",
+          "location": "2,2"
+        },
+        {
+          "id": "basic-076",
+          "family": "0,0,0,1,1,1,0,0,0,0,0,1,2,2,3,0,0,0,2,4,3,5,0,5,4,4,4,5,5,5,4,4,4,5,5,5",
+          "opening": "line>pair>line",
+          "location": "1,1"
+        },
+        {
+          "id": "basic-077",
+          "family": "0,0,0,0,0,0,1,1,1,1,2,2,1,1,3,3,3,4,3,3,5,3,4,4,3,3,3,3,3,4,3,3,3,3,4,4",
+          "opening": "line>line>pair",
+          "location": "0,2"
+        },
+        {
+          "id": "basic-078",
+          "family": "0,0,0,0,0,1,2,0,0,0,0,0,2,2,3,3,3,0,2,4,3,3,3,3,4,4,3,3,3,3,4,4,4,3,5,5",
+          "opening": "line>common>common",
+          "location": "1,0"
+        },
+        {
+          "id": "basic-079",
+          "family": "legacy-2,5,1,4,0,3",
+          "opening": "line>line>triple",
+          "location": "0,0"
+        },
+        {
+          "id": "basic-080",
+          "family": "legacy-4,1,3,5,2,0",
+          "opening": "line>common>pair",
+          "location": "2,0"
+        },
+        {
+          "id": "basic-081",
+          "family": "0,0,0,0,0,1,0,0,0,1,1,1,2,2,2,2,1,1,3,4,2,2,5,5,3,4,2,5,5,5,3,2,2,2,5,5",
+          "opening": "reverse>reverse>reverse",
+          "location": "1,2"
+        },
+        {
+          "id": "basic-082",
+          "family": "legacy-2,5,3,1,4,0",
+          "opening": "reverse>line>line",
+          "location": "0,1"
+        },
+        {
+          "id": "basic-083",
+          "family": "0,0,0,0,1,1,0,0,0,0,1,1,2,2,0,0,3,3,2,2,4,4,3,3,2,2,5,4,4,4,2,2,5,4,4,4",
+          "opening": "line>pair>hall2",
+          "location": "1,2"
+        },
+        {
+          "id": "basic-084",
+          "family": "0,0,0,0,0,0,0,0,1,1,1,2,0,3,1,1,1,1,0,3,3,1,4,1,0,5,5,4,4,4,0,5,5,4,4,4",
+          "opening": "reverse>common>common",
+          "location": "2,1"
+        },
+        {
+          "id": "basic-085",
+          "family": "0,0,0,0,0,1,0,0,0,0,0,1,0,0,2,0,3,3,4,4,2,0,3,3,4,5,5,3,3,3,4,5,3,3,3,3",
+          "opening": "line>line>line",
+          "location": "0,2"
+        },
+        {
+          "id": "basic-086",
+          "family": "0,0,0,0,1,1,0,0,0,2,2,1,3,3,2,2,2,2,3,3,3,3,2,2,3,3,3,3,4,4,5,3,3,3,4,4",
+          "opening": "line>pair>reverse",
+          "location": "0,0"
+        },
+        {
+          "id": "basic-087",
+          "family": "0,0,0,1,1,1,0,0,0,0,2,2,3,0,0,4,4,2,3,3,0,4,4,4,5,5,0,4,4,4,5,0,0,4,4,4",
+          "opening": "reverse>line>common",
+          "location": "1,1"
+        },
+        {
+          "id": "basic-088",
+          "family": "0,0,0,0,0,1,0,0,2,2,0,1,0,0,2,2,1,1,0,3,3,1,1,1,4,4,3,1,5,1,3,3,3,5,5,5",
+          "opening": "line>line>common",
+          "location": "2,2"
+        },
+        {
+          "id": "basic-089",
+          "family": "0,0,0,0,0,0,0,0,1,2,2,2,0,1,1,2,3,3,1,1,1,1,4,4,5,5,1,1,1,4,5,5,5,4,4,4",
+          "opening": "reverse>bend>line",
+          "location": "1,0"
+        },
+        {
+          "id": "basic-090",
+          "family": "0,0,0,0,1,1,0,0,0,0,0,1,0,2,0,3,0,1,2,2,0,3,4,1,2,2,0,3,4,4,5,2,2,2,4,4",
+          "opening": "reverse>pair>triple",
+          "location": "1,1"
+        },
+        {
+          "id": "basic-091",
+          "family": "legacy-4,1,3,5,2,0",
+          "opening": "line>common>pair",
+          "location": "2,0"
+        },
+        {
+          "id": "basic-092",
+          "family": "legacy-3,0,4,1,5,2",
+          "opening": "line>pair>common",
+          "location": "0,1"
+        },
+        {
+          "id": "basic-093",
+          "family": "0,0,0,0,0,1,0,0,0,0,0,1,2,3,3,4,0,0,2,2,4,4,4,4,2,2,4,4,4,5,2,2,2,4,5,5",
+          "opening": "line>common>zigzag",
+          "location": "0,2"
+        },
+        {
+          "id": "basic-094",
+          "family": "0,0,0,0,0,0,0,0,1,1,2,2,0,0,3,1,1,2,3,3,3,3,3,4,5,3,3,3,3,4,5,3,4,4,4,4",
+          "opening": "reverse>line>pair",
+          "location": "1,2"
+        },
+        {
+          "id": "basic-095",
+          "family": "0,0,0,0,0,1,0,0,0,0,1,1,2,0,3,1,1,1,2,3,3,1,1,1,2,3,4,4,5,1,2,2,4,5,5,5",
+          "opening": "common>common>bend",
+          "location": "2,1"
+        },
+        {
+          "id": "basic-096",
+          "family": "legacy-2,5,3,1,4,0",
+          "opening": "reverse>reverse>line",
+          "location": "1,2"
+        },
+        {
+          "id": "basic-097",
+          "family": "legacy-2,5,1,4,0,3",
+          "opening": "line>triple>common",
+          "location": "0,0"
+        },
+        {
+          "id": "basic-098",
+          "family": "legacy-3,5,2,0,4,1",
+          "opening": "common>bend>line",
+          "location": "0,1"
+        },
+        {
+          "id": "basic-099",
+          "family": "0,0,0,0,0,1,0,0,0,0,2,1,3,0,0,0,2,1,3,1,1,1,1,1,3,3,1,4,4,4,3,3,1,5,5,5",
+          "opening": "line>line>triple",
+          "location": "2,2"
+        },
+        {
+          "id": "basic-100",
+          "family": "0,0,0,0,0,1,2,0,0,3,3,3,2,2,0,3,3,3,2,2,4,4,4,3,5,2,4,4,4,3,5,2,2,4,4,4",
+          "opening": "line>line>common",
+          "location": "0,2"
+        }
+      ]
+    },
+    "normal": {
+      "maximumSimilarity": 0.84375,
+      "chapterScores": [
+        1792.4,
+        2235.8,
+        2371.8,
+        2480.5,
+        2602.5,
+        2725.6,
+        2840.5,
+        2968.6,
+        3253.4,
+        3289.5
+      ],
+      "levels": [
+        {
+          "id": "normal-001",
+          "family": "legacy-6,2,7,3,1,4,0,5",
+          "opening": "line",
+          "location": "0,2"
+        },
+        {
+          "id": "normal-002",
+          "family": "legacy-5,7,0,4,1,3,6,2",
+          "opening": "line>line>line",
+          "location": "0,0"
+        },
+        {
+          "id": "normal-003",
+          "family": "legacy-4,2,5,7,1,3,0,6",
+          "opening": "line>pair>line",
+          "location": "1,0"
+        },
+        {
+          "id": "normal-004",
+          "family": "legacy-0,5,7,3,1,6,2,4",
+          "opening": "line>line>line",
+          "location": "0,0"
+        },
+        {
+          "id": "normal-005",
+          "family": "legacy-2,0,7,1,5,3,6,4",
+          "opening": "reverse>line",
+          "location": "1,2"
+        },
+        {
+          "id": "normal-006",
+          "family": "legacy-5,2,0,3,1,7,4,6",
+          "opening": "line>common>bend",
+          "location": "0,2"
+        },
+        {
+          "id": "normal-007",
+          "family": "legacy-6,4,7,2,0,3,1,5",
+          "opening": "reverse>reverse>line",
+          "location": "2,1"
+        },
+        {
+          "id": "normal-008",
+          "family": "legacy-2,6,3,1,4,0,5,7",
+          "opening": "line>line>pair",
+          "location": "2,2"
+        },
+        {
+          "id": "normal-009",
+          "family": "legacy-6,0,7,5,2,4,1,3",
+          "opening": "reverse>reverse>reverse",
+          "location": "1,1"
+        },
+        {
+          "id": "normal-010",
+          "family": "legacy-5,3,6,0,7,1,4,2",
+          "opening": "reverse>line>line",
+          "location": "1,0"
+        },
+        {
+          "id": "normal-011",
+          "family": "legacy-5,3,6,1,7,4,2,0",
+          "opening": "line>reverse>reverse",
+          "location": "2,0"
+        },
+        {
+          "id": "normal-012",
+          "family": "legacy-0,2,6,1,5,3,7,4",
+          "opening": "line>line>reverse",
+          "location": "0,0"
+        },
+        {
+          "id": "normal-013",
+          "family": "legacy-1,3,0,2,6,4,7,5",
+          "opening": "line>line>pair",
+          "location": "1,2"
+        },
+        {
+          "id": "normal-014",
+          "family": "legacy-2,6,3,1,4,0,5,7",
+          "opening": "line>pair>line",
+          "location": "2,2"
+        },
+        {
+          "id": "normal-015",
+          "family": "legacy-0,5,7,3,1,6,2,4",
+          "opening": "line>line>line",
+          "location": "0,0"
+        },
+        {
+          "id": "normal-016",
+          "family": "legacy-2,0,7,1,5,3,6,4",
+          "opening": "reverse>line>common",
+          "location": "0,1"
+        },
+        {
+          "id": "normal-017",
+          "family": "legacy-5,2,0,3,1,7,4,6",
+          "opening": "line>line>triple",
+          "location": "0,2"
+        },
+        {
+          "id": "normal-018",
+          "family": "legacy-6,4,7,2,0,3,1,5",
+          "opening": "line>reverse>line",
+          "location": "1,0"
+        },
+        {
+          "id": "normal-019",
+          "family": "0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,1,1,2,3,3,0,0,0,4,4,2,3,3,0,0,5,5,5,2,3,3,5,5,5,5,5,2,3,6,6,5,5,5,5,5,7,7,7,5,5,5,5,5",
+          "opening": "line>line>line",
+          "location": "0,2"
+        },
+        {
+          "id": "normal-020",
+          "family": "legacy-6,0,7,5,2,4,1,3",
+          "opening": "reverse>reverse>reverse",
+          "location": "1,1"
+        },
+        {
+          "id": "normal-021",
+          "family": "legacy-5,3,6,0,7,1,4,2",
+          "opening": "reverse>line>line",
+          "location": "1,0"
+        },
+        {
+          "id": "normal-022",
+          "family": "legacy-0,3,1,5,7,4,6,2",
+          "opening": "line>line>common",
+          "location": "0,0"
+        },
+        {
+          "id": "normal-023",
+          "family": "legacy-4,2,5,7,1,3,0,6",
+          "opening": "line>common>pair",
+          "location": "2,0"
+        },
+        {
+          "id": "normal-024",
+          "family": "legacy-2,6,3,1,4,0,5,7",
+          "opening": "line>line>pair",
+          "location": "2,2"
+        },
+        {
+          "id": "normal-025",
+          "family": "legacy-0,2,6,1,5,3,7,4",
+          "opening": "line>line>reverse",
+          "location": "0,0"
+        },
+        {
+          "id": "normal-026",
+          "family": "legacy-2,6,3,1,4,0,5,7",
+          "opening": "line>pair>line",
+          "location": "2,2"
+        },
+        {
+          "id": "normal-027",
+          "family": "legacy-2,0,7,1,5,3,6,4",
+          "opening": "reverse>reverse>line",
+          "location": "0,1"
+        },
+        {
+          "id": "normal-028",
+          "family": "legacy-4,2,5,7,1,3,0,6",
+          "opening": "line>line>triple",
+          "location": "2,0"
+        },
+        {
+          "id": "normal-029",
+          "family": "legacy-5,2,0,3,1,7,4,6",
+          "opening": "line>common>common",
+          "location": "2,1"
+        },
+        {
+          "id": "normal-030",
+          "family": "legacy-0,5,7,3,1,6,2,4",
+          "opening": "line>line>line",
+          "location": "0,2"
+        },
+        {
+          "id": "normal-031",
+          "family": "legacy-6,0,7,5,2,4,1,3",
+          "opening": "reverse>reverse>reverse",
+          "location": "1,1"
+        },
+        {
+          "id": "normal-032",
+          "family": "legacy-5,3,6,0,7,1,4,2",
+          "opening": "reverse>line>line",
+          "location": "1,0"
+        },
+        {
+          "id": "normal-033",
+          "family": "legacy-6,0,7,5,2,4,1,3",
+          "opening": "line>line>line",
+          "location": "0,2"
+        },
+        {
+          "id": "normal-034",
+          "family": "legacy-4,2,5,7,1,3,0,6",
+          "opening": "line>line>common",
+          "location": "2,0"
+        },
+        {
+          "id": "normal-035",
+          "family": "legacy-2,6,3,1,4,0,5,7",
+          "opening": "line>line>pair",
+          "location": "2,2"
+        },
+        {
+          "id": "normal-036",
+          "family": "legacy-5,3,6,1,7,4,2,0",
+          "opening": "line>line>reverse",
+          "location": "0,0"
+        },
+        {
+          "id": "normal-037",
+          "family": "legacy-6,4,7,2,0,3,1,5",
+          "opening": "line>reverse>line",
+          "location": "1,0"
+        },
+        {
+          "id": "normal-038",
+          "family": "legacy-2,6,3,1,4,0,5,7",
+          "opening": "line>common>pair",
+          "location": "2,1"
+        },
+        {
+          "id": "normal-039",
+          "family": "legacy-2,0,7,1,5,3,6,4",
+          "opening": "reverse>reverse>line",
+          "location": "0,1"
+        },
+        {
+          "id": "normal-040",
+          "family": "legacy-5,2,0,3,1,7,4,6",
+          "opening": "line>reverse>common",
+          "location": "2,1"
+        },
+        {
+          "id": "normal-041",
+          "family": "legacy-0,3,1,5,7,4,6,2",
+          "opening": "line>line>triple",
+          "location": "0,0"
+        },
+        {
+          "id": "normal-042",
+          "family": "legacy-6,0,7,5,2,4,1,3",
+          "opening": "reverse>reverse>reverse",
+          "location": "1,1"
+        },
+        {
+          "id": "normal-043",
+          "family": "legacy-5,3,6,0,7,1,4,2",
+          "opening": "reverse>line>line",
+          "location": "1,0"
+        },
+        {
+          "id": "normal-044",
+          "family": "legacy-6,2,7,3,1,4,0,5",
+          "opening": "line>line>line",
+          "location": "0,2"
+        },
+        {
+          "id": "normal-045",
+          "family": "legacy-4,2,5,7,1,3,0,6",
+          "opening": "line>line>common",
+          "location": "2,0"
+        },
+        {
+          "id": "normal-046",
+          "family": "legacy-2,6,3,1,4,0,5,7",
+          "opening": "line>line>pair",
+          "location": "2,2"
+        },
+        {
+          "id": "normal-047",
+          "family": "legacy-6,0,7,5,2,4,1,3",
+          "opening": "line>line>line",
+          "location": "0,2"
+        },
+        {
+          "id": "normal-048",
+          "family": "legacy-0,2,6,1,5,3,7,4",
+          "opening": "line>line>reverse",
+          "location": "0,0"
+        },
+        {
+          "id": "normal-049",
+          "family": "legacy-2,6,3,1,4,0,5,7",
+          "opening": "line>common>pair",
+          "location": "2,1"
+        },
+        {
+          "id": "normal-050",
+          "family": "legacy-5,3,6,0,7,1,4,2",
+          "opening": "reverse>line>line",
+          "location": "1,0"
+        },
+        {
+          "id": "normal-051",
+          "family": "legacy-5,2,0,3,1,7,4,6",
+          "opening": "line>triple>common",
+          "location": "0,1"
+        },
+        {
+          "id": "normal-052",
+          "family": "legacy-4,2,5,7,1,3,0,6",
+          "opening": "line>line>triple",
+          "location": "2,0"
+        },
+        {
+          "id": "normal-053",
+          "family": "legacy-6,0,7,5,2,4,1,3",
+          "opening": "common>bend>line",
+          "location": "1,1"
+        },
+        {
+          "id": "normal-054",
+          "family": "legacy-5,3,6,0,7,1,4,2",
+          "opening": "reverse>line>pair",
+          "location": "1,0"
+        },
+        {
+          "id": "normal-055",
+          "family": "legacy-1,3,0,2,6,4,7,5",
+          "opening": "line>line>line",
+          "location": "0,1"
+        },
+        {
+          "id": "normal-056",
+          "family": "legacy-0,3,1,5,7,4,6,2",
+          "opening": "line>line>common",
+          "location": "0,0"
+        },
+        {
+          "id": "normal-057",
+          "family": "legacy-2,6,3,1,4,0,5,7",
+          "opening": "line>common>common",
+          "location": "2,2"
+        },
+        {
+          "id": "normal-058",
+          "family": "0,0,0,0,0,0,1,2,3,3,0,0,0,0,1,2,4,3,3,0,0,0,0,2,4,3,3,3,3,3,3,3,4,4,5,5,3,3,3,3,4,4,4,5,3,3,3,3,6,6,7,5,3,3,3,3,6,7,7,3,3,3,3,3",
+          "opening": "line>line>pair",
+          "location": "2,0"
+        },
+        {
+          "id": "normal-059",
+          "family": "legacy-6,0,7,5,2,4,1,3",
+          "opening": "line>line>line",
+          "location": "0,2"
+        },
+        {
+          "id": "normal-060",
+          "family": "legacy-6,4,7,2,0,3,1,5",
+          "opening": "reverse>line>common",
+          "location": "2,1"
+        },
+        {
+          "id": "normal-061",
+          "family": "legacy-2,6,3,1,4,0,5,7",
+          "opening": "line>pair>line",
+          "location": "2,2"
+        },
+        {
+          "id": "normal-062",
+          "family": "legacy-5,2,0,3,1,7,4,6",
+          "opening": "reverse>reverse>line",
+          "location": "1,1"
+        },
+        {
+          "id": "normal-063",
+          "family": "legacy-4,2,5,7,1,3,0,6",
+          "opening": "line>line>triple",
+          "location": "2,0"
+        },
+        {
+          "id": "normal-064",
+          "family": "legacy-6,0,7,5,2,4,1,3",
+          "opening": "line>line>reverse",
+          "location": "0,2"
+        },
+        {
+          "id": "normal-065",
+          "family": "legacy-5,3,6,0,7,1,4,2",
+          "opening": "reverse>line>line",
+          "location": "1,0"
+        },
+        {
+          "id": "normal-066",
+          "family": "legacy-1,3,0,2,6,4,7,5",
+          "opening": "line>line>line",
+          "location": "0,1"
+        },
+        {
+          "id": "normal-067",
+          "family": "legacy-1,3,0,2,6,4,7,5",
+          "opening": "line>line>pair",
+          "location": "1,0"
+        },
+        {
+          "id": "normal-068",
+          "family": "legacy-0,2,6,1,5,3,7,4",
+          "opening": "line>line>reverse",
+          "location": "0,0"
+        },
+        {
+          "id": "normal-069",
+          "family": "legacy-2,6,3,1,4,0,5,7",
+          "opening": "line>line>common",
+          "location": "2,0"
+        },
+        {
+          "id": "normal-070",
+          "family": "legacy-0,3,1,5,7,4,6,2",
+          "opening": "line>line>line",
+          "location": "0,0"
+        },
+        {
+          "id": "normal-071",
+          "family": "legacy-6,0,7,5,2,4,1,3",
+          "opening": "common>bend>line",
+          "location": "1,1"
+        },
+        {
+          "id": "normal-072",
+          "family": "legacy-2,6,3,1,4,0,5,7",
+          "opening": "line>pair>line",
+          "location": "2,2"
+        },
+        {
+          "id": "normal-073",
+          "family": "legacy-5,2,0,3,1,7,4,6",
+          "opening": "line>common>common",
+          "location": "2,1"
+        },
+        {
+          "id": "normal-074",
+          "family": "legacy-4,2,5,7,1,3,0,6",
+          "opening": "line>line>triple",
+          "location": "2,0"
+        },
+        {
+          "id": "normal-075",
+          "family": "legacy-6,0,7,5,2,4,1,3",
+          "opening": "common>common>bend",
+          "location": "1,1"
+        },
+        {
+          "id": "normal-076",
+          "family": "legacy-5,3,6,0,7,1,4,2",
+          "opening": "line>reverse>line",
+          "location": "0,2"
+        },
+        {
+          "id": "normal-077",
+          "family": "legacy-5,3,6,0,7,1,4,2",
+          "opening": "reverse>line>line",
+          "location": "1,0"
+        },
+        {
+          "id": "normal-078",
+          "family": "legacy-1,3,0,2,6,4,7,5",
+          "opening": "line>line>line",
+          "location": "0,1"
+        },
+        {
+          "id": "normal-079",
+          "family": "legacy-6,4,7,2,0,3,1,5",
+          "opening": "reverse>line>common",
+          "location": "2,1"
+        },
+        {
+          "id": "normal-080",
+          "family": "legacy-2,6,3,1,4,0,5,7",
+          "opening": "line>line>pair",
+          "location": "2,0"
+        },
+        {
+          "id": "normal-081",
+          "family": "legacy-0,2,6,1,5,3,7,4",
+          "opening": "line>line>common",
+          "location": "0,2"
+        },
+        {
+          "id": "normal-082",
+          "family": "legacy-6,0,7,5,2,4,1,3",
+          "opening": "line>line>line",
+          "location": "0,0"
+        },
+        {
+          "id": "normal-083",
+          "family": "legacy-2,6,3,1,4,0,5,7",
+          "opening": "line>pair>line",
+          "location": "2,2"
+        },
+        {
+          "id": "normal-084",
+          "family": "legacy-5,2,0,3,1,7,4,6",
+          "opening": "line>common>reverse",
+          "location": "0,1"
+        },
+        {
+          "id": "normal-085",
+          "family": "legacy-4,2,5,7,1,3,0,6",
+          "opening": "line>line>triple",
+          "location": "2,0"
+        },
+        {
+          "id": "normal-086",
+          "family": "legacy-6,0,7,5,2,4,1,3",
+          "opening": "common>bend>line",
+          "location": "1,1"
+        },
+        {
+          "id": "normal-087",
+          "family": "legacy-5,3,6,0,7,1,4,2",
+          "opening": "line>line>reverse",
+          "location": "1,2"
+        },
+        {
+          "id": "normal-088",
+          "family": "legacy-4,2,5,7,1,3,0,6",
+          "opening": "line>line>pair",
+          "location": "2,0"
+        },
+        {
+          "id": "normal-089",
+          "family": "legacy-1,3,0,2,6,4,7,5",
+          "opening": "zigzag>common>bend",
+          "location": "1,0"
+        },
+        {
+          "id": "normal-090",
+          "family": "legacy-1,3,0,2,6,4,7,5",
+          "opening": "line>line>line",
+          "location": "0,1"
+        },
+        {
+          "id": "normal-091",
+          "family": "legacy-2,6,3,1,4,0,5,7",
+          "opening": "line>common>triple",
+          "location": "2,1"
+        },
+        {
+          "id": "normal-092",
+          "family": "legacy-6,2,7,3,1,4,0,5",
+          "opening": "line>line>line",
+          "location": "0,2"
+        },
+        {
+          "id": "normal-093",
+          "family": "legacy-6,0,7,5,2,4,1,3",
+          "opening": "line>line>common",
+          "location": "2,0"
+        },
+        {
+          "id": "normal-094",
+          "family": "legacy-2,6,3,1,4,0,5,7",
+          "opening": "line>triple>line",
+          "location": "2,2"
+        },
+        {
+          "id": "normal-095",
+          "family": "legacy-5,2,0,3,1,7,4,6",
+          "opening": "line>line>line",
+          "location": "0,2"
+        },
+        {
+          "id": "normal-096",
+          "family": "legacy-4,2,5,7,1,3,0,6",
+          "opening": "line>common>pair",
+          "location": "2,0"
+        },
+        {
+          "id": "normal-097",
+          "family": "legacy-6,0,7,5,2,4,1,3",
+          "opening": "line>common>common",
+          "location": "0,0"
+        },
+        {
+          "id": "normal-098",
+          "family": "legacy-5,3,6,0,7,1,4,2",
+          "opening": "bend>bend>bend",
+          "location": "0,2"
+        },
+        {
+          "id": "normal-099",
+          "family": "legacy-5,3,6,0,7,1,4,2",
+          "opening": "reverse>line>line",
+          "location": "1,0"
+        },
+        {
+          "id": "normal-100",
+          "family": "legacy-4,2,5,7,1,3,0,6",
+          "opening": "line>line>pair",
+          "location": "2,0"
+        }
+      ]
+    },
+    "challenge": {
+      "maximumSimilarity": 0.85,
+      "chapterScores": [
+        2572.1,
+        2741,
+        2974.6,
+        3256,
+        3438,
+        3513.8,
+        3635,
+        3764.2,
+        4295.7,
+        4302.4
+      ],
+      "levels": [
+        {
+          "id": "challenge-001",
+          "family": "0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,0,0,0,0,0,0,4,4,4,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,6,0,0,0,5,0,0,7,7,0,6,0,0,0,0,0,8,8,8,0,6,0,0,0,0,9,8,0,0,0,0,0,0,9,9,9",
+          "opening": "reverse>pair",
+          "location": "0,1"
+        },
+        {
+          "id": "challenge-002",
+          "family": "0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,2,1,0,0,0,0,0,0,0,0,2,0,3,0,0,0,0,0,0,0,0,0,3,0,0,0,4,4,5,0,0,0,0,0,0,0,0,0,5,6,0,0,0,7,8,0,0,0,5,6,0,0,0,7,8,0,0,0,5,0,0,0,0,7,8,9,9,9,9,0,0,0,0,0,8,0,0,0,0,0,0,0",
+          "opening": "line>line>reverse",
+          "location": "1,0"
+        },
+        {
+          "id": "challenge-003",
+          "family": "legacy-0,2,4,6,8,1,3,5,7,9",
+          "opening": "line>pair>common",
+          "location": "2,2"
+        },
+        {
+          "id": "challenge-004",
+          "family": "0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,2,0,1,0,0,3,3,3,0,0,2,0,0,0,0,0,4,4,0,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,6,6,6,6,5,0,0,0,0,7,0,0,0,0,5,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,8,8,9,9,0,0,0,0,0,0,0,0",
+          "opening": "reverse>line>line",
+          "location": "1,1"
+        },
+        {
+          "id": "challenge-005",
+          "family": "0,0,0,0,0,0,0,0,1,1,2,2,2,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,3,0,4,4,4,4,0,0,0,0,3,0,3,3,3,5,0,0,0,0,3,3,3,3,6,5,0,7,7,7,3,3,3,3,6,0,0,0,0,0,3,3,3,8,8,8,8,0,0,0,3,3,3,3,3,3,3,9,9,0",
+          "opening": "line>line>line",
+          "location": "0,2"
+        },
+        {
+          "id": "challenge-006",
+          "family": "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,2,0,3,3,0,0,0,1,1,2,2,0,0,3,3,0,0,1,0,2,0,0,0,0,0,0,0,0,0,4,4,4,0,0,5,5,0,0,0,0,0,4,6,6,5,0,0,7,7,0,0,0,6,8,5,0,7,7,0,0,0,0,8,8,8,9,9,0,0,0,0,0,8,8,9,9,0,0,0,0,0,0",
+          "opening": "reverse>reverse>reverse",
+          "location": "2,1"
+        },
+        {
+          "id": "challenge-007",
+          "family": "0,0,0,0,0,0,0,0,0,1,2,2,3,0,0,0,0,0,0,1,2,2,3,3,3,0,0,0,0,1,0,0,0,4,4,0,0,0,5,0,0,0,0,0,0,0,0,0,5,0,0,6,6,6,0,7,0,8,0,0,0,0,0,0,9,7,0,8,0,0,0,0,0,0,9,7,0,8,0,0,0,0,0,0,9,7,0,0,0,0,0,0,0,0,9,0,0,0,0,0",
+          "opening": "reverse>reverse>line",
+          "location": "1,1"
+        },
+        {
+          "id": "challenge-008",
+          "family": "0,0,0,0,0,0,0,0,0,0,0,1,1,2,0,0,0,0,0,3,1,1,4,2,2,0,0,0,0,3,3,4,4,3,2,0,0,0,3,3,3,3,3,3,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,6,6,3,3,3,3,3,3,7,7,7,7,3,8,3,3,3,3,3,3,3,3,3,8,3,3,9,9,3,3,3,3,3,8,3",
+          "opening": "reverse>reverse>common",
+          "location": "1,0"
+        },
+        {
+          "id": "challenge-009",
+          "family": "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,2,2,0,1,0,0,0,0,0,3,3,2,4,0,0,0,0,0,0,0,3,0,4,4,0,0,0,5,0,0,0,0,0,0,0,0,5,5,6,0,0,0,0,0,0,7,7,7,6,0,0,0,8,0,0,7,9,9,6,6,0,0,8,8,0,0,9,0,0,0,0,0,0,8,0,0,0,0",
+          "opening": "line>line>line",
+          "location": "0,0"
+        },
+        {
+          "id": "challenge-010",
+          "family": "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,2,2,0,0,0,3,3,0,1,0,0,0,0,0,0,0,3,0,1,0,0,0,0,0,4,0,0,0,1,5,5,0,0,0,4,0,0,6,6,6,6,6,0,0,0,7,7,6,6,6,6,6,8,0,0,9,7,7,6,6,6,6,8,0,0,9,9,6,6,6,6,6,0,0,0,0,9,6,6,6,6,6",
+          "opening": "reverse>line>line",
+          "location": "2,1"
+        },
+        {
+          "id": "challenge-011",
+          "family": "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,2,0,0,0,0,1,3,3,0,2,2,0,0,0,0,3,3,0,0,0,0,0,0,0,0,4,4,5,5,0,6,6,0,0,4,4,0,0,5,0,0,6,6,0,0,0,0,0,0,0,7,7,8,8,0,0,0,0,0,0,0,7,7,8,9,0,0,0,0,0,0,0,0,8,9,9,0,0,0",
+          "opening": "reverse>reverse>reverse",
+          "location": "1,0"
+        },
+        {
+          "id": "challenge-012",
+          "family": "0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,2,2,0,0,1,0,0,3,3,4,5,2,0,0,0,0,0,4,3,4,5,6,0,0,0,0,0,4,4,4,5,6,6,7,7,7,0,4,8,4,5,5,6,7,9,5,5,4,8,8,5,5,5,9,9,5,5,4,4,8,5,5,5,5,5,5,5,4,4,4,5,5,5,5,5,5,5,4,4,4",
+          "opening": "reverse>pair>bend",
+          "location": "0,1"
+        },
+        {
+          "id": "challenge-013",
+          "family": "legacy-0,2,4,6,8,1,3,5,7,9",
+          "opening": "bend>bend>hall3",
+          "location": "1,2"
+        },
+        {
+          "id": "challenge-014",
+          "family": "legacy-0,2,4,6,8,1,3,9,5,7",
+          "opening": "line>line>pair",
+          "location": "0,0"
+        },
+        {
+          "id": "challenge-015",
+          "family": "legacy-0,2,4,6,8,1,3,7,5,9",
+          "opening": "line>pair>common",
+          "location": "2,2"
+        },
+        {
+          "id": "challenge-016",
+          "family": "0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,2,1,0,0,0,0,0,0,0,0,2,0,3,0,0,0,0,0,0,0,0,0,3,0,0,0,4,4,5,0,0,0,0,0,0,0,0,0,5,6,0,0,0,7,8,0,0,0,5,6,0,0,0,7,8,0,0,0,5,0,0,0,0,7,8,9,9,9,9,0,0,0,0,0,8,0,0,0,0,0,0,0",
+          "opening": "line>line>reverse",
+          "location": "0,2"
+        },
+        {
+          "id": "challenge-017",
+          "family": "legacy-0,2,4,6,8,1,3,7,9,5",
+          "opening": "reverse>line>pair",
+          "location": "0,1"
+        },
+        {
+          "id": "challenge-018",
+          "family": "0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,2,1,1,0,0,0,3,3,0,0,2,2,0,4,4,3,3,0,0,0,0,0,0,5,4,6,6,0,0,0,0,0,0,5,5,7,6,6,0,0,0,0,0,7,7,7,8,0,0,0,0,0,0,8,8,8,8,8,8,8,0,0,0,8,8,8,8,9,8,8,0,0,0,8,8,8,8,9,9,8,0,0,0",
+          "opening": "common>common>reverse",
+          "location": "2,1"
+        },
+        {
+          "id": "challenge-019",
+          "family": "0,0,0,0,0,0,0,0,0,0,0,1,1,2,0,0,0,0,0,3,1,1,4,2,2,0,0,0,0,3,3,4,4,3,2,0,0,0,3,3,3,3,3,3,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,6,6,3,3,3,3,3,3,7,7,7,7,3,8,3,3,3,3,3,3,3,3,3,8,3,3,9,9,3,3,3,3,3,8,3",
+          "opening": "reverse>reverse>common",
+          "location": "1,0"
+        },
+        {
+          "id": "challenge-020",
+          "family": "0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,2,1,0,0,0,0,0,0,0,0,2,0,3,0,0,0,0,0,0,0,0,0,3,0,0,0,4,4,5,0,0,0,0,0,0,0,0,0,5,6,0,0,0,7,8,0,0,0,5,6,0,0,0,7,8,0,0,0,5,0,0,0,0,7,8,9,9,9,9,0,0,0,0,0,8,0,0,0,0,0,0,0",
+          "opening": "reverse>reverse>line",
+          "location": "1,1"
+        },
+        {
+          "id": "challenge-021",
+          "family": "0,0,0,0,0,0,0,0,1,1,0,0,2,0,0,0,3,3,3,3,4,0,2,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,4,0,0,0,5,5,5,5,0,0,4,0,0,0,6,0,0,7,7,0,0,0,0,0,6,0,0,0,0,0,0,0,0,0,6,8,0,0,0,0,0,0,0,0,6,8,0,0,0,0,0,0,9,9,0,0,0,0,0,0",
+          "opening": "line>line>line",
+          "location": "0,2"
+        },
+        {
+          "id": "challenge-022",
+          "family": "legacy-0,2,4,6,8,1,3,5,7,9",
+          "opening": "line>pair>bend",
+          "location": "2,2"
+        },
+        {
+          "id": "challenge-023",
+          "family": "0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,0,0,0,0,2,0,0,1,1,1,0,0,3,0,2,4,0,1,1,1,0,1,3,5,2,4,1,1,1,1,1,1,3,5,4,4,1,4,1,6,1,1,1,5,4,4,4,4,4,6,1,1,1,5,4,4,4,4,4,4,4,7,7,7,4,8,4,4,9,9,4,4,4,4,4,8,4,4,4,4,4,4,4,4,4",
+          "opening": "reverse>line>line",
+          "location": "0,1"
+        },
+        {
+          "id": "challenge-024",
+          "family": "0,0,0,0,0,0,0,0,0,1,0,0,2,2,0,0,0,3,1,1,0,0,0,2,0,0,3,3,1,0,0,4,4,0,0,0,3,0,0,0,4,4,5,0,6,0,0,0,0,0,0,5,5,0,6,6,0,0,0,0,0,5,7,0,0,6,0,0,0,0,0,7,7,0,0,8,0,0,0,0,0,0,0,0,0,8,8,9,0,0,0,0,0,0,0,0,8,9,9,0",
+          "opening": "line>common>common",
+          "location": "1,0"
+        },
+        {
+          "id": "challenge-025",
+          "family": "legacy-0,2,4,6,8,1,3,5,7,9",
+          "opening": "line>line>pair",
+          "location": "1,2"
+        },
+        {
+          "id": "challenge-026",
+          "family": "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,2,0,3,3,0,0,0,1,1,2,2,0,0,3,3,0,0,1,0,2,0,0,0,0,0,0,0,0,0,4,4,4,0,0,5,5,0,0,0,0,0,4,6,6,5,0,0,7,7,0,0,0,6,8,5,0,7,7,0,0,0,0,8,8,8,9,9,0,0,0,0,0,8,8,9,9,0,0,0,0,0,0",
+          "opening": "reverse>reverse>reverse",
+          "location": "2,1"
+        },
+        {
+          "id": "challenge-027",
+          "family": "0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,2,1,0,0,0,0,0,0,0,0,2,0,3,0,0,0,0,0,0,0,0,0,3,0,0,0,4,4,5,0,0,0,0,0,0,0,0,0,5,6,0,0,0,7,8,0,0,0,5,6,0,0,0,7,8,0,0,0,5,0,0,0,0,7,8,9,9,9,9,0,0,0,0,0,8,0,0,0,0,0,0,0",
+          "opening": "line>line>line",
+          "location": "0,0"
+        },
+        {
+          "id": "challenge-028",
+          "family": "legacy-0,2,4,6,8,1,3,7,9,5",
+          "opening": "reverse>line>pair",
+          "location": "0,1"
+        },
+        {
+          "id": "challenge-029",
+          "family": "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,2,2,0,0,0,3,3,0,1,0,0,0,0,0,0,0,3,0,1,0,0,0,0,0,4,0,0,0,1,5,5,0,0,0,4,0,0,6,6,6,6,6,0,0,0,7,7,6,6,6,6,6,8,0,0,9,7,7,6,6,6,6,8,0,0,9,9,6,6,6,6,6,0,0,0,0,9,6,6,6,6,6",
+          "opening": "reverse>line>line",
+          "location": "2,1"
+        },
+        {
+          "id": "challenge-030",
+          "family": "legacy-0,2,4,6,8,1,3,9,5,7",
+          "opening": "line>pair>common",
+          "location": "0,0"
+        },
+        {
+          "id": "challenge-031",
+          "family": "legacy-0,2,4,6,8,1,3,7,5,9",
+          "opening": "common>bend>bend",
+          "location": "1,1"
+        },
+        {
+          "id": "challenge-032",
+          "family": "legacy-0,2,4,6,8,1,3,7,9,5",
+          "opening": "line>common>pair",
+          "location": "2,2"
+        },
+        {
+          "id": "challenge-033",
+          "family": "legacy-0,2,4,6,8,1,5,7,3,9",
+          "opening": "reverse>reverse>line",
+          "location": "1,0"
+        },
+        {
+          "id": "challenge-034",
+          "family": "legacy-0,2,4,6,8,1,3,5,7,9",
+          "opening": "line>pair>bend",
+          "location": "2,2"
+        },
+        {
+          "id": "challenge-035",
+          "family": "0,0,0,0,0,0,0,0,0,0,0,1,1,2,0,0,0,0,0,3,1,1,4,2,2,0,0,0,0,3,3,4,4,3,2,0,0,0,3,3,3,3,3,3,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,6,6,3,3,3,3,3,3,7,7,7,7,3,8,3,3,3,3,3,3,3,3,3,8,3,3,9,9,3,3,3,3,3,8,3",
+          "opening": "reverse>reverse>common",
+          "location": "1,0"
+        },
+        {
+          "id": "challenge-036",
+          "family": "legacy-0,2,4,6,8,1,3,9,5,7",
+          "opening": "line>line>pair",
+          "location": "0,0"
+        },
+        {
+          "id": "challenge-037",
+          "family": "0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,2,1,0,0,0,0,0,0,0,0,2,0,3,0,0,0,0,0,0,0,0,0,3,0,0,0,4,4,5,0,0,0,0,0,0,0,0,0,5,6,0,0,0,7,8,0,0,0,5,6,0,0,0,7,8,0,0,0,5,0,0,0,0,7,8,9,9,9,9,0,0,0,0,0,8,0,0,0,0,0,0,0",
+          "opening": "line>line>line",
+          "location": "0,1"
+        },
+        {
+          "id": "challenge-038",
+          "family": "0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,2,1,0,0,0,0,0,0,0,0,2,0,3,0,0,0,0,0,0,0,0,0,3,0,0,0,4,4,5,0,0,0,0,0,0,0,0,0,5,6,0,0,0,7,8,0,0,0,5,6,0,0,0,7,8,0,0,0,5,0,0,0,0,7,8,9,9,9,9,0,0,0,0,0,8,0,0,0,0,0,0,0",
+          "opening": "reverse>reverse>reverse",
+          "location": "1,1"
+        },
+        {
+          "id": "challenge-039",
+          "family": "legacy-0,2,4,6,8,1,3,5,7,9",
+          "opening": "line>line>line",
+          "location": "1,2"
+        },
+        {
+          "id": "challenge-040",
+          "family": "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,2,2,0,0,0,3,3,0,1,0,0,0,0,0,0,0,3,0,1,0,0,0,0,0,4,0,0,0,1,5,5,0,0,0,4,0,0,6,6,6,6,6,0,0,0,7,7,6,6,6,6,6,8,0,0,9,7,7,6,6,6,6,8,0,0,9,9,6,6,6,6,6,0,0,0,0,9,6,6,6,6,6",
+          "opening": "reverse>line>line",
+          "location": "2,1"
+        },
+        {
+          "id": "challenge-041",
+          "family": "legacy-0,2,4,6,8,1,3,9,5,7",
+          "opening": "line>pair>common",
+          "location": "0,0"
+        },
+        {
+          "id": "challenge-042",
+          "family": "legacy-0,2,4,6,8,1,3,7,5,9",
+          "opening": "common>common>bend",
+          "location": "0,2"
+        },
+        {
+          "id": "challenge-043",
+          "family": "legacy-0,2,4,6,8,1,3,7,9,5",
+          "opening": "reverse>line>pair",
+          "location": "0,1"
+        },
+        {
+          "id": "challenge-044",
+          "family": "legacy-0,2,4,6,8,1,5,7,3,9",
+          "opening": "reverse>reverse>line",
+          "location": "1,0"
+        },
+        {
+          "id": "challenge-045",
+          "family": "legacy-0,2,4,6,8,1,3,5,7,9",
+          "opening": "line>pair>bend",
+          "location": "2,2"
+        },
+        {
+          "id": "challenge-046",
+          "family": "0,0,0,0,0,0,0,0,0,0,0,1,1,2,0,0,0,0,0,3,1,1,4,2,2,0,0,0,0,3,3,4,4,3,2,0,0,0,3,3,3,3,3,3,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,6,6,3,3,3,3,3,3,7,7,7,7,3,8,3,3,3,3,3,3,3,3,3,8,3,3,9,9,3,3,3,3,3,8,3",
+          "opening": "reverse>reverse>common",
+          "location": "1,0"
+        },
+        {
+          "id": "challenge-047",
+          "family": "0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,2,2,0,1,1,3,3,0,0,2,2,0,0,4,4,4,3,3,0,0,0,0,0,4,4,4,4,5,0,0,0,0,0,4,6,4,4,5,5,0,0,0,0,6,6,4,4,7,5,0,0,0,0,6,4,4,7,7,0,0,0,0,0,4,4,4,7,8,8,0,0,0,9,4,4,4,4,4,8,8,0,9,9",
+          "opening": "reverse>common>common",
+          "location": "2,1"
+        },
+        {
+          "id": "challenge-048",
+          "family": "0,0,0,0,0,0,0,0,0,1,0,0,2,2,0,0,0,3,1,1,0,0,0,2,0,0,3,3,1,0,0,4,4,0,0,0,3,0,0,0,4,4,5,0,6,0,0,0,0,0,0,5,5,0,6,6,0,0,0,0,0,5,7,0,0,6,0,0,0,0,0,7,7,0,0,8,0,0,0,0,0,0,0,0,0,8,8,9,0,0,0,0,0,0,0,0,8,9,9,0",
+          "opening": "common>common>common",
+          "location": "0,1"
+        },
+        {
+          "id": "challenge-049",
+          "family": "0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,2,1,0,0,0,0,0,0,0,0,2,0,3,0,0,0,0,0,0,0,0,0,3,0,0,0,4,4,5,0,0,0,0,0,0,0,0,0,5,6,0,0,0,7,8,0,0,0,5,6,0,0,0,7,8,0,0,0,5,0,0,0,0,7,8,9,9,9,9,0,0,0,0,0,8,0,0,0,0,0,0,0",
+          "opening": "reverse>reverse>reverse",
+          "location": "1,1"
+        },
+        {
+          "id": "challenge-050",
+          "family": "legacy-0,2,4,6,8,1,3,5,7,9",
+          "opening": "line>pair>hall3",
+          "location": "2,2"
+        },
+        {
+          "id": "challenge-051",
+          "family": "0,0,0,0,0,0,0,0,1,1,2,0,0,0,0,0,0,3,3,1,2,0,0,0,0,0,0,0,0,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,5,5,5,5,4,0,0,0,0,0,0,6,7,7,4,0,0,0,0,8,0,6,9,7,4,0,0,0,0,8,0,0,9,7,7,0,0,0,0,0,0,0,9,7,7,7,0,0",
+          "opening": "line>line>line",
+          "location": "0,2"
+        },
+        {
+          "id": "challenge-052",
+          "family": "legacy-0,2,4,6,8,1,3,9,5,7",
+          "opening": "line>line>pair",
+          "location": "0,0"
+        },
+        {
+          "id": "challenge-053",
+          "family": "legacy-0,2,4,6,8,1,3,7,5,9",
+          "opening": "line>common>triple",
+          "location": "2,1"
+        },
+        {
+          "id": "challenge-054",
+          "family": "0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,2,0,1,0,0,0,0,0,3,3,2,0,0,0,4,4,4,4,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,0,0,0,0,0,0,0,6,6,0,0,0,0,0,0,7,7,6,6,6,6,8,8,0,0,0,0,6,6,6,6,6,6,0,0,0,0,6,6,6,6,6,9,9,9,0,0",
+          "opening": "reverse>triple>pair",
+          "location": "1,1"
+        },
+        {
+          "id": "challenge-055",
+          "family": "legacy-0,2,4,6,8,1,5,7,3,9",
+          "opening": "reverse>reverse>line",
+          "location": "1,0"
+        },
+        {
+          "id": "challenge-056",
+          "family": "legacy-0,2,4,6,8,1,3,5,7,9",
+          "opening": "line>line>reverse",
+          "location": "1,2"
+        },
+        {
+          "id": "challenge-057",
+          "family": "legacy-0,2,4,6,8,1,3,7,9,5",
+          "opening": "reverse>common>bend",
+          "location": "0,1"
+        },
+        {
+          "id": "challenge-058",
+          "family": "legacy-0,2,4,6,8,1,5,7,3,9",
+          "opening": "reverse>reverse>reverse",
+          "location": "1,0"
+        },
+        {
+          "id": "challenge-059",
+          "family": "0,0,0,0,0,0,0,0,0,1,0,0,2,2,0,0,0,3,1,1,0,0,0,2,0,0,3,3,1,0,0,4,4,0,0,0,3,0,0,0,4,4,5,0,6,0,0,0,0,0,0,5,5,0,6,6,0,0,0,0,0,5,7,0,0,6,0,0,0,0,0,7,7,0,0,8,0,0,0,0,0,0,0,0,0,8,8,9,0,0,0,0,0,0,0,0,8,9,9,0",
+          "opening": "common>common>common",
+          "location": "0,1"
+        },
+        {
+          "id": "challenge-060",
+          "family": "0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,2,0,1,0,0,0,0,0,3,3,2,0,0,0,4,4,4,4,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,0,0,0,0,0,0,0,6,6,0,0,0,0,0,0,7,7,6,6,6,6,8,8,0,0,0,0,6,6,6,6,6,6,0,0,0,0,6,6,6,6,6,9,9,9,0,0",
+          "opening": "reverse>triple>pair",
+          "location": "1,1"
+        },
+        {
+          "id": "challenge-061",
+          "family": "legacy-0,2,4,6,8,1,3,5,7,9",
+          "opening": "line>pair>common",
+          "location": "2,2"
+        },
+        {
+          "id": "challenge-062",
+          "family": "0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,2,1,0,0,0,0,0,0,0,0,2,0,3,0,0,0,0,0,0,0,0,0,3,0,0,0,4,4,5,0,0,0,0,0,0,0,0,0,5,6,0,0,0,7,8,0,0,0,5,6,0,0,0,7,8,0,0,0,5,0,0,0,0,7,8,9,9,9,9,0,0,0,0,0,8,0,0,0,0,0,0,0",
+          "opening": "line>line>line",
+          "location": "0,2"
+        },
+        {
+          "id": "challenge-063",
+          "family": "legacy-0,2,4,6,8,1,3,9,5,7",
+          "opening": "line>line>pair",
+          "location": "0,0"
+        },
+        {
+          "id": "challenge-064",
+          "family": "legacy-0,2,4,6,8,1,3,7,5,9",
+          "opening": "line>common>triple",
+          "location": "2,1"
+        },
+        {
+          "id": "challenge-065",
+          "family": "0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,2,1,0,0,0,0,0,0,0,0,2,0,3,0,0,0,0,0,0,0,0,0,3,0,0,0,4,4,5,0,0,0,0,0,0,0,0,0,5,6,0,0,0,7,8,0,0,0,5,6,0,0,0,7,8,0,0,0,5,0,0,0,0,7,8,9,9,9,9,0,0,0,0,0,8,0,0,0,0,0,0,0",
+          "opening": "line>line>line",
+          "location": "0,2"
+        },
+        {
+          "id": "challenge-066",
+          "family": "legacy-0,2,4,6,8,1,5,7,3,9",
+          "opening": "reverse>line>line",
+          "location": "1,0"
+        },
+        {
+          "id": "challenge-067",
+          "family": "0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,2,2,0,1,1,3,3,0,0,2,2,0,0,4,4,4,3,3,0,0,0,0,0,4,4,4,4,5,0,0,0,0,0,4,6,4,4,5,5,0,0,0,0,6,6,4,4,7,5,0,0,0,0,6,4,4,7,7,0,0,0,0,0,4,4,4,7,8,8,0,0,0,9,4,4,4,4,4,8,8,0,9,9",
+          "opening": "reverse>common>common",
+          "location": "2,1"
+        },
+        {
+          "id": "challenge-068",
+          "family": "legacy-0,2,4,6,8,1,3,7,9,5",
+          "opening": "reverse>line>pair",
+          "location": "0,1"
+        },
+        {
+          "id": "challenge-069",
+          "family": "legacy-0,2,4,6,8,1,3,5,7,9",
+          "opening": "line>line>reverse",
+          "location": "1,2"
+        },
+        {
+          "id": "challenge-070",
+          "family": "legacy-0,2,4,6,8,1,5,7,3,9",
+          "opening": "reverse>line>reverse",
+          "location": "1,0"
+        },
+        {
+          "id": "challenge-071",
+          "family": "0,0,0,0,0,0,0,0,0,1,0,0,2,2,0,0,0,3,1,1,0,0,0,2,0,0,3,3,1,0,0,4,4,0,0,0,3,0,0,0,4,4,5,0,6,0,0,0,0,0,0,5,5,0,6,6,0,0,0,0,0,5,7,0,0,6,0,0,0,0,0,7,7,0,0,8,0,0,0,0,0,0,0,0,0,8,8,9,0,0,0,0,0,0,0,0,8,9,9,0",
+          "opening": "common>common>common",
+          "location": "1,1"
+        },
+        {
+          "id": "challenge-072",
+          "family": "legacy-0,2,4,6,8,1,3,5,7,9",
+          "opening": "line>pair>common",
+          "location": "2,2"
+        },
+        {
+          "id": "challenge-073",
+          "family": "0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,2,1,0,0,0,0,0,0,0,0,2,0,3,0,0,0,0,0,0,0,0,0,3,0,0,0,4,4,5,0,0,0,0,0,0,0,0,0,5,6,0,0,0,7,8,0,0,0,5,6,0,0,0,7,8,0,0,0,5,0,0,0,0,7,8,9,9,9,9,0,0,0,0,0,8,0,0,0,0,0,0,0",
+          "opening": "reverse>reverse>reverse",
+          "location": "1,1"
+        },
+        {
+          "id": "challenge-074",
+          "family": "legacy-0,2,4,6,8,1,3,9,5,7",
+          "opening": "line>line>pair",
+          "location": "0,0"
+        },
+        {
+          "id": "challenge-075",
+          "family": "legacy-0,2,4,6,8,1,3,7,5,9",
+          "opening": "line>triple>common",
+          "location": "2,1"
+        },
+        {
+          "id": "challenge-076",
+          "family": "0,0,0,0,0,0,0,0,1,1,2,0,0,0,0,0,0,3,3,1,2,0,0,0,0,0,0,0,0,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,5,5,5,5,4,0,0,0,0,0,0,6,7,7,4,0,0,0,0,8,0,6,9,7,4,0,0,0,0,8,0,0,9,7,7,0,0,0,0,0,0,0,9,7,7,7,0,0",
+          "opening": "line>line>line",
+          "location": "0,2"
+        },
+        {
+          "id": "challenge-077",
+          "family": "legacy-0,2,4,6,8,1,5,7,3,9",
+          "opening": "reverse>reverse>line",
+          "location": "1,0"
+        },
+        {
+          "id": "challenge-078",
+          "family": "0,0,0,0,0,0,0,0,0,1,0,2,2,0,0,0,0,0,1,1,0,3,2,0,0,0,0,0,1,0,0,3,3,0,0,0,0,0,0,0,4,3,3,0,0,5,0,0,6,0,4,4,3,0,5,5,0,0,6,6,0,3,3,7,5,0,0,0,0,6,0,7,7,7,0,0,0,0,0,0,0,0,0,0,0,8,8,9,0,0,0,0,0,0,0,0,8,9,9,0",
+          "opening": "common>common>common",
+          "location": "0,1"
+        },
+        {
+          "id": "challenge-079",
+          "family": "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,2,2,0,0,0,3,3,0,1,0,0,0,0,0,0,0,3,0,1,0,0,0,0,0,4,0,0,0,1,5,5,0,0,0,4,0,0,6,6,6,6,6,0,0,0,7,7,6,6,6,6,6,8,0,0,9,7,7,6,6,6,6,8,0,0,9,9,6,6,6,6,6,0,0,0,0,9,6,6,6,6,6",
+          "opening": "reverse>line>line",
+          "location": "2,1"
+        },
+        {
+          "id": "challenge-080",
+          "family": "legacy-0,2,4,6,8,1,3,5,7,9",
+          "opening": "line>pair>bend",
+          "location": "2,2"
+        },
+        {
+          "id": "challenge-081",
+          "family": "legacy-0,2,4,6,8,1,5,7,3,9",
+          "opening": "reverse>line>reverse",
+          "location": "1,0"
+        },
+        {
+          "id": "challenge-082",
+          "family": "0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,2,0,1,0,0,0,0,0,3,3,2,0,0,0,4,4,4,4,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,0,0,0,0,0,0,0,6,6,0,0,0,0,0,0,7,7,6,6,6,6,8,8,0,0,0,0,6,6,6,6,6,6,0,0,0,0,6,6,6,6,6,9,9,9,0,0",
+          "opening": "reverse>triple>pair",
+          "location": "1,1"
+        },
+        {
+          "id": "challenge-083",
+          "family": "legacy-0,2,4,6,8,1,3,5,7,9",
+          "opening": "line>pair>common",
+          "location": "2,2"
+        },
+        {
+          "id": "challenge-084",
+          "family": "0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,2,1,0,0,0,0,0,0,0,0,2,0,3,0,0,0,0,0,0,0,0,0,3,0,0,0,4,4,5,0,0,0,0,0,0,0,0,0,5,6,0,0,0,7,8,0,0,0,5,6,0,0,0,7,8,0,0,0,5,0,0,0,0,7,8,9,9,9,9,0,0,0,0,0,8,0,0,0,0,0,0,0",
+          "opening": "line>line>line",
+          "location": "0,1"
+        },
+        {
+          "id": "challenge-085",
+          "family": "legacy-0,2,4,6,8,1,3,9,5,7",
+          "opening": "line>line>pair",
+          "location": "0,0"
+        },
+        {
+          "id": "challenge-086",
+          "family": "legacy-0,2,4,6,8,1,3,7,9,5",
+          "opening": "reverse>line>pair",
+          "location": "0,1"
+        },
+        {
+          "id": "challenge-087",
+          "family": "legacy-0,2,4,6,8,1,3,9,5,7",
+          "opening": "line>pair>common",
+          "location": "0,0"
+        },
+        {
+          "id": "challenge-088",
+          "family": "legacy-0,2,4,6,8,1,5,7,3,9",
+          "opening": "reverse>reverse>line",
+          "location": "1,0"
+        },
+        {
+          "id": "challenge-089",
+          "family": "0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,2,0,1,0,0,0,0,0,3,3,2,0,0,0,4,4,4,4,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,0,0,0,0,0,0,0,6,6,0,0,0,0,0,0,7,7,6,6,6,6,8,8,0,0,0,0,6,6,6,6,6,6,0,0,0,0,6,6,6,6,6,9,9,9,0,0",
+          "opening": "reverse>triple>pair",
+          "location": "1,1"
+        },
+        {
+          "id": "challenge-090",
+          "family": "legacy-0,2,4,6,8,1,3,7,5,9",
+          "opening": "line>pair>common",
+          "location": "2,2"
+        },
+        {
+          "id": "challenge-091",
+          "family": "legacy-0,2,4,6,8,1,3,5,7,9",
+          "opening": "common>bend>bend",
+          "location": "0,1"
+        },
+        {
+          "id": "challenge-092",
+          "family": "legacy-0,2,4,6,8,1,5,7,3,9",
+          "opening": "reverse>line>line",
+          "location": "1,0"
+        },
+        {
+          "id": "challenge-093",
+          "family": "0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,2,0,1,0,0,0,0,0,3,3,2,0,0,0,4,4,4,4,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,0,0,0,0,0,0,0,6,6,0,0,0,0,0,0,7,7,6,6,6,6,8,8,0,0,0,0,6,6,6,6,6,6,0,0,0,0,6,6,6,6,6,9,9,9,0,0",
+          "opening": "reverse>triple>pair",
+          "location": "1,1"
+        },
+        {
+          "id": "challenge-094",
+          "family": "legacy-0,2,4,6,8,1,3,5,7,9",
+          "opening": "line>pair>common",
+          "location": "2,2"
+        },
+        {
+          "id": "challenge-095",
+          "family": "0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,2,1,0,0,0,0,0,0,0,0,2,0,3,0,0,0,0,0,0,0,0,0,3,0,0,0,4,4,5,0,0,0,0,0,0,0,0,0,5,6,0,0,0,7,8,0,0,0,5,6,0,0,0,7,8,0,0,0,5,0,0,0,0,7,8,9,9,9,9,0,0,0,0,0,8,0,0,0,0,0,0,0",
+          "opening": "line>line>line",
+          "location": "0,1"
+        },
+        {
+          "id": "challenge-096",
+          "family": "legacy-0,2,4,6,8,1,3,9,5,7",
+          "opening": "line>line>pair",
+          "location": "0,0"
+        },
+        {
+          "id": "challenge-097",
+          "family": "legacy-0,2,4,6,8,1,3,7,9,5",
+          "opening": "reverse>line>pair",
+          "location": "0,1"
+        },
+        {
+          "id": "challenge-098",
+          "family": "legacy-0,2,4,6,8,1,3,9,5,7",
+          "opening": "line>pair>common",
+          "location": "0,0"
+        },
+        {
+          "id": "challenge-099",
+          "family": "legacy-0,2,4,6,8,1,5,7,3,9",
+          "opening": "reverse>reverse>line",
+          "location": "1,0"
+        },
+        {
+          "id": "challenge-100",
+          "family": "legacy-0,2,4,6,8,1,3,5,9,7",
+          "opening": "reverse>reverse>reverse",
+          "location": "0,1"
+        }
+      ]
+    }
+  }
+}

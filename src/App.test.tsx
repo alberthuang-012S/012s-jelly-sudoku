@@ -133,6 +133,23 @@ it('resets old normal layouts and restores a new normal board with its revision'
   expect(host.querySelectorAll('.state-jelly')).toHaveLength(1)
 })
 
+it('keeps revision 4 completion and records while starting the rebuilt revision 5 puzzle fresh', () => {
+  act(() => root.unmount())
+  localStorage.setItem('jellySudokuSave.v1', JSON.stringify({ version: 1, completed: ['challenge-001'], unlocked: { basic: 1, normal: 1, challenge: 2 }, best: { 'challenge-001@4': { time: 80, mistakes: 0, hints: 0 } }, settings: { sound: false, vibration: false, assist: true }, progress: { 'challenge-001': { revision: 4, cells: Array(100).fill('jelly'), elapsedSeconds: 99, mistakes: 2, hintsRemaining: 1 } } }))
+  root = createRoot(host)
+  act(() => root.render(<App />))
+  click('.mode-challenge')
+  expect(host.querySelectorAll('.level-card:not(:disabled)')).toHaveLength(2)
+  click('.level-card:not(:disabled)')
+  expect(host.querySelectorAll('.state-jelly')).toHaveLength(0)
+  expect(host.querySelector('.timer-box strong')?.textContent).toBe('00:00')
+  click('.board-cell')
+  const stored = JSON.parse(localStorage.getItem('jellySudokuSave.v1')!)
+  expect(stored.completed).toContain('challenge-001')
+  expect(stored.best['challenge-001@4'].time).toBe(80)
+  expect(stored.progress['challenge-001'].revision).toBe(5)
+})
+
 it.each(['basic', 'normal', 'challenge'] as const)('crosses chapter boundaries and completes level 100 for %s', (difficulty) => {
   act(() => root.unmount())
   localStorage.clear()

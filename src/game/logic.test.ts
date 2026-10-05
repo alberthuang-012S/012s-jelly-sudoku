@@ -36,3 +36,14 @@ it('can advance from arbitrary correct player progress using supported deduction
     expect(board.filter((s) => s === 'jelly')).toHaveLength(level.size)
   }
 }, 30000)
+
+it('identifies same-colour pairs and triples even when a row or column supplies the proof', () => {
+  const shapes = Object.values(levelsByDifficulty).flat().flatMap((level) => solveLogically(level).steps
+    .filter((step) => step.technique === 'pair' || step.technique === 'triple').map((step) => ({ level, step })))
+  expect(shapes.some(({ step }) => step.technique === 'pair')).toBe(true)
+  expect(shapes.some(({ step }) => step.technique === 'triple')).toBe(true)
+  for (const { level, step } of shapes) {
+    expect(new Set(step.sources.map((i) => level.regions[i])).size).toBe(1)
+    expect(step.sources).toHaveLength(step.technique === 'pair' ? 2 : 3)
+  }
+})

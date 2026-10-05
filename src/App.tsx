@@ -5,7 +5,7 @@ import { AcademyScreen } from './components/AcademyScreen'
 import { getLogicalHint, TECHNIQUES, type LogicStep, type Technique } from './game/logic'
 import { assets } from './config/assets'
 import { REGION_PALETTE } from './config/regionPalette'
-import { levelsByDifficulty, getLevel } from './data/levels'
+import { levelsByDifficulty, getLevel, chapterDescriptions } from './data/levels'
 import { lessons, canTeach } from './data/lessons'
 import { playSound, vibrate } from './audio/soundAdapter'
 import { getConflicts, getConstraintOverlay, isBoardSolved, toPosition } from './game/rules'
@@ -540,7 +540,7 @@ function LevelSelectScreen({ difficulty, completed, unlocked, onBack, onSelect, 
         {(Object.keys(DIFFICULTY_META) as Difficulty[]).map((item) => <button key={item} className={item === difficulty ? 'active' : ''} onClick={() => onDifficulty(item)}>{DIFFICULTY_META[item].label}<small>{DIFFICULTY_META[item].size}×{DIFFICULTY_META[item].size}</small></button>)}
       </nav>
       <nav className="chapter-tabs" aria-label="選擇章節">{Array.from({ length: 10 }, (_, i) => <button key={i} aria-pressed={chapter === i} onClick={() => setChapter(i)}>第 {i + 1} 章<small>{i * 10 + 1}–{i * 10 + 10}</small></button>)}</nav>
-      <p className="chapter-summary">第 {chapter + 1} 章 · {rankLabels[chapterLevels[0]?.rating?.rank ?? 0]} · 從觀察接起下一步推理</p>
+      <p className="chapter-summary">第 {chapter + 1} 章 · {chapterDescriptions[difficulty][chapter]} · 交錯練習，逐章變難</p>
       <section className="level-list" aria-label={`${meta.label}關卡`}>
         {chapterLevels.map((level) => {
           const number = difficultyNumber(level)

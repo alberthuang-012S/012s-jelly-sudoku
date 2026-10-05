@@ -6,7 +6,7 @@ export const TECHNIQUES: Record<Technique, { name: string; rank: number }> = {
   single: { name: '唯一位置', rank: 0 }, placed: { name: '水母周圍排除', rank: 0 },
   line: { name: '顏色一直線', rank: 1 }, reverse: { name: '橫排／直列反向鎖定', rank: 1 },
   pair: { name: '相鄰兩格', rank: 2 }, triple: { name: '三格直線', rank: 2 },
-  bend: { name: 'L 形內角', rank: 2 }, zigzag: { name: 'Z 形缺角', rank: 2 }, common: { name: '共同禁區', rank: 2 },
+  bend: { name: 'L 形轉彎', rank: 2 }, zigzag: { name: 'Z 形缺角', rank: 2 }, common: { name: '共同禁區', rank: 2 },
   hall2: { name: '雙色雙排／雙列', rank: 3 }, hall3: { name: '三色三排／三列', rank: 3 },
   combination: { name: '兩區組合排除', rank: 4 },
 }
@@ -112,7 +112,7 @@ export function nextLogicStep(context: LogicContext, state: LogicState, maxRank 
       const remaining = choices(unit)
       const targets = commonExclusions(context, remaining, [...candidates].filter((i) => !unit.cells.includes(i)))
       if (targets.length) return {
-        technique: unit.kind === 'region' ? shape(remaining, level.size) : 'common', action: 'exclude', sources: remaining, targets,
+        technique: unit.kind === 'region' || new Set(remaining.map((i) => level.regions[i])).size === 1 ? shape(remaining, level.size) : 'common', action: 'exclude', sources: remaining, targets,
         observation: `看看${label(context, unit)}的 ${remaining.length} 個候選位置。`,
         reason: `${label(context, unit)}一定有一隻水母。不論選哪個候選格，亮起的格子都會違反同排、同列、同區或相鄰規則，所以可以畫叉。`,
       }

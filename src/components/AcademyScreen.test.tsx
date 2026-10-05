@@ -135,7 +135,7 @@ it('teaches the extra value of combining colours by showing a failed assumption'
   expect(host.querySelectorAll('.hypothesis')).toHaveLength(1)
   expect(host.querySelectorAll('.source.blocked').length).toBeGreaterThan(0)
   click('.next-step')
-  expect(host.querySelector('.teaching-caption')?.textContent).toContain('同一直列')
+  expect(host.querySelector('.teaching-caption')?.textContent).toMatch(/同一(橫排|直列)/)
   expect(host.querySelectorAll('.contradiction-unit')).toHaveLength(teachingScenes.combination[0].level.size)
   finishDemo()
   expect(host.querySelector('.teaching-caption')?.textContent).toContain('一起看兩色就能確定畫叉')
