@@ -2,7 +2,7 @@ import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { AcademyScreen } from './AcademyScreen'
-import { lessons, teachingScenes, teachingPoses, poseExclusions, quizCell, lessonTierFor, type LessonTechnique } from '../data/lessons'
+import { lessons, teachingScenes, teachingPoses, poseExclusions, quizCell, lessonTierFor, inspectTrial, TRIAL_STAGES, type LessonTechnique } from '../data/lessons'
 
 let host: HTMLDivElement, root: Root
 const exit = vi.fn(), play = vi.fn()
@@ -16,8 +16,11 @@ function finishDemo() {
   while (!host.querySelector('.next-step')?.textContent?.includes('判斷一格') && guard++ < 50) click('.next-step')
   expect(guard).toBeLessThan(50)
 }
+function inspectPractice() {
+  if (host.querySelector('.trial-place')) { click('.trial-place'); click('.trial-check'); click('.trial-restore') }
+}
 function finishLesson(technique: LessonTechnique) {
-  choose(technique); finishDemo(); click('.next-step'); click('.answer-yes'); click('.continue-practice')
+  choose(technique); finishDemo(); click('.next-step'); inspectPractice(); click('.answer-yes'); click('.continue-practice'); inspectPractice()
   const scene = teachingScenes[technique][1]
   click(scene.targets.includes(quizCell(scene, technique, 1)) ? '.answer-yes' : '.answer-no')
 }
@@ -111,6 +114,7 @@ it('requires two one-cell answers for every lesson and saves completion separate
     expect(host.querySelectorAll('.earlier-jelly')).toHaveLength(teachingScenes[lesson.technique][0].board.filter((cell) => cell === 'jelly').length)
     expect(host.querySelectorAll('.teaching-cell')).toHaveLength(teachingScenes[lesson.technique][0].level.size ** 2)
     expect(host.querySelector('.lesson-caution')).toBeNull()
+    inspectPractice()
     click('.answer-no')
     expect(host.querySelector('.quiz-feedback')?.textContent).toContain('再看一次')
     expect(JSON.parse(localStorage.getItem('jellySudokuAcademy.v1') ?? '[]')).not.toContain(lesson.technique)
@@ -121,6 +125,7 @@ it('requires two one-cell answers for every lesson and saves completion separate
     const scene = teachingScenes[lesson.technique][1]
     expect(host.querySelectorAll('.teaching-x')).toHaveLength(0)
     expect(host.querySelectorAll('.candidate-ring')).toHaveLength(scene.sources.length)
+    inspectPractice()
     const expected = scene.targets.includes(quizCell(scene, lesson.technique, 1))
     click(expected ? '.answer-yes' : '.answer-no')
     expect(host.querySelector('.quiz-feedback')?.textContent).toContain('判斷正確')
@@ -206,19 +211,62 @@ it('pauses playback while choosing a course and closes the picker on selection o
   act(() => vi.advanceTimersByTime(3500))
   expect(host.querySelector('.demo-progress small')?.textContent).toContain('第 2')
 })
-it('teaches the extra value of combining colours by showing a failed assumption', () => {
+it('teaches rule order, checks a contradiction, restores the board and keeps only the proven cross', () => {
   choose('combination')
-  expect(host.querySelector('.teaching-caption')?.textContent).toContain('還不能確定畫叉')
+  expect(host.querySelector('.teaching-caption')?.textContent).toContain('先找基礎、進階定石')
+  const scene = teachingScenes.combination[0], q = quizCell(scene, 'combination', 0)
   click('.next-step')
   expect(host.querySelectorAll('.hypothesis')).toHaveLength(1)
-  expect(host.querySelectorAll('.source.blocked').length).toBeGreaterThan(0)
+  expect(host.querySelectorAll('.teaching-x')).toHaveLength(0)
+  let previousCount = 0
+  for (const name of TRIAL_STAGES.slice(2, 6)) {
+    click('.next-step')
+    expect(host.querySelector('.demo-progress small')?.textContent).toContain(name)
+    expect(host.querySelectorAll('.teaching-x').length).toBeGreaterThanOrEqual(previousCount)
+    previousCount = host.querySelectorAll('.teaching-x').length
+    expect(host.querySelector('.board-context')?.textContent).toContain('暫時排除')
+  }
   click('.next-step')
-  expect(host.querySelector('.teaching-caption')?.textContent).toMatch(/同一(橫排|直列)/)
-  expect(host.querySelectorAll('.contradiction-unit')).toHaveLength(teachingScenes.combination[0].level.size)
+  expect(host.querySelector('.teaching-caption')?.textContent).toContain(inspectTrial(scene, q).reason)
+  click('.next-step')
+  expect(host.querySelector('.teaching-caption')?.textContent).toContain('回到原盤面')
+  expect(host.querySelector('.hypothesis, .teaching-x, .trial')).toBeNull()
+  expect(host.querySelectorAll('.candidate-ring')).toHaveLength(scene.sources.length)
+  click('.next-step')
+  expect(host.querySelectorAll('.teaching-x')).toHaveLength(1)
+  expect(host.querySelector(`[data-cell="${q}"] .teaching-x`)).not.toBeNull()
+  expect(host.querySelector('.teaching-caption')?.textContent).toContain('可以確定畫叉')
+  click('.previous-step')
+  expect(host.querySelectorAll('.teaching-x')).toHaveLength(0)
+})
+it('requires restoration before answering and keeps a noncontradictory assumption unconfirmed', () => {
+  choose('combination'); finishDemo(); click('.next-step')
+  expect(host.querySelector<HTMLButtonElement>('.answer-yes')?.disabled).toBe(true)
+  expect(host.querySelector<HTMLButtonElement>('.trial-check')?.disabled).toBe(true)
+  click('.trial-place')
+  expect(host.querySelector('.hypothesis')).not.toBeNull()
+  expect(host.querySelector<HTMLButtonElement>('.trial-restore')?.disabled).toBe(true)
+  click('.trial-check')
+  expect(host.querySelector<HTMLButtonElement>('.answer-yes')?.disabled).toBe(true)
+  click('.trial-restore')
+  expect(host.querySelector('.hypothesis, .teaching-x')).toBeNull()
+  expect(host.querySelector<HTMLButtonElement>('.answer-yes')?.disabled).toBe(false)
+  click('.answer-yes'); click('.continue-practice')
+  expect(host.querySelector<HTMLButtonElement>('.answer-no')?.disabled).toBe(true)
+  expect(JSON.parse(localStorage.getItem('jellySudokuAcademy.v1') ?? '[]')).not.toContain('combination')
+  click('.trial-place'); click('.trial-check')
+  expect(host.querySelector('.teaching-caption')?.textContent).toContain('暫時沒有矛盾')
+  click('.trial-restore'); click('.answer-yes')
+  expect(host.querySelector('.quiz-feedback.correct')).toBeNull()
+  click('.answer-no')
+  expect(host.querySelector('.quiz-feedback.correct')?.textContent).toContain('不能直接認定水母')
+  expect(JSON.parse(localStorage.getItem('jellySudokuAcademy.v1') ?? '[]')).toContain('combination')
+  click('.replay-example')
+  expect(host.querySelector('.hypothesis, .teaching-x')).toBeNull()
   finishDemo()
-  expect(host.querySelector('.teaching-caption')?.textContent).toContain('一起看兩色就能確定畫叉')
-  const scene = teachingScenes.combination[0]
-  expect(host.querySelectorAll('.teaching-x')).toHaveLength(scene.targets.length)
+  expect(host.querySelector('.teaching-caption')?.textContent).toContain('先保留這格')
+  expect(host.querySelector('.mobile-takeaway')?.textContent).toContain('先保留這格')
+  expect(host.querySelector('.trial, .teaching-x')).toBeNull()
 })
 it('starts with the entire Z colour and preserves demonstration crosses, clues and practice answers', () => {
   choose('zigzag')

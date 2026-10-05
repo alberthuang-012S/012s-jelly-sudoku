@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { CSSProperties } from 'react'
-import { lessons, teachingScenes, teachingPoses, boardCells, poseExclusions, quizCell, colourName, LESSON_TIERS, lessonTierFor, canTeach, conflict, combinationProof, type TeachingScene, type Lesson, type LessonTechnique } from '../data/lessons'
+import { lessons, teachingScenes, teachingPoses, boardCells, poseExclusions, quizCell, colourName, LESSON_TIERS, lessonTierFor, canTeach, trialFrame, TRIAL_STAGES, type TeachingScene, type Lesson, type LessonTechnique } from '../data/lessons'
 import { TECHNIQUES, type Technique } from '../game/logic'
 import { REGION_PALETTE } from '../config/regionPalette'
 import { assets } from '../config/assets'
@@ -51,7 +51,6 @@ function intro(scene: TeachingScene, lesson: Lesson) {
   const colour = colourName(scene, scene.sources[0])
   if (lesson.technique === 'reverse') return `這一整橫排都是${colour}，水母一定會住在這排。`
   if (lesson.technique === 'hall2' || lesson.technique === 'hall3') return `圈圈標出${scene.groups.map((g) => colourName(scene, g[0])).join('、')}的所有格子。`
-  if (lesson.technique === 'combination') return `圈圈是兩色的所有格子。單看一色，亮框這 ${scene.targets.length} 格還不能確定畫叉。`
   return `${colour}一共 ${scene.sources.length} 格，全部圈起來了。水母會住其中一格。`
 }
 
@@ -73,16 +72,17 @@ export function AcademyScreen({ onExit, onPlay, playLabel = '開始遊戲', init
   const lesson = lessons.find((l) => l.technique === technique)!
   const scene = teachingScenes[technique][exercise], poses = teachingPoses(scene, technique)
   const structural = technique === 'hall2' || technique === 'hall3'
+  const trial = technique === 'combination'
   const shownPoses = structural ? poses.slice(0, 2) : poses
-  const lastStep = technique === 'combination' ? scene.targets.length * 2 + 1 : shownPoses.length + 1
-  const isLast = step === lastStep
-  const hypothesis = technique === 'combination' && step > 0 && !isLast ? scene.targets[Math.floor((step - 1) / 2)] : undefined
-  const proof = hypothesis !== undefined ? combinationProof(scene, hypothesis) : undefined
-  const comparing = isLast && comparePositions(technique)
-  const activePose = hypothesis !== undefined ? [hypothesis] : comparing && comparison >= 0 ? shownPoses[comparison] : step > 0 && !isLast ? shownPoses[step - 1] : []
-  const activeBlocks = step === 0 ? [] : isLast ? scene.targets : hypothesis !== undefined ? scene.sources.filter((i) => conflict(scene, hypothesis, i)) : poseExclusions(scene, technique, activePose)
   const question = quizCell(scene, technique, exercise)
-  const expected = scene.targets.includes(question)
+  const trialState = trial ? trialFrame(scene, question, phase === 'demo' ? step : comparison === 0 ? 5 : comparison === 1 ? 6 : comparison === 2 ? 7 : 0) : undefined
+  const lastStep = trial ? TRIAL_STAGES.length - 1 : shownPoses.length + 1
+  const isLast = step === lastStep
+  const hypothesis = trialState?.hypothesis
+  const comparing = isLast && comparePositions(technique)
+  const activePose = trialState?.pose ?? (comparing && comparison >= 0 ? shownPoses[comparison] : step > 0 && !isLast ? shownPoses[step - 1] : [])
+  const activeBlocks = trialState?.blocked ?? (step === 0 ? [] : isLast ? scene.targets : poseExclusions(scene, technique, activePose))
+  const expected = trialState?.contradiction ?? scene.targets.includes(question)
   const answered = answer !== null
 
   useEffect(() => {
@@ -101,7 +101,7 @@ export function AcademyScreen({ onExit, onPlay, playLabel = '開始遊戲', init
     setTechnique(next); setPhase('demo'); setStep(0); setExercise(0); setPlaying(!reducedMotion() && (closePicker || !pickerOpen)); setAnswer(null); setPassed(false); setComparison(-1)
     if (closePicker) setPickerOpen(false)
   }
-  function practice() { setPhase('practice'); setPlaying(false); setAnswer(null); setPassed(false) }
+  function practice() { setPhase('practice'); setPlaying(false); setAnswer(null); setPassed(false); setComparison(-1) }
   function respond(value: boolean) {
     setAnswer(value)
     const correct = value === expected
@@ -116,11 +116,12 @@ export function AcademyScreen({ onExit, onPlay, playLabel = '開始遊戲', init
   let caption = intro(scene, lesson)
   if (step > 0 && !isLast) {
     if (structural) caption = `${step === 1 ? '一種可能的安排' : '換一種安排'}：${scene.groups.length} 隻水母必須分占 ${scene.groups.length} 個橫排。`
-    else if (technique === 'combination') caption = step % 2 ? '假設亮框這格住水母，打叉的圈圈就不能住。' : `兩色剩下的圈圈都擠在${proof?.column !== undefined ? '同一直列' : proof?.row !== undefined ? '同一橫排' : '互相衝突的位置'}，無法各放一隻，所以假設那格必須畫叉。`
     else if (technique === 'bend') caption = '如果水母住這格，同排、同列與周圍都不能再住另一隻。'
     else caption = `如果水母住這一格，${technique === 'line' ? '這排其他顏色' : technique === 'reverse' ? '同色區域的其他位置' : '打叉的位置'}就不能再住另一隻。`
   }
-  if (isLast) caption = structural ? `${scene.groups.length} 種顏色剛好需要這 ${scene.groups.length} 排，其他顏色不能放進來。` : technique === 'combination' ? `單看一色排除不了的這 ${scene.targets.length} 格，一起看兩色就能確定畫叉。` : `不管選哪個位置，這 ${scene.targets.length} 格每次都不能住，所以可以先畫叉。`
+  if (isLast) caption = structural ? `${scene.groups.length} 種顏色剛好需要這 ${scene.groups.length} 排，其他顏色不能放進來。` : `不管選哪個位置，這 ${scene.targets.length} 格每次都不能住，所以可以先畫叉。`
+  if (trialState) caption = trialState.caption
+  const practicePrompt = trial ? comparison === -1 ? '照順序試放問號格、檢查矛盾，再回復盤面。' : comparison === 0 ? '依序排除同排、同列、同色與周圍八格。這些叉叉都只是暫時的。' : comparison === 1 ? trialState!.caption : '已回復盤面，這次能確定把問號格畫叉嗎？' : `${exercise === 1 ? '換一個盤面。' : ''}只用剛剛的線索，圈起的問號格能確定畫叉嗎？`
 
   return <main className="academy-page academy-v2 page-wrap">
     <header className="subpage-header"><button className="icon-button" aria-label="離開定石教室" onClick={onExit}>←</button><strong>定石教室</strong><span>{completed.filter((t) => lessons.some((l) => l.technique === t)).length} / {lessons.length} 已學會</span></header>
@@ -137,23 +138,23 @@ export function AcademyScreen({ onExit, onPlay, playLabel = '開始遊戲', init
     <section className={`lesson-card phase-${phase}`}>
       <div className="lesson-card-heading"><h2>{lesson.title}</h2><span>{phase === 'demo' ? '看示範' : `小練習 ${exercise + 1} / 2`}</span></div>
       {phase === 'demo' ? <>
-        <div className="demo-progress"><progress max={lastStep + 1} value={step + 1} aria-label="示範進度" /><small>第 {step + 1} / {lastStep + 1} 步</small><button className="text-button playback-toggle" onClick={() => { if (isLast) { setStep(0); setComparison(-1) }; setPlaying(isLast ? true : !playing) }}>{isLast ? '重播' : playing ? '暫停播放' : '播放示範'}</button></div>
-        <p className={`teaching-caption ${isLast ? 'is-conclusion' : ''}`} aria-live="polite"><span className="demo-caption">{caption}</span>{isLast && <span className="mobile-takeaway">{lesson.takeaway}</span>}</p>
+        <div className="demo-progress"><progress max={lastStep + 1} value={step + 1} aria-label="示範進度" /><small>第 {step + 1} / {lastStep + 1} 步{trial && ` · ${TRIAL_STAGES[step]}`}</small><button className="text-button playback-toggle" onClick={() => { if (isLast) { setStep(0); setComparison(-1) }; setPlaying(isLast ? true : !playing) }}>{isLast ? '重播' : playing ? '暫停播放' : '播放示範'}</button></div>
+        <p className={`teaching-caption ${isLast ? 'is-conclusion' : ''}`} aria-live="polite"><span className="demo-caption">{caption}</span>{isLast && <span className="mobile-takeaway">{trial ? caption : lesson.takeaway}</span>}</p>
         <div className="comparison-switcher">{comparing && <nav aria-label="比較每一種可能">{shownPoses.map((_, i) => <button key={i} data-pose={i} aria-pressed={comparison === i} onClick={() => setComparison(i)}>位置 {i + 1}</button>)}<button data-pose="common" aria-pressed={comparison === -1} onClick={() => setComparison(-1)}>共同禁區</button></nav>}</div>
-        <TeachingBoard scene={scene} technique={technique} pose={activePose} blocked={activeBlocks} hypothesis={hypothesis} focusColumn={step % 2 === 0 ? proof?.column : undefined} focusRow={step % 2 === 0 ? proof?.row : undefined} attention={technique === 'combination' ? hypothesis !== undefined ? [hypothesis] : scene.targets : []} />
-        <div className="board-context"><span>{hypothesis !== undefined ? '圈圈＝假設後還能住的位置' : technique === 'reverse' ? '圈圈＝這排同色的格子' : '圈圈＝該顏色所有格子'}</span><span>×＝本次排除的位置</span></div>
+        <TeachingBoard scene={scene} technique={technique} pose={activePose} blocked={activeBlocks} hypothesis={hypothesis} focusColumn={trialState?.column} focusRow={trialState?.row} attention={trialState?.attention} />
+        <div className="board-context"><span>{hypothesis !== undefined ? '圈圈＝假設後還能住的位置' : technique === 'reverse' ? '圈圈＝這排同色的格子' : '圈圈＝該顏色所有格子'}</span><span>{trial ? hypothesis !== undefined ? '×＝假設下暫時排除' : '×＝確定不能住' : '×＝本次排除的位置'}</span></div>
         {isLast && <p className="takeaway">{lesson.takeaway}</p>}
         <div className="lesson-actions demo-controls"><button className="button secondary previous-step" disabled={step === 0} onClick={() => { setPlaying(false); setComparison(-1); setStep(step - 1) }}>上一步</button><button className="button primary next-step" onClick={() => { setPlaying(false); setComparison(-1); if (isLast) practice(); else setStep(step + 1) }}>{isLast ? '判斷一格，試試看' : '下一步'}</button></div>
       </> : <>
         <div className="demo-progress"><small>小練習 {exercise + 1} / 2 · 判斷問號格</small></div>
-        <div className="teaching-caption">{answered ? <div className={`quiz-feedback ${passed ? 'correct' : ''}`} role="status"><strong>{passed ? '判斷正確！' : '再看一次線索。'}</strong><p>{passed ? expected ? lesson.takeaway : '這格還不能確定排除，先保留。' : '只有每次都不能住的格子，才能確定畫叉。'}</p>{passed && exercise === 1 && <details className="lesson-caution"><summary>什麼情況不能直接套用？</summary><p>{lesson.caution}</p></details>}</div> : <p>{exercise === 1 ? '換一個盤面。' : ''}只用剛剛的線索，圈起的問號格能確定畫叉嗎？</p>}</div>
-        <div className="comparison-switcher" />
-        <TeachingBoard scene={scene} technique={technique} question={question} />
-        <div className="board-context"><span>{technique === 'reverse' ? '圈圈＝這排同色的格子' : '圈圈＝該顏色所有格子'}</span><span>問號＝這次要判斷的格子</span></div>
+        <div className="teaching-caption">{answered ? <div className={`quiz-feedback ${passed ? 'correct' : ''}`} role="status"><strong>{passed ? '判斷正確！' : '再看一次線索。'}</strong><p>{trial ? passed ? expected ? '假設出現矛盾，所以原本試放的這格可以畫叉。' : '暫時沒有矛盾，先保留；不能直接認定水母就在這格。' : '有矛盾才能排除；沒有矛盾還不能認定答案。' : passed ? expected ? lesson.takeaway : '這格還不能確定排除，先保留。' : '只有每次都不能住的格子，才能確定畫叉。'}</p>{passed && exercise === 1 && <details className="lesson-caution"><summary>什麼情況不能直接套用？</summary><p>{lesson.caution}</p></details>}</div> : <p>{practicePrompt}</p>}</div>
+        <div className="comparison-switcher">{trial && !passed && <nav aria-label="嘗試順序"><button className="trial-place" aria-pressed={comparison === 0} disabled={comparison === 0 || comparison === 1} onClick={() => setComparison(0)}>① 試放</button><button className="trial-check" aria-pressed={comparison === 1} disabled={comparison !== 0} onClick={() => setComparison(1)}>② 檢查</button><button className="trial-restore" aria-pressed={comparison === 2} disabled={comparison !== 1} onClick={() => setComparison(2)}>③ 回復</button></nav>}</div>
+        <TeachingBoard scene={scene} technique={technique} question={hypothesis === undefined ? question : undefined} pose={trialState?.pose} blocked={trialState?.blocked} hypothesis={hypothesis} focusColumn={trialState?.column} focusRow={trialState?.row} attention={trialState?.attention} />
+        <div className="board-context"><span>{hypothesis !== undefined ? '圈圈＝假設後還能住的位置' : technique === 'reverse' ? '圈圈＝這排同色的格子' : '圈圈＝該顏色所有格子'}</span><span>{hypothesis !== undefined ? '×＝假設下暫時排除' : '問號＝這次要判斷的格子'}</span></div>
         <div className="lesson-actions">
-        <div className="quiz-actions" hidden={passed}><button className="button primary answer-yes" disabled={passed} onClick={() => respond(true)}>可以確定畫叉</button><button className="button secondary answer-no" disabled={passed} onClick={() => respond(false)}>還不能確定</button></div>
-        <div className={`practice-controls ${tierEnd ? 'tier-end-controls' : ''}`}><button className="text-button replay-example" onClick={() => { setPhase('demo'); setStep(0); setPlaying(!reducedMotion()); setAnswer(null); setPassed(false) }}>回看這個例子</button>{passed && <button className="button primary continue-practice" onClick={() => {
-          if (exercise === 0) { setExercise(1); setAnswer(null); setPassed(false) }
+        <div className="quiz-actions" hidden={passed}><button className="button primary answer-yes" disabled={passed || (trial && comparison !== 2)} onClick={() => respond(true)}>可以確定畫叉</button><button className="button secondary answer-no" disabled={passed || (trial && comparison !== 2)} onClick={() => respond(false)}>還不能確定</button></div>
+        <div className={`practice-controls ${tierEnd ? 'tier-end-controls' : ''}`}><button className="text-button replay-example" onClick={() => { setPhase('demo'); setStep(0); setPlaying(!reducedMotion()); setAnswer(null); setPassed(false); setComparison(-1) }}>回看這個例子</button>{passed && <button className="button primary continue-practice" onClick={() => {
+          if (exercise === 0) { setExercise(1); setAnswer(null); setPassed(false); setComparison(-1) }
           else if (nextTechnique) choose(nextTechnique)
           else if (nextTier) choose(nextTier.techniques[0])
           else onPlay()

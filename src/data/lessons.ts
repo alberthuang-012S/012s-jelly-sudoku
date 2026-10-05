@@ -27,7 +27,7 @@ export const lessons: Lesson[] = [
   { technique: 'hall2', title: '兩種顏色，留下兩排', takeaway: '兩種顏色各一隻，必須分占這兩排，所以其他顏色不能放進來。', caution: '兩種顏色的所有可能位置，合起來只能占這兩排；兩排不必相鄰，直列也適用。' },
   { technique: 'hall3', title: '三種顏色，留下三排', takeaway: '三種顏色各一隻，剛好需要這三排，其他顏色不能放進來。', caution: '每種顏色不必跨滿三排，只要所有可能位置合計限制在這三排即可。四種占四排同理。' },
   { technique: 'reverse', title: '這一排，只能留給同一種顏色', takeaway: '這排剩下的位置全是同一種顏色，所以這個顏色一定住這排。', caution: '如果這排還有其他顏色能住，就不能確定。直列也適用。' },
-  { technique: 'combination', title: '兩隻一起看，卡住時再用', takeaway: '假設某格住水母後，兩種顏色無法各放一隻，這個假設就不成立，該格可以畫叉。', caution: '適合直線與形狀技巧暫時沒有進展時再用。必須確認兩色的全部可能位置，不能只看自己挑選的幾格。' },
+  { technique: 'combination', title: '嘗試可能性，但要記得順序唷', takeaway: '先找基礎、進階定石，卡住才嘗試。一次一個假設，有矛盾才能排除。', caution: '一次只試一個假設，回復盤面後再試下一個。沒有發現矛盾，不代表水母一定在那格；不同假設的叉叉不能混在一起。' },
 ]
 export const teachingScenes = rawScenes as unknown as Record<LessonTechnique, [TeachingScene, TeachingScene]>
 const colourNames = ['黃色', '粉紅色', '橘色', '淺綠色', '綠色', '水藍色', '藍色', '紫色', '桃紅色', '灰色']
@@ -63,7 +63,8 @@ export function quizCell(scene: TeachingScene, technique: Technique, exercise: n
   // A negative example must survive at least one arrangement, even when all
   // basic rules are considered, rather than merely being absent from our list.
   return cells.find((i) => scene.board[i] === 'empty' && !scene.targets.includes(i) && !scene.sources.includes(i) &&
-    poses.some((pose) => pose.every((a) => !conflict(scene, a, i)))) ?? scene.targets[0]
+    poses.some((pose) => pose.every((a) => !conflict(scene, a, i))) &&
+    (technique !== 'combination' || !inspectTrial(scene, i).contradiction)) ?? scene.targets[0]
 }
 export function combinationProof(scene: TeachingScene, assumption: number) {
   const groups = scene.groups.map((group) => group.filter((i) => !conflict(scene, assumption, i)))
@@ -73,4 +74,46 @@ export function combinationProof(scene: TeachingScene, assumption: number) {
     column: remaining.length && remaining.every((i) => i % n === remaining[0] % n) ? remaining[0] % n : undefined,
     row: remaining.length && remaining.every((i) => Math.floor(i / n) === Math.floor(remaining[0] / n)) ? Math.floor(remaining[0] / n) : undefined,
   }
+}
+
+export const TRIAL_STAGES = ['解題順序', '假設一格', '同排', '同列', '同色', '周圍八格', '檢查矛盾', '回復盤面', '得出結論']
+export function inspectTrial(scene: TeachingScene, assumption: number) {
+  const n = scene.level.size, proof = combinationProof(scene, assumption)
+  const available = boardCells(scene).filter((i) => !conflict(scene, assumption, i))
+  for (const kind of ['row', 'column', 'region'] as const) for (let id = 0; id < n; id++) {
+    const unitId = (i: number) => kind === 'row' ? Math.floor(i / n) : kind === 'column' ? i % n : scene.level.regions[i]
+    if (unitId(assumption) === id || available.some((i) => unitId(i) === id)) continue
+    return { contradiction: true, row: kind === 'row' ? id : undefined, column: kind === 'column' ? id : undefined,
+      attention: boardCells(scene).filter((i) => unitId(i) === id),
+      reason: `${kind === 'region' ? colourName(scene, scene.level.regions.indexOf(id)) : `第 ${id + 1} ${kind === 'row' ? '橫排' : '直列'}`}沒有位置能住，這個假設走不通。` }
+  }
+  const [first, second] = proof.groups
+  const contradiction = !first.some((a) => second.some((b) => !conflict(scene, a, b)))
+  return { contradiction, row: contradiction ? proof.row : undefined, column: contradiction ? proof.column : undefined,
+    attention: contradiction ? proof.groups.flat() : [],
+    reason: contradiction ? `兩色剩下的圈圈${proof.row !== undefined ? '擠在同一橫排' : proof.column !== undefined ? '擠在同一直列' : '互相衝突'}，無法各放一隻，這個假設走不通。` : '這次檢查暫時沒有矛盾；還不能確定水母就在這格。' }
+}
+
+export function trialFrame(scene: TeachingScene, assumption: number, stage: number) {
+  const n = scene.level.size, inspection = inspectTrial(scene, assumption)
+  const testing = stage >= 1 && stage <= 6
+  const blocked = testing ? boardCells(scene).filter((i) => i !== assumption && (
+    (stage >= 2 && Math.floor(i / n) === Math.floor(assumption / n)) ||
+    (stage >= 3 && i % n === assumption % n) ||
+    (stage >= 4 && scene.level.regions[i] === scene.level.regions[assumption]) ||
+    (stage >= 5 && adjacent(i, assumption, n)))) : stage === 8 && inspection.contradiction ? [assumption] : []
+  const captions = [
+    '先找基礎、進階定石，卡住才嘗試。一次只試一格。',
+    '先假設亮框這格住水母。這還不是確定答案。',
+    '先看同排：這排其他格子暫時不能住。',
+    '再看同列：同一直列的其他格子暫時不能住。',
+    '接著看同色：同一顏色的其他格子暫時不能住。',
+    '最後看周圍八格：相鄰的格子暫時不能住。',
+    inspection.reason,
+    '撤回試放的水母和暫時叉叉，回到原盤面，再得出結論。',
+    inspection.contradiction ? '剛剛的假設出現矛盾，所以原本試放的這格可以確定畫叉。' : '暫時沒有矛盾，先保留這格；不能直接認定水母就在這裡。',
+  ]
+  return { pose: testing ? [assumption] : [], hypothesis: testing ? assumption : undefined, blocked,
+    row: stage === 6 ? inspection.row : undefined, column: stage === 6 ? inspection.column : undefined,
+    attention: stage === 6 ? inspection.attention : [assumption], caption: captions[stage], contradiction: inspection.contradiction }
 }

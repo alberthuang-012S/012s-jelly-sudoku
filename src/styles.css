@@ -427,7 +427,7 @@ button { touch-action: manipulation; }
 .demo-progress { display: flex; gap: 10px; align-items: center; margin-top: 16px; }
 .demo-progress progress { flex: 1; width: 50px; height: 5px; accent-color: #9470af; border: none; }
 .demo-progress small, .demo-progress button { font-size: 11px; white-space: nowrap; color: #695279; }
-.teaching-caption { min-height: 74px; display: flex; align-items: center; margin: 16px 0; padding: 14px 18px; border-radius: 16px; background: #fff1cc; color: #504137; font-size: 17px; line-height: 1.8; font-weight: 600; }
+.teaching-caption { min-height: 74px; display: flex; align-items: safe center; margin: 16px 0; padding: 14px 18px; border-radius: 16px; background: #fff1cc; color: #504137; font-size: 17px; line-height: 1.8; font-weight: 600; }
 .teaching-board { width: min(100%, 380px); margin: 20px auto 12px; container-type: inline-size; }
 .teaching-board > small { display: block; font-size: 11px; color: #776a80; text-align: center; margin-top: 8px; }
 .teaching-matrix { display: grid; grid-template-columns: repeat(var(--teaching-columns), minmax(0, 1fr)); border: 2px solid #62536e; border-radius: 12px; overflow: hidden; box-shadow: 0 6px 15px #63527110; font-size: min(calc(70cqw / var(--teaching-columns)), 42px); }
@@ -457,6 +457,7 @@ button { touch-action: manipulation; }
 .demo-controls .button { min-width: 110px; }
 .demo-controls .button:disabled { opacity: .4; cursor: default; }
 .quiz-actions .button { min-height: 46px; }
+.quiz-actions .button:disabled, .comparison-switcher button:disabled { opacity: .45; cursor: default; }
 .quiz-feedback { margin: 16px 0; padding: 16px; border: 1px solid #e2d3e9; background: #f6effb; border-radius: 14px; color: #604975; }
 .quiz-feedback.correct { border-color: #cce0ce; background: #edf6ef; color: #365d47; }
 .quiz-feedback p { margin: 8px 0 0; font-size: 14px; line-height: 1.8; }

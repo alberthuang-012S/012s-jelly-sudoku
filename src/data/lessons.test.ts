@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest'
-import { lessons, teachingScenes, teachingPoses, poseExclusions, boardCells, quizCell, conflict, LESSON_TIERS, combinationProof } from './lessons'
+import { lessons, teachingScenes, teachingPoses, poseExclusions, boardCells, quizCell, conflict, LESSON_TIERS, combinationProof, trialFrame, inspectTrial } from './lessons'
 import { validateLevel } from '../game/validator'
 
 it('uses two distinct valid untouched puzzles and every cell of each teaching colour', () => {
@@ -92,5 +92,25 @@ it('shows combination exclusions that neither colour can prove alone, with a ver
     expect(proof.groups.every((group) => group.length > 0)).toBe(true)
     expect(proof.column !== undefined || proof.row !== undefined).toBe(true)
     expect(proof.groups[0].every((a) => proof.groups[1].every((b) => conflict(scene, a, b)))).toBe(true)
+  }
+})
+
+it('separates temporary trial deductions from proven results and restores both trial outcomes', () => {
+  for (const [exercise, scene] of teachingScenes.combination.entries()) {
+    const snapshot = JSON.stringify(scene), q = quizCell(scene, 'combination', exercise)
+    expect(inspectTrial(scene, q).contradiction).toBe(exercise === 0)
+    expect(trialFrame(scene, q, 0).blocked).toEqual([])
+    expect(trialFrame(scene, q, 1).pose).toEqual([q])
+    expect(trialFrame(scene, q, 1).blocked).toEqual([])
+    const rowOnly = trialFrame(scene, q, 2).blocked
+    expect(rowOnly).toEqual(boardCells(scene).filter((i) => i !== q && Math.floor(i / scene.level.size) === Math.floor(q / scene.level.size)))
+    for (let step = 2; step < 5; step++) expect(trialFrame(scene, q, step).blocked.every((i) => trialFrame(scene, q, step + 1).blocked.includes(i))).toBe(true)
+    expect(trialFrame(scene, q, 5).blocked).toEqual(boardCells(scene).filter((i) => conflict(scene, q, i)))
+    expect(trialFrame(scene, q, 7).pose).toEqual([])
+    expect(trialFrame(scene, q, 7).hypothesis).toBeUndefined()
+    expect(trialFrame(scene, q, 7).blocked).toEqual([])
+    expect(trialFrame(scene, q, 8).blocked).toEqual(exercise === 0 ? [q] : [])
+    if (exercise === 1) expect(teachingPoses(scene, 'combination').some((pose) => pose.every((i) => !conflict(scene, q, i)))).toBe(true)
+    expect(JSON.stringify(scene)).toBe(snapshot)
   }
 })
