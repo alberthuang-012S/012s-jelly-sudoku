@@ -139,7 +139,7 @@ function App() {
   }, [toast])
 
   const openAcademy = (technique?: Technique) => {
-    setAcademyReturn(screen)
+    setAcademyReturn(screen === 'tutorial' ? 'home' : screen)
     setAcademyTechnique(technique)
     setModal(null)
     setScreen('academy')
@@ -357,7 +357,7 @@ function App() {
         <HomeScreen onAcademy={() => openAcademy()} onTutorial={() => setScreen('tutorial')} onDifficulty={openDifficulty} completed={save.completed} resumeLevel={resumableLevel} onResume={openLevel} />
       )}
 
-      {screen === 'tutorial' && <TutorialScreen onExit={goHome} onStart={() => openLevel(levelsByDifficulty.basic[0])} />}
+      {screen === 'tutorial' && <TutorialScreen onExit={goHome} onStart={() => openLevel(levelsByDifficulty.basic[0])} onAcademy={() => openAcademy()} />}
       {screen === 'academy' && <AcademyScreen initialTechnique={academyTechnique} onExit={() => setScreen(academyReturn)} />}
 
       {screen === 'levels' && (

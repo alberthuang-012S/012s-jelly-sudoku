@@ -354,6 +354,8 @@ button { touch-action: manipulation; }
 .tutorial-feedback { font-size: 14px; line-height: 1.8; min-height: 26px; color: #634b68; text-align: center; }
 .tutorial-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; }
 .tutorial-success { text-align: center; padding: 20px; background: #eff6ee; border-radius: 20px; }
+.tutorial-next-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; }
+.tutorial-next-actions .button { flex: 1 1 180px; max-width: 280px; min-height: 48px; }
 .tutorial-success .text-button { display: block; margin: 16px auto 0; }
 .tutorial-page h1 { font-size: 28px; }
 @media (max-width: 540px) { .tutorial-guide p { font-size: 13px; } }

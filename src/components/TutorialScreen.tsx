@@ -14,7 +14,7 @@ function readCompleted(): boolean {
   try { return getBrowserStorage()?.getItem(TUTORIAL_KEY) === 'true' } catch { return false }
 }
 
-export function TutorialScreen({ onExit, onStart }: { onExit: () => void; onStart: () => void }) {
+export function TutorialScreen({ onExit, onStart, onAcademy }: { onExit: () => void; onStart: () => void; onAcademy: () => void }) {
   const [board, setBoard] = useState<CellState[]>(() => initialBoard())
   const [completed, setCompleted] = useState(readCompleted)
   const [assist, setAssist] = useState(true)
@@ -98,6 +98,14 @@ export function TutorialScreen({ onExit, onStart }: { onExit: () => void; onStar
     })}</div></div>
     <p className="board-help">點擊循環：空白 → × → 水母 → 空白</p>
     <p className="tutorial-feedback" role="status">{message || '作答途中不判定對錯，提交後才檢查。'}</p>
-    {solved ? <section className="tutorial-success"><h2 ref={feedback} tabIndex={-1}>教學完成！</h2><p>你學會了！接下來試試基礎第一關。</p><button className="button primary" onClick={onStart}>開始基礎第一關</button><button className="text-button" onClick={onExit}>返回首頁</button></section> : <div className="tutorial-actions"><button className="button primary" onClick={submit}>提交答案</button><button className="button secondary" onClick={requestHint}>提示（不限次數）</button><button className="text-button" onClick={restart}>重新練習</button></div>}
+    {solved ? <section className="tutorial-success">
+      <h2 ref={feedback} tabIndex={-1}>教學完成！</h2>
+      <p>你學會操作了！接著學習在哪裡畫叉，或直接挑戰第一關。</p>
+      <div className="tutorial-next-actions">
+        <button className="button secondary tutorial-academy" onClick={onAcademy}>學習定石</button>
+        <button className="button primary" onClick={onStart}>開始基礎第一關</button>
+      </div>
+      <button className="text-button" onClick={onExit}>返回首頁</button>
+    </section> : <div className="tutorial-actions"><button className="button primary" onClick={submit}>提交答案</button><button className="button secondary" onClick={requestHint}>提示（不限次數）</button><button className="text-button" onClick={restart}>重新練習</button></div>}
   </main>
 }

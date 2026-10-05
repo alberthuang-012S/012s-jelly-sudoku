@@ -59,6 +59,27 @@ it('finishes a single board, teaches all rules, and starts basic level one', () 
   expect(host.querySelectorAll('.state-jelly')).toHaveLength(0)
 })
 
+it('offers basic technique lessons after completion and exits to home without replaying the tutorial', () => {
+  expect(host.querySelector('.tutorial-academy')).toBeNull()
+  tutorialLevel.solution.forEach((column, row) => {
+    const selector = `.board-cell:nth-child(${row * 4 + column + 1})`
+    click(selector); click(selector)
+  })
+  click('.tutorial-actions .primary')
+  expect(host.querySelector('.tutorial-academy')?.textContent).toBe('學習定石')
+  expect(host.querySelector('.tutorial-success .primary')?.textContent).toBe('開始基礎第一關')
+  click('.tutorial-academy')
+  expect(host.querySelector('.academy-page')).not.toBeNull()
+  expect(host.querySelector('.lesson-tiers [aria-pressed="true"]')?.textContent).toContain('基礎')
+  expect(host.querySelector('.tier-lessons [aria-pressed="true"]')?.getAttribute('data-technique')).toBe('line')
+  act(() => { vi.advanceTimersByTime(60000) })
+  expect(localStorage.getItem(TUTORIAL_KEY)).toBe('true')
+  expect(localStorage.getItem(STORAGE_KEY)).toBeNull()
+  click('[aria-label="離開定石教室"]')
+  expect(host.querySelector('.tutorial-entry')).not.toBeNull()
+  expect(host.querySelector('.tutorial-page')).toBeNull()
+})
+
 it('allows free edits, assistance toggling, restart and skipping without early errors', () => {
   for (const i of [1, 2]) {
     click(`.board-cell:nth-child(${i})`); click(`.board-cell:nth-child(${i})`)
