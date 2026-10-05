@@ -2,7 +2,7 @@ import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { AcademyScreen } from './AcademyScreen'
-import { lessons, teachingScenes, quizCell, lessonTierFor, type LessonTechnique } from '../data/lessons'
+import { lessons, teachingScenes, teachingPoses, poseExclusions, quizCell, lessonTierFor, type LessonTechnique } from '../data/lessons'
 
 let host: HTMLDivElement, root: Root
 const exit = vi.fn()
@@ -172,7 +172,30 @@ it('teaches the extra value of combining colours by showing a failed assumption'
   expect(host.querySelectorAll('.contradiction-unit')).toHaveLength(teachingScenes.combination[0].level.size)
   finishDemo()
   expect(host.querySelector('.teaching-caption')?.textContent).toContain('一起看兩色就能確定畫叉')
-  expect(host.querySelectorAll('.teaching-x')).toHaveLength(teachingScenes.combination[0].targets.length)
+  const scene = teachingScenes.combination[0]
+  expect(host.querySelectorAll('.teaching-x')).toHaveLength(new Set([...scene.targets, ...scene.board.flatMap((cell, i) => cell === 'marked' ? [i] : [])]).size)
+})
+it('keeps existing crosses through demonstration, previous step and practice using the same mark', () => {
+  choose('zigzag')
+  const scene = teachingScenes.zigzag[0]
+  const prior = scene.board.flatMap((cell, i) => cell === 'marked' ? [i] : [])
+  const displayed = () => [...host.querySelectorAll('.teaching-cell:has(.teaching-x)')].map((el) => Number(el.getAttribute('data-cell'))).sort((a, b) => a - b)
+  expect(prior.length).toBeGreaterThan(0)
+  expect(displayed()).toEqual(prior)
+  expect(host.querySelector('.prior-x, .prior-mark')).toBeNull()
+  expect(host.querySelector('.board-context')?.textContent).not.toContain('淡叉')
+  expect(host.querySelector('.board-context')?.textContent).toContain('×＝不能放水母')
+  const existingCross = host.querySelector(`[data-cell="${prior[0]}"] .teaching-x`)
+  click('.next-step')
+  const excluded = poseExclusions(scene, 'zigzag', teachingPoses(scene, 'zigzag')[0])
+  expect(displayed()).toEqual([...new Set([...prior, ...excluded])].sort((a, b) => a - b))
+  expect(host.querySelector(`[data-cell="${prior[0]}"] .teaching-x`)).toBe(existingCross)
+  click('.previous-step')
+  expect(displayed()).toEqual(prior)
+  finishDemo(); click('.next-step')
+  expect(displayed()).toEqual(prior)
+  expect(host.querySelector('.question .teaching-x')).toBeNull()
+  expect(host.querySelectorAll('.question-bubble')).toHaveLength(1)
 })
 it('ignores removed lessons in the displayed total but retains their saved records', () => {
   localStorage.setItem('jellySudokuAcademy.v1', JSON.stringify(['placed', 'single', 'common', 'line']))
