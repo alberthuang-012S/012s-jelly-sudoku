@@ -220,24 +220,22 @@ it('teaches the extra value of combining colours by showing a failed assumption'
   const scene = teachingScenes.combination[0]
   expect(host.querySelectorAll('.teaching-x')).toHaveLength(scene.targets.length)
 })
-it('hides prior exclusions but preserves new demonstration crosses, clues and practice answers', () => {
+it('starts with the entire Z colour and preserves demonstration crosses, clues and practice answers', () => {
   choose('zigzag')
   const scene = teachingScenes.zigzag[0]
-  const prior = scene.board.flatMap((cell, i) => cell === 'marked' ? [i] : [])
   const originalBoard = [...scene.board]
   const displayed = () => [...host.querySelectorAll('.teaching-cell:has(.teaching-x)')].map((el) => Number(el.getAttribute('data-cell'))).sort((a, b) => a - b)
-  expect(prior.length).toBeGreaterThan(0)
+  expect(scene.sources).toEqual(scene.level.regions.flatMap((region, i) => region === scene.level.regions[scene.sources[0]] ? [i] : []))
   expect(displayed()).toEqual([])
   expect(host.querySelector('.teaching-board')?.getAttribute('aria-label')).not.toContain('格畫叉')
   expect(host.querySelectorAll('.candidate-ring')).toHaveLength(scene.sources.length)
   expect(host.querySelector('.prior-x, .prior-mark')).toBeNull()
   expect(host.querySelector('.board-context')?.textContent).not.toContain('淡叉')
-  expect(host.querySelector('.board-context')?.textContent).toContain('圈圈＝剩下能住的位置')
+  expect(host.querySelector('.board-context')?.textContent).toContain('圈圈＝該顏色所有格子')
   expect(host.querySelector('.board-context')?.textContent).toContain('×＝本次排除的位置')
   click('.next-step')
   const excluded = poseExclusions(scene, 'zigzag', teachingPoses(scene, 'zigzag')[0])
   expect(displayed()).toEqual([...excluded].sort((a, b) => a - b))
-  expect(prior.every((i) => !displayed().includes(i))).toBe(true)
   expect(host.querySelector('.teaching-board')?.getAttribute('aria-label')).toContain(`本次排除 ${excluded.length} 格畫叉`)
   click('.previous-step')
   expect(displayed()).toEqual([])

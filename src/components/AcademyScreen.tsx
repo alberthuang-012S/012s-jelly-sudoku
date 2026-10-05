@@ -20,7 +20,7 @@ function TeachingBoard({ scene, technique, pose = [], blocked = [], question, hy
   const cells = boardCells(scene), n = scene.level.size
   const activeRows = new Set(scene.sources.map((i) => Math.floor(i / n)))
   const crossCount = cells.filter((i) => i !== question && blocked.includes(i)).length
-  return <div className="teaching-board" role="img" aria-label={`${scene.level.size}乘${scene.level.size}正式關卡完整盤面，${hypothesis !== undefined ? `假設水母住${position(hypothesis, n)}` : pose.length ? `水母試住${pose.map((i) => position(i, n)).join('、')}` : '圈起的位置是本課顏色剩下能住的位置'}${crossCount ? `，本次排除 ${crossCount} 格畫叉` : ''}${question !== undefined ? `，問題格在${position(question, n)}` : ''}`}>
+  return <div className="teaching-board" role="img" aria-label={`${scene.level.size}乘${scene.level.size}正式關卡完整盤面，${hypothesis !== undefined ? `假設水母住${position(hypothesis, n)}` : pose.length ? `水母試住${pose.map((i) => position(i, n)).join('、')}` : technique === 'reverse' ? '圈起的位置是這排同色的格子' : '圈起的位置是本課顏色的所有格子'}${crossCount ? `，本次排除 ${crossCount} 格畫叉` : ''}${question !== undefined ? `，問題格在${position(question, n)}` : ''}`}>
     <div className="teaching-matrix" style={{ '--teaching-columns': n } as CSSProperties}>{cells.map((i) => {
       const region = scene.level.regions[i], row = Math.floor(i / n), column = i % n
       const isSource = scene.sources.includes(i), isPose = pose.includes(i), oldJelly = scene.board[i] === 'jelly'
@@ -49,10 +49,10 @@ function TeachingBoard({ scene, technique, pose = [], blocked = [], question, hy
 }
 function intro(scene: TeachingScene, lesson: Lesson) {
   const colour = colourName(scene, scene.sources[0])
-  if (lesson.technique === 'reverse') return `這一橫排剩下能住的位置，全都是${colour}。`
-  if (lesson.technique === 'hall2' || lesson.technique === 'hall3') return `圈圈是${scene.groups.map((g) => colourName(scene, g[0])).join('、')}剩下能住的位置。`
-  if (lesson.technique === 'combination') return `只看任一種顏色，亮框這 ${scene.targets.length} 格都還不能確定畫叉。`
-  return `${colour}只剩圈起的 ${scene.sources.length} 格。水母會住其中一格。`
+  if (lesson.technique === 'reverse') return `這一整橫排都是${colour}，水母一定會住在這排。`
+  if (lesson.technique === 'hall2' || lesson.technique === 'hall3') return `圈圈標出${scene.groups.map((g) => colourName(scene, g[0])).join('、')}的所有格子。`
+  if (lesson.technique === 'combination') return `圈圈是兩色的所有格子。單看一色，亮框這 ${scene.targets.length} 格還不能確定畫叉。`
+  return `${colour}一共 ${scene.sources.length} 格，全部圈起來了。水母會住其中一格。`
 }
 
 export function AcademyScreen({ onExit, onPlay, playLabel = '開始遊戲', initialTechnique }: { onExit: () => void; onPlay: () => void; playLabel?: string; initialTechnique?: Technique }) {
@@ -141,7 +141,7 @@ export function AcademyScreen({ onExit, onPlay, playLabel = '開始遊戲', init
         <p className={`teaching-caption ${isLast ? 'is-conclusion' : ''}`} aria-live="polite"><span className="demo-caption">{caption}</span>{isLast && <span className="mobile-takeaway">{lesson.takeaway}</span>}</p>
         <div className="comparison-switcher">{comparing && <nav aria-label="比較每一種可能">{shownPoses.map((_, i) => <button key={i} data-pose={i} aria-pressed={comparison === i} onClick={() => setComparison(i)}>位置 {i + 1}</button>)}<button data-pose="common" aria-pressed={comparison === -1} onClick={() => setComparison(-1)}>共同禁區</button></nav>}</div>
         <TeachingBoard scene={scene} technique={technique} pose={activePose} blocked={activeBlocks} hypothesis={hypothesis} focusColumn={step % 2 === 0 ? proof?.column : undefined} focusRow={step % 2 === 0 ? proof?.row : undefined} attention={technique === 'combination' ? hypothesis !== undefined ? [hypothesis] : scene.targets : []} />
-        <div className="board-context"><span>{hypothesis !== undefined ? '圈圈＝假設後還能住的位置' : '圈圈＝剩下能住的位置'}</span><span>×＝本次排除的位置</span></div>
+        <div className="board-context"><span>{hypothesis !== undefined ? '圈圈＝假設後還能住的位置' : technique === 'reverse' ? '圈圈＝這排同色的格子' : '圈圈＝該顏色所有格子'}</span><span>×＝本次排除的位置</span></div>
         {isLast && <p className="takeaway">{lesson.takeaway}</p>}
         <div className="lesson-actions demo-controls"><button className="button secondary previous-step" disabled={step === 0} onClick={() => { setPlaying(false); setComparison(-1); setStep(step - 1) }}>上一步</button><button className="button primary next-step" onClick={() => { setPlaying(false); setComparison(-1); if (isLast) practice(); else setStep(step + 1) }}>{isLast ? '判斷一格，試試看' : '下一步'}</button></div>
       </> : <>
@@ -149,7 +149,7 @@ export function AcademyScreen({ onExit, onPlay, playLabel = '開始遊戲', init
         <div className="teaching-caption">{answered ? <div className={`quiz-feedback ${passed ? 'correct' : ''}`} role="status"><strong>{passed ? '判斷正確！' : '再看一次線索。'}</strong><p>{passed ? expected ? lesson.takeaway : '這格還不能確定排除，先保留。' : '只有每次都不能住的格子，才能確定畫叉。'}</p>{passed && exercise === 1 && <details className="lesson-caution"><summary>什麼情況不能直接套用？</summary><p>{lesson.caution}</p></details>}</div> : <p>{exercise === 1 ? '換一個盤面。' : ''}只用剛剛的線索，圈起的問號格能確定畫叉嗎？</p>}</div>
         <div className="comparison-switcher" />
         <TeachingBoard scene={scene} technique={technique} question={question} />
-        <div className="board-context"><span>圈圈＝剩下能住的位置</span><span>問號＝這次要判斷的格子</span></div>
+        <div className="board-context"><span>{technique === 'reverse' ? '圈圈＝這排同色的格子' : '圈圈＝該顏色所有格子'}</span><span>問號＝這次要判斷的格子</span></div>
         <div className="lesson-actions">
         <div className="quiz-actions" hidden={passed}><button className="button primary answer-yes" disabled={passed} onClick={() => respond(true)}>可以確定畫叉</button><button className="button secondary answer-no" disabled={passed} onClick={() => respond(false)}>還不能確定</button></div>
         <div className={`practice-controls ${tierEnd ? 'tier-end-controls' : ''}`}><button className="text-button replay-example" onClick={() => { setPhase('demo'); setStep(0); setPlaying(!reducedMotion()); setAnswer(null); setPassed(false) }}>回看這個例子</button>{passed && <button className="button primary continue-practice" onClick={() => {

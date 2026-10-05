@@ -2,7 +2,7 @@ import { expect, it } from 'vitest'
 import { lessons, teachingScenes, teachingPoses, poseExclusions, boardCells, quizCell, conflict, LESSON_TIERS, combinationProof } from './lessons'
 import { validateLevel } from '../game/validator'
 
-it('uses two distinct valid actual puzzles for each of the nine lessons', () => {
+it('uses two distinct valid untouched puzzles and every cell of each teaching colour', () => {
   expect(lessons).toHaveLength(9)
   for (const { technique } of lessons) {
     const scenes = teachingScenes[technique]
@@ -11,14 +11,20 @@ it('uses two distinct valid actual puzzles for each of the nine lessons', () => 
       expect(validateLevel(scene.level).errors, technique).toEqual([])
       const solution = new Set(scene.level.solution.map((c, r) => r * scene.level.size + c))
       expect(scene.board).toHaveLength(scene.level.size ** 2)
+      expect(scene.board.every((cell) => cell === 'empty'), `${technique}: no hidden prior deductions`).toBe(true)
       expect(scene.targets.length).toBeGreaterThan(0)
       expect(scene.targets.every((i) => !solution.has(i)), technique).toBe(true)
       expect(scene.board.every((state, i) => state !== 'jelly' || solution.has(i))).toBe(true)
       expect(scene.board.every((state, i) => state !== 'marked' || !solution.has(i))).toBe(true)
       if (technique !== 'reverse') for (const group of scene.groups) {
         const region = scene.level.regions[group[0]]
-        const remaining = scene.board.flatMap((state, i) => state === 'empty' && scene.level.regions[i] === region ? [i] : [])
-        expect(remaining.sort((a, b) => a - b), `${technique}: all possibilities of a colour`).toEqual([...group].sort((a, b) => a - b))
+        const entireColour = scene.level.regions.flatMap((id, i) => id === region ? [i] : [])
+        expect(entireColour.sort((a, b) => a - b), `${technique}: the entire colour`).toEqual([...group].sort((a, b) => a - b))
+      }
+      if (technique === 'reverse') {
+        const row = Math.floor(scene.sources[0] / scene.level.size)
+        expect(scene.sources).toEqual(boardCells(scene).filter((i) => Math.floor(i / scene.level.size) === row))
+        expect(new Set(scene.sources.map((i) => scene.level.regions[i])).size).toBe(1)
       }
     }
   }
@@ -39,6 +45,7 @@ it('teaches four pair side cells, two triple side cells, and genuine two/three-r
   for (const scene of teachingScenes.triple) expect(scene.targets).toHaveLength(2)
   for (const scene of teachingScenes.zigzag) expect(scene.targets).toHaveLength(2)
   for (const technique of ['hall2', 'hall3'] as const) for (const scene of teachingScenes[technique]) {
+    expect(teachingPoses(scene, technique).length).toBeGreaterThanOrEqual(2)
     const rows = new Set(scene.sources.map((i) => Math.floor(i / scene.level.size)))
     expect(rows.size).toBe(scene.groups.length)
     expect(scene.groups.length).toBe(technique === 'hall2' ? 2 : 3)

@@ -20,10 +20,62 @@ function add(technique, level, state, sources, targets) {
   targets.forEach((i) => { if (board[i] !== 'jelly') board[i] = 'empty' })
   const regionIds = [...new Set(sources.map((i) => level.regions[i]))]
   const groups = regionIds.map((r) => sources.filter((i) => level.regions[i] === r))
+  // Every example starts from the visible, untouched board. Colour lessons
+  // must use the entire region; reverse locking instead uses the entire row.
+  if (board.some((cell) => cell !== 'empty') || (technique !== 'reverse' &&
+    regionIds.some((r) => level.regions.filter((id) => id === r).length !== groups[regionIds.indexOf(r)].length))) return
+  if (technique === 'hall2' || technique === 'hall3') {
+    const context = createLogicContext(level)
+    const arrangements = groups.reduce((poses, group) => poses.flatMap((pose) =>
+      group.filter((i) => pose.every((a) => !context.conflicts[a].has(i))).map((i) => [...pose, i])), [[]])
+    if (arrangements.length < 2) return
+  }
   const scene = { level: { ...level, rating: undefined }, board, sources, targets, groups }
-  // Prefer small actual boards, few earlier marks and a small number of possibilities.
-  scene.score = level.size * 1000 + board.filter((s) => s === 'marked').length * 3 + sources.length * 5
+  // Prefer small actual boards and a small number of possibilities.
+  scene.score = level.size * 1000 + sources.length * 5
   pools[technique].push(scene)
+}
+function scanFullRegions(level) {
+  const n = level.size, context = createLogicContext(level), state = initialLogicState(context)
+  const cells = [...state.candidates]
+  const groups = Array.from({ length: n }, (_, r) => cells.filter((i) => level.regions[i] === r))
+  const rows = (group) => new Set(group.map((i) => Math.floor(i / n)))
+  const clashes = (a, b) => context.conflicts[a].has(b)
+  for (const group of groups) {
+    if (group.length !== 4) continue
+    const rs = group.map((i) => Math.floor(i / n)), cs = group.map((i) => i % n)
+    const h = Math.max(...rs) - Math.min(...rs), w = Math.max(...cs) - Math.min(...cs)
+    if (!((h === 1 && w === 2) || (h === 2 && w === 1))) continue
+    const coords = group.map((i) => [Math.floor(i / n) - Math.min(...rs), i % n - Math.min(...cs)])
+    const z = h === 1 ? coords : coords.map(([r, c]) => [c, r])
+    if (z.filter(([r]) => r === 0).length !== 2 || z.filter(([, c]) => c === 1).length !== 2 ||
+      z.some(([r, c]) => c === 0 && z.some(([r2, c2]) => c2 === 2 && r2 === r))) continue
+    const holes = cells.filter((i) => Math.floor(i / n) >= Math.min(...rs) && Math.floor(i / n) <= Math.max(...rs) &&
+      i % n >= Math.min(...cs) && i % n <= Math.max(...cs) && !group.includes(i))
+    if (holes.length === 2 && holes.every((i) => group.every((a) => clashes(a, i)))) add('zigzag', level, state, group, holes)
+  }
+  for (let a = 0; a < n; a++) for (let b = a + 1; b < n; b++) {
+    const first = groups[a], second = groups[b], source = [...first, ...second]
+    const pairRows = rows(source)
+    if (rows(first).size === 2 && rows(second).size === 2 && pairRows.size === 2) {
+      add('hall2', level, state, source, cells.filter((i) => pairRows.has(Math.floor(i / n)) && !source.includes(i)))
+    }
+    if (first.length >= 2 && second.length >= 2 && source.length <= 18) {
+      const targets = cells.filter((i) => !source.includes(i) && [first, second].every((g) => g.some((a) => !clashes(a, i))))
+        .filter((i) => {
+          const remaining = source.filter((a) => !clashes(a, i))
+          return rows(remaining).size === 1 || new Set(remaining.map((a) => a % n)).size === 1
+        })
+      // Both colours must have a legal joint arrangement before the assumption.
+      if (first.some((i) => second.some((j) => !clashes(i, j)))) add('combination', level, state, source, targets.slice(0, 2))
+    }
+    for (let c = b + 1; c < n; c++) {
+      const selected = [first, second, groups[c]], source = selected.flat(), occupiedRows = rows(source)
+      if (selected.every((g) => rows(g).size >= 2) && occupiedRows.size === 3) {
+        add('hall3', level, state, source, cells.filter((i) => occupiedRows.has(Math.floor(i / n)) && !source.includes(i)))
+      }
+    }
+  }
 }
 function addTransposed(technique, level, state, sources, targets) {
   const n = level.size, rotate = (i) => i % n * n + Math.floor(i / n)
@@ -35,6 +87,7 @@ function addTransposed(technique, level, state, sources, targets) {
   }, sources.map(rotate), targets.map(rotate))
 }
 for (const level of levels) {
+  scanFullRegions(level)
   const n = level.size, context = createLogicContext(level), state = initialLogicState(context)
   for (let turn = 0; turn < n * n; turn++) {
     for (let region = 0; region < n; region++) {
