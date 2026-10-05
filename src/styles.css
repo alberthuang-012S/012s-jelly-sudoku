@@ -553,6 +553,12 @@ button { touch-action: manipulation; }
 .lesson-card .quiz-actions[hidden] { display: none; }
 .lesson-card .practice-controls { margin-top: 8px; }
 .lesson-card .practice-controls .button { width: 100%; font-size: 13px; }
+.lesson-card .tier-end-controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.tier-end-controls .continue-practice { grid-column: 1; grid-row: 1; }
+.tier-end-controls .academy-play { grid-column: 2; grid-row: 1; }
+.tier-end-controls .replay-example { grid-column: 1; grid-row: 2; }
+.tier-end-controls .change-learning-level { grid-column: 2; grid-row: 2; }
+.tier-end-controls:not(:has(.academy-play)) .continue-practice { grid-column: 1 / -1; }
 .lesson-card .lesson-caution { grid-column: 2; grid-row: 6; margin: 0; }
 .comparison-switcher { grid-column: 1; grid-row: 1; height: 44px; min-width: 0; }
 .comparison-switcher nav { display: flex; gap: 4px; height: 100%; }
@@ -644,6 +650,8 @@ button { touch-action: manipulation; }
   .lesson-card .practice-controls { flex-wrap: nowrap; margin-top: 6px; }
   .lesson-card .practice-controls .text-button { min-height: 32px; font-size: 11px; flex-shrink: 0; padding: 4px; }
   .lesson-card .practice-controls .button { width: auto; flex: 1; min-height: 36px; padding: 6px; font-size: 12px; }
+  .lesson-card .tier-end-controls { margin-top: 0; }
+  .lesson-card .tier-end-controls .button { width: 100%; min-height: 44px; }
   .lesson-card .lesson-caution { width: 100%; font-size: 11px; }
   .academy-v2 .academy-footnote { display: none; }
 

@@ -55,7 +55,7 @@ function intro(scene: TeachingScene, lesson: Lesson) {
   return `${colour}只剩圈起的 ${scene.sources.length} 格。水母會住其中一格。`
 }
 
-export function AcademyScreen({ onExit, initialTechnique }: { onExit: () => void; initialTechnique?: Technique }) {
+export function AcademyScreen({ onExit, onPlay, playLabel = '開始遊戲', initialTechnique }: { onExit: () => void; onPlay: () => void; playLabel?: string; initialTechnique?: Technique }) {
   const [technique, setTechnique] = useState<LessonTechnique>(() => canTeach(initialTechnique) ? initialTechnique : 'line')
   const [completed, setCompleted] = useState(readCompleted)
   const [phase, setPhase] = useState<'demo' | 'practice'>('demo')
@@ -68,6 +68,8 @@ export function AcademyScreen({ onExit, initialTechnique }: { onExit: () => void
   const [comparison, setComparison] = useState(-1)
   const tier = lessonTierFor(technique)
   const nextTechnique = tier.techniques[tier.techniques.indexOf(technique) + 1]
+  const nextTier = LESSON_TIERS[LESSON_TIERS.indexOf(tier) + 1]
+  const tierEnd = passed && exercise === 1 && !nextTechnique
   const lesson = lessons.find((l) => l.technique === technique)!
   const scene = teachingScenes[technique][exercise], poses = teachingPoses(scene, technique)
   const structural = technique === 'hall2' || technique === 'hall3'
@@ -150,11 +152,12 @@ export function AcademyScreen({ onExit, initialTechnique }: { onExit: () => void
         <div className="board-context"><span>問號＝這次要判斷的格子</span><span>×＝不能放水母</span></div>
         <div className="lesson-actions">
         <div className="quiz-actions" hidden={passed}><button className="button primary answer-yes" disabled={passed} onClick={() => respond(true)}>可以確定畫叉</button><button className="button secondary answer-no" disabled={passed} onClick={() => respond(false)}>還不能確定</button></div>
-        <div className="practice-controls"><button className="text-button replay-example" onClick={() => { setPhase('demo'); setStep(0); setPlaying(!reducedMotion()); setAnswer(null); setPassed(false) }}>回看這個例子</button>{passed && <button className="button primary continue-practice" onClick={() => {
+        <div className={`practice-controls ${tierEnd ? 'tier-end-controls' : ''}`}><button className="text-button replay-example" onClick={() => { setPhase('demo'); setStep(0); setPlaying(!reducedMotion()); setAnswer(null); setPassed(false) }}>回看這個例子</button>{passed && <button className="button primary continue-practice" onClick={() => {
           if (exercise === 0) { setExercise(1); setAnswer(null); setPassed(false) }
           else if (nextTechnique) choose(nextTechnique)
-          else onExit()
-        }}>{exercise === 0 ? '換一個例子，再試一格' : nextTechnique ? `下一個${tier.name}技巧 →` : '學會了，離開教室'}</button>}{passed && exercise === 1 && <button className="text-button change-learning-level" onClick={() => setPickerOpen(true)}>換個學習難度</button>}</div>
+          else if (nextTier) choose(nextTier.techniques[0])
+          else onPlay()
+        }}>{exercise === 0 ? '換一個例子，再試一格' : nextTechnique ? `下一個${tier.name}技巧 →` : nextTier ? `繼續學${nextTier.name} →` : playLabel}</button>}{tierEnd && nextTier && <button className="button secondary academy-play" onClick={onPlay}>{playLabel}</button>}{passed && exercise === 1 && <button className="text-button change-learning-level" onClick={() => { setPlaying(false); setPickerOpen(true) }}>換個學習難度</button>}</div>
         </div>
       </>}
     </section>

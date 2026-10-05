@@ -5,7 +5,7 @@ import { AcademyScreen } from './AcademyScreen'
 import { lessons, teachingScenes, teachingPoses, poseExclusions, quizCell, lessonTierFor, type LessonTechnique } from '../data/lessons'
 
 let host: HTMLDivElement, root: Root
-const exit = vi.fn()
+const exit = vi.fn(), play = vi.fn()
 const click = (selector: string) => act(() => host.querySelector<HTMLButtonElement>(selector)!.click())
 function choose(technique: LessonTechnique) {
   click(`[data-tier="${lessonTierFor(technique).id}"]`)
@@ -16,13 +16,52 @@ function finishDemo() {
   while (!host.querySelector('.next-step')?.textContent?.includes('判斷一格') && guard++ < 50) click('.next-step')
   expect(guard).toBeLessThan(50)
 }
+function finishLesson(technique: LessonTechnique) {
+  choose(technique); finishDemo(); click('.next-step'); click('.answer-yes'); click('.continue-practice')
+  const scene = teachingScenes[technique][1]
+  click(scene.targets.includes(quizCell(scene, technique, 1)) ? '.answer-yes' : '.answer-no')
+}
 beforeEach(() => {
   Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
   host = document.createElement('div'); document.body.append(host)
-  root = createRoot(host); act(() => root.render(<AcademyScreen onExit={exit} />))
-  exit.mockClear()
+  root = createRoot(host); act(() => root.render(<AcademyScreen onExit={exit} onPlay={play} />))
+  exit.mockClear(); play.mockClear()
 })
 afterEach(() => { act(() => root.unmount()); host.remove(); vi.useRealTimers() })
+
+it.each([
+  ['triple', '進階', 'bend'],
+  ['reverse', '挑戰', 'hall2'],
+] as const)('continues from %s into the next difficulty without leaving the classroom', (technique, nextName, firstTechnique) => {
+  finishLesson(technique)
+  expect(host.querySelector('.continue-practice')?.textContent).toBe(`繼續學${nextName} →`)
+  expect(host.querySelector('.academy-play')?.textContent).toBe('開始遊戲')
+  click('.continue-practice')
+  expect(host.querySelector(`[data-technique="${firstTechnique}"]`)?.getAttribute('aria-pressed')).toBe('true')
+  expect(host.querySelector('.demo-progress small')?.textContent).toContain('第 1')
+  expect(host.querySelector('.quiz-feedback')).toBeNull()
+  expect(host.querySelector('.course-toggle')?.getAttribute('aria-expanded')).toBe('false')
+  expect(JSON.parse(localStorage.getItem('jellySudokuAcademy.v1')!)).toContain(technique)
+  expect(exit).not.toHaveBeenCalled()
+  expect(play).not.toHaveBeenCalled()
+})
+it('lets players choose to play after a difficulty or choose another course', () => {
+  finishLesson('triple')
+  click('.change-learning-level')
+  expect(host.querySelector('.course-toggle')?.getAttribute('aria-expanded')).toBe('true')
+  click('[aria-label="關閉選課"]')
+  click('.academy-play')
+  expect(play).toHaveBeenCalledOnce()
+  expect(exit).not.toHaveBeenCalled()
+})
+it('offers play when the final challenge lesson is finished', () => {
+  finishLesson('combination')
+  expect(host.querySelector('.continue-practice')?.textContent).toBe('開始遊戲')
+  expect(host.querySelector('.academy-play')).toBeNull()
+  click('.continue-practice')
+  expect(play).toHaveBeenCalledOnce()
+  expect(exit).not.toHaveBeenCalled()
+})
 
 it('starts at basic difficulty and supports full-board autoplay, pause, previous and comparison', () => {
   expect(host.querySelectorAll('.lesson-tiers button')).toHaveLength(3)
@@ -83,7 +122,7 @@ it('requires two one-cell answers for every lesson and saves completion separate
   }
   expect(JSON.parse(localStorage.getItem('jellySudokuAcademy.v1')!)).toHaveLength(9)
   expect(localStorage.getItem('jellySudokuSave.v1')).toBeNull()
-  act(() => root.render(<AcademyScreen key="reload" onExit={exit} />))
+  act(() => root.render(<AcademyScreen key="reload" onExit={exit} onPlay={play} />))
   expect(host.querySelector('.subpage-header')?.textContent).toContain('9 / 9')
 })
 it('replays the current second example and permits a corrected answer', () => {
@@ -101,7 +140,7 @@ it('replays the current second example and permits a corrected answer', () => {
 })
 it('opens a linked lesson at its difficulty and respects reduced motion', () => {
   vi.stubGlobal('matchMedia', () => ({ matches: true }))
-  act(() => root.render(<AcademyScreen key="direct" initialTechnique="hall3" onExit={exit} />))
+  act(() => root.render(<AcademyScreen key="direct" initialTechnique="hall3" onExit={exit} onPlay={play} />))
   expect(host.querySelector('[data-tier="challenge"]')?.getAttribute('aria-pressed')).toBe('true')
   expect(host.querySelector('[data-technique="hall3"]')?.getAttribute('aria-pressed')).toBe('true')
   expect(host.querySelectorAll('.tier-lessons button')).toHaveLength(3)
@@ -199,7 +238,7 @@ it('keeps existing crosses through demonstration, previous step and practice usi
 })
 it('ignores removed lessons in the displayed total but retains their saved records', () => {
   localStorage.setItem('jellySudokuAcademy.v1', JSON.stringify(['placed', 'single', 'common', 'line']))
-  act(() => root.render(<AcademyScreen key="legacy" initialTechnique="common" onExit={exit} />))
+  act(() => root.render(<AcademyScreen key="legacy" initialTechnique="common" onExit={exit} onPlay={play} />))
   expect(host.querySelector('.subpage-header')?.textContent).toContain('1 / 9')
   expect(host.querySelector('[data-technique="line"]')?.getAttribute('aria-pressed')).toBe('true')
   choose('pair'); finishDemo(); click('.next-step'); click('.answer-yes'); click('.continue-practice')

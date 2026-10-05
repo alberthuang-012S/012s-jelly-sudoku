@@ -358,7 +358,7 @@ function App() {
       )}
 
       {screen === 'tutorial' && <TutorialScreen onExit={goHome} onStart={() => openLevel(levelsByDifficulty.basic[0])} onAcademy={() => openAcademy()} />}
-      {screen === 'academy' && <AcademyScreen initialTechnique={academyTechnique} onExit={() => setScreen(academyReturn)} />}
+      {screen === 'academy' && <AcademyScreen initialTechnique={academyTechnique} onExit={() => setScreen(academyReturn)} playLabel={academyReturn === 'game' || resumableLevel ? '繼續遊戲' : '開始遊戲'} onPlay={() => academyReturn === 'game' ? setScreen('game') : openLevel(resumableLevel ?? levelsByDifficulty.basic[0])} />}
 
       {screen === 'levels' && (
         <LevelSelectScreen

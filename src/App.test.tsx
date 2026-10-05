@@ -3,6 +3,7 @@ import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import App from './App'
 import { levelsByDifficulty } from './data/levels'
+import { quizCell, teachingScenes } from './data/lessons'
 
 let host: HTMLDivElement
 let root: Root
@@ -216,6 +217,31 @@ it('pauses during technique practice and returns to the same game and explanatio
   expect(host.querySelector('.hint-action sup')?.textContent).toBe('2')
   advance(1000)
   expect(host.querySelector('.timer-box strong')?.textContent).toBe('00:03')
+})
+
+it.each(['new', 'saved', 'current'] as const)('opens the appropriate game after academy learning: %s', (origin) => {
+  if (origin !== 'new') { advance(2000); click('.board-cell') }
+  if (origin === 'current') {
+    click('.hint-action')
+    click('.beginner-tip .text-button')
+  } else {
+    click('[aria-label="返回關卡列表"]'); click('[aria-label="返回首頁"]'); click('.academy-entry')
+  }
+  click('[data-technique="triple"]')
+  let guard = 0
+  while (!host.querySelector('.next-step')?.textContent?.includes('判斷一格') && guard++ < 50) click('.next-step')
+  expect(guard).toBeLessThan(50)
+  click('.next-step'); click('.answer-yes'); click('.continue-practice')
+  const scene = teachingScenes.triple[1]
+  click(scene.targets.includes(quizCell(scene, 'triple', 1)) ? '.answer-yes' : '.answer-no')
+  expect(host.querySelector('.academy-play')?.textContent).toBe(origin === 'new' ? '開始遊戲' : '繼續遊戲')
+  advance(10000)
+  click('.academy-play')
+  expect(host.querySelector('.academy-page')).toBeNull()
+  expect(host.querySelector('.game-heading .eyebrow')?.textContent).toContain('LEVEL 01')
+  expect(host.querySelectorAll('.state-marked')).toHaveLength(origin === 'new' ? 0 : 1)
+  expect(host.querySelector('.timer-box strong')?.textContent).toBe(origin === 'new' ? '00:00' : '00:02')
+  if (origin === 'current') expect(host.querySelector('.logic-hint')).not.toBeNull()
 })
 
 it('flags an incorrect cross when a hint is requested without consuming the hint', () => {
