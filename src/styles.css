@@ -718,3 +718,22 @@ button { touch-action: manipulation; }
   .tutorial-workspace .tutorial-feedback { grid-column: 2; grid-row: 2; }
   .tutorial-page .tutorial-actions { position: absolute; left: auto; right: 12px; bottom: 12px; width: calc(100% - (100dvh - 130px) - 56px); border-radius: 16px; }
 }
+
+.candidate-letter { position: absolute; bottom: 2px; left: 3px; font-size: clamp(10px, 23cqw, 14px); font-weight: 800; color: #382847; line-height: 1; background: #fffaf2dd; border-radius: 3px; padding: 1px 2px; z-index: 4; }
+.teaching-cell.confirmed-placement { outline: 2px solid #378068; outline-offset: -3px; }
+.teaching-cell img.known-jelly { opacity: 1; }
+
+.teaching-cell.endgame-cell.trial { outline: 2px solid #ba6079; outline-offset: -3px; }
+.teaching-cell.assist-cell.blocked { background-image: repeating-linear-gradient(135deg, transparent 0 6px, rgba(45, 40, 65, .16) 6px 8px); }
+.teaching-cell.assist-cell .teaching-x { background: transparent; }
+
+.endgame-lesson .comparison-switcher .lesson-caution { width: 100%; margin: 0; }
+.endgame-lesson .comparison-switcher .lesson-caution[open] { position: relative; z-index: 5; padding: 0 8px 8px; background: #fffaf2; border: 1px solid #e4d9e5; border-radius: 8px; }
+@media (max-width: 700px) {
+  .endgame-lesson.phase-practice .teaching-caption { padding-block: 6px; }
+  .endgame-lesson .comparison-switcher .lesson-caution summary { padding: 4px 0; }
+}
+
+.proof-directions { display: flex; gap: 4px; height: 100%; }
+.proof-directions span { flex: 1; display: grid; place-items: center; font-size: 12px; border: 1px solid #e4d9e5; border-radius: 10px; background: #fffafc; color: #806c91; }
+.proof-directions span[aria-current=step] { background: #eadef4; border-color: #9674b2; color: #564466; font-weight: 700; }

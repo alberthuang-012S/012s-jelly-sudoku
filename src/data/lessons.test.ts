@@ -1,5 +1,7 @@
 import { expect, it } from 'vitest'
-import { lessons, teachingScenes, teachingPoses, poseExclusions, boardCells, quizCell, conflict, LESSON_TIERS, combinationProof, trialFrame, inspectTrial } from './lessons'
+import { lessons, teachingScenes, teachingPoses, poseExclusions, boardCells, quizCell, conflict, LESSON_TIERS, trialFrames, confirmedCells, outsideProof } from './lessons'
+import { traceTrial, trialStart } from '../game/trial'
+import { isBoardSolved } from '../game/rules'
 import { validateLevel } from '../game/validator'
 
 it('uses two distinct valid untouched puzzles and every cell of each teaching colour', () => {
@@ -11,12 +13,12 @@ it('uses two distinct valid untouched puzzles and every cell of each teaching co
       expect(validateLevel(scene.level).errors, technique).toEqual([])
       const solution = new Set(scene.level.solution.map((c, r) => r * scene.level.size + c))
       expect(scene.board).toHaveLength(scene.level.size ** 2)
-      expect(scene.board.every((cell) => cell === 'empty'), `${technique}: no hidden prior deductions`).toBe(true)
+      if (technique !== 'combination') expect(scene.board.every((cell) => cell === 'empty'), `${technique}: no hidden prior deductions`).toBe(true)
       expect(scene.targets.length).toBeGreaterThan(0)
       expect(scene.targets.every((i) => !solution.has(i)), technique).toBe(true)
       expect(scene.board.every((state, i) => state !== 'jelly' || solution.has(i))).toBe(true)
       expect(scene.board.every((state, i) => state !== 'marked' || !solution.has(i))).toBe(true)
-      if (technique !== 'reverse') for (const group of scene.groups) {
+      if (!['reverse', 'combination'].includes(technique)) for (const group of scene.groups) {
         const region = scene.level.regions[group[0]]
         const entireColour = scene.level.regions.flatMap((id, i) => id === region ? [i] : [])
         expect(entireColour.sort((a, b) => a - b), `${technique}: the entire colour`).toEqual([...group].sort((a, b) => a - b))
@@ -30,7 +32,7 @@ it('uses two distinct valid untouched puzzles and every cell of each teaching co
   }
 })
 it('never shows a shared cross that a displayed legal arrangement could occupy', () => {
-  for (const { technique } of lessons) for (const scene of teachingScenes[technique]) {
+  for (const { technique } of lessons.filter((l) => l.technique !== 'combination')) for (const scene of teachingScenes[technique]) {
     const poses = teachingPoses(scene, technique)
     expect(poses.length, technique).toBeGreaterThan(0)
     for (const pose of poses) {
@@ -85,32 +87,59 @@ it('includes both outside L cells in addition to its inner corner', () => {
     expect([...scene.targets].sort((a, b) => a - b)).toEqual(omitted.sort((a, b) => a - b))
   }
 })
-it('shows combination exclusions that neither colour can prove alone, with a verifiable contradiction', () => {
-  for (const scene of teachingScenes.combination) for (const target of scene.targets) {
-    expect(scene.groups.some((group) => group.every((a) => conflict(scene, a, target)))).toBe(false)
-    const proof = combinationProof(scene, target)
-    expect(proof.groups.every((group) => group.length > 0)).toBe(true)
-    expect(proof.column !== undefined || proof.row !== undefined).toBe(true)
-    expect(proof.groups[0].every((a) => proof.groups[1].every((b) => conflict(scene, a, b)))).toBe(true)
+it('uses a two-choice endgame, follows forced deductions, disproves A and solves from B', () => {
+  for (const scene of teachingScenes.combination) {
+    const snapshot = JSON.stringify(scene), confirmed = confirmedCells(scene), [a, b] = scene.sources
+    const { context, state } = trialStart(scene.level, confirmed)
+    expect(scene.endgame).toBe(true)
+    expect(confirmed).toHaveLength(scene.level.size - 3)
+    expect(scene.board).not.toContain('marked')
+    expect(scene.level.regions[a]).toBe(scene.level.regions[b])
+    expect([...state.candidates].filter((i) => scene.level.regions[i] === scene.level.regions[a])).toEqual([...scene.sources].sort((x, y) => x - y))
+    expect(context.units.filter((u) => !u.cells.some((i) => state.placed.has(i))).every((u) => u.cells.filter((i) => state.candidates.has(i)).length >= 2)).toBe(true)
+    const bad = traceTrial(scene.level, confirmed, a), good = traceTrial(scene.level, confirmed, b)
+    expect(bad.additions.length).toBeGreaterThan(1)
+    expect(bad.failure).toBeDefined()
+    const failed = trialStart(scene.level, [...confirmed, ...bad.additions.map((x) => x.cell)]).state
+    expect(bad.failure!.cells.some((i) => failed.candidates.has(i) || failed.placed.has(i))).toBe(false)
+    expect(good.solved).toBe(true)
+    const completed = new Set([...confirmed, ...good.additions.map((x) => x.cell)])
+    expect(isBoardSolved(scene.board.map((_, i) => completed.has(i) ? 'jelly' : 'empty'), scene.level)).toBe(true)
+    // Runtime inference must not use the stored answer.
+    expect(traceTrial({ ...scene.level, solution: [] }, confirmed, a)).toEqual(bad)
+    expect(traceTrial({ ...scene.level, solution: [] }, confirmed, b)).toEqual(good)
+    expect(() => traceTrial(scene.level, confirmed, confirmed[0])).toThrow('not a candidate')
+    for (const trace of [bad, good]) {
+      for (let j = 1; j < trace.additions.length; j++) {
+        const prior = trialStart(scene.level, [...confirmed, ...trace.additions.slice(0, j).map((x) => x.cell)]).state
+        const addition = trace.additions[j]
+        expect(addition.unit.filter((i) => prior.candidates.has(i))).toEqual([addition.cell])
+      }
+    }
+    const frames = trialFrames(scene), restored = frames.find((f) => f.kind === 'restore')!
+    expect(restored.pose).toEqual([])
+    expect(restored.blocked).toEqual([])
+    expect(restored.hypothesis).toBeUndefined()
+    expect(frames.find((f) => f.kind === 'confirm')!.pose).toEqual([b])
+    expect(frames.find((f) => f.kind === 'confirm')!.blocked).toEqual([a])
+    expect(frames.at(-1)!.kind).toBe('finish')
+    expect(frames.filter((f) => f.confirmed).every((f) => f.blocked.includes(a) && !f.blocked.includes(b))).toBe(true)
+    expect(JSON.stringify(scene)).toBe(snapshot)
   }
 })
 
-it('separates temporary trial deductions from proven results and restores both trial outcomes', () => {
-  for (const [exercise, scene] of teachingScenes.combination.entries()) {
-    const snapshot = JSON.stringify(scene), q = quizCell(scene, 'combination', exercise)
-    expect(inspectTrial(scene, q).contradiction).toBe(exercise === 0)
-    expect(trialFrame(scene, q, 0).blocked).toEqual([])
-    expect(trialFrame(scene, q, 1).pose).toEqual([q])
-    expect(trialFrame(scene, q, 1).blocked).toEqual([])
-    const rowOnly = trialFrame(scene, q, 2).blocked
-    expect(rowOnly).toEqual(boardCells(scene).filter((i) => i !== q && Math.floor(i / scene.level.size) === Math.floor(q / scene.level.size)))
-    for (let step = 2; step < 5; step++) expect(trialFrame(scene, q, step).blocked.every((i) => trialFrame(scene, q, step + 1).blocked.includes(i))).toBe(true)
-    expect(trialFrame(scene, q, 5).blocked).toEqual(boardCells(scene).filter((i) => conflict(scene, q, i)))
-    expect(trialFrame(scene, q, 7).pose).toEqual([])
-    expect(trialFrame(scene, q, 7).hypothesis).toBeUndefined()
-    expect(trialFrame(scene, q, 7).blocked).toEqual([])
-    expect(trialFrame(scene, q, 8).blocked).toEqual(exercise === 0 ? [q] : [])
-    if (exercise === 1) expect(teachingPoses(scene, 'combination').some((pose) => pose.every((i) => !conflict(scene, q, i)))).toBe(true)
-    expect(JSON.stringify(scene)).toBe(snapshot)
+it('proves L and Z outside exclusions by blocking their entire colour, but leaves negative examples possible', () => {
+  for (const technique of ['bend', 'zigzag'] as const) for (const [exercise, scene] of teachingScenes[technique].entries()) {
+    for (const cell of scene.targets) {
+      const proof = outsideProof(scene, cell)
+      expect(proof.contradiction).toBe(true)
+      expect(proof.blocked).toEqual(scene.sources)
+      expect(scene.level.regions[cell]).not.toBe(scene.level.regions[scene.sources[0]])
+    }
+    if (exercise === 1) {
+      const proof = outsideProof(scene, quizCell(scene, technique, exercise))
+      expect(proof.contradiction).toBe(false)
+      expect(proof.blocked.length).toBeLessThan(scene.sources.length)
+    }
   }
 })

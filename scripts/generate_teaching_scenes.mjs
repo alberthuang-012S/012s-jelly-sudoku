@@ -13,6 +13,7 @@ registerHooks({ resolve(specifier, context, next) {
 } })
 const { createLogicContext, initialLogicState, nextLogicStep, applyLogicStep, commonExclusions } = await import(pathToFileURL(resolve('src/game/logic.ts')).href)
 const levels = JSON.parse(readFileSync('src/data/levels/generated-levels.json', 'utf8'))
+const { trialStart, traceTrial } = await import(pathToFileURL(resolve('src/game/trial.ts')).href)
 const pools = Object.fromEntries(['line', 'pair', 'triple', 'bend', 'zigzag', 'hall2', 'hall3', 'reverse', 'combination'].map((t) => [t, []]))
 function add(technique, level, state, sources, targets) {
   if (!targets.length) return
@@ -59,15 +60,6 @@ function scanFullRegions(level) {
     const pairRows = rows(source)
     if (rows(first).size === 2 && rows(second).size === 2 && pairRows.size === 2) {
       add('hall2', level, state, source, cells.filter((i) => pairRows.has(Math.floor(i / n)) && !source.includes(i)))
-    }
-    if (first.length >= 2 && second.length >= 2 && source.length <= 18) {
-      const targets = cells.filter((i) => !source.includes(i) && [first, second].every((g) => g.some((a) => !clashes(a, i))))
-        .filter((i) => {
-          const remaining = source.filter((a) => !clashes(a, i))
-          return rows(remaining).size === 1 || new Set(remaining.map((a) => a % n)).size === 1
-        })
-      // Both colours must have a legal joint arrangement before the assumption.
-      if (first.some((i) => second.some((j) => !clashes(i, j)))) add('combination', level, state, source, targets.slice(0, 2))
     }
     for (let c = b + 1; c < n; c++) {
       const selected = [first, second, groups[c]], source = selected.flat(), occupiedRows = rows(source)
@@ -121,20 +113,34 @@ for (const level of levels) {
       const holes = level.regions.flatMap((_, i) => Math.floor(i / n) >= Math.min(...rs) && Math.floor(i / n) <= Math.max(...rs) && i % n >= Math.min(...cs) && i % n <= Math.max(...cs) && !step.sources.includes(i) ? [i] : [])
       if (holes.length === 2 && holes.every((i) => level.regions[i] !== level.regions[step.sources[0]] && !state.placed.has(i))) add('zigzag', level, state, step.sources, holes)
     }
-    else if (step.technique === 'combination') {
-      const groups = [...regionIds].map((r) => step.sources.filter((i) => level.regions[i] === r))
-      const clearContradiction = step.targets.every((target) => {
-        const survivors = groups.map((group) => group.filter((i) => !context.conflicts[target].has(i)))
-        const remaining = survivors.flat()
-        return survivors.every((group) => group.length) && (new Set(remaining.map((i) => i % n)).size === 1 || new Set(remaining.map((i) => Math.floor(i / n))).size === 1)
-      })
-      if (clearContradiction) add('combination', level, state, step.sources, step.targets)
-    }
     applyLogicStep(context, state, step)
     if (state.placed.size === n) break
   }
 }
 const scenes = {}
+function subsets(items, count) {
+  if (!count) return [[]]
+  return items.flatMap((item, i) => subsets(items.slice(i + 1), count - 1).map((rest) => [item, ...rest]))
+}
+for (const level of levels.filter((l) => l.size === 6)) {
+  const solution = level.solution.map((c, r) => r * level.size + c)
+  for (const confirmed of subsets(solution, level.size - 3)) {
+    const { context, state } = trialStart(level, confirmed)
+    // Start at a genuine choice: no obvious single already solves the endgame.
+    if (context.units.some((u) => !u.cells.some((i) => state.placed.has(i)) && u.cells.filter((i) => state.candidates.has(i)).length === 1)) continue
+    for (let region = 0; region < level.size; region++) {
+      const candidates = [...state.candidates].filter((i) => level.regions[i] === region)
+      if (candidates.length !== 2) continue
+      const wrong = candidates.find((i) => !solution.includes(i)), right = candidates.find((i) => solution.includes(i))
+      if (wrong === undefined || right === undefined) continue
+      const bad = traceTrial(level, confirmed, wrong), good = traceTrial(level, confirmed, right)
+      if (!bad.failure || bad.additions.length < 2 || !good.solved) continue
+      pools.combination.push({ level: { ...level, rating: undefined }, endgame: true,
+        board: level.regions.map((_, i) => confirmed.includes(i) ? 'jelly' : 'empty'),
+        sources: [wrong, right], targets: [wrong], groups: [[wrong, right]], score: bad.additions.length })
+    }
+  }
+}
 for (const [technique, pool] of Object.entries(pools)) {
   pool.sort((a, b) => a.score - b.score)
   const first = pool[0]

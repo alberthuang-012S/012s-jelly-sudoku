@@ -1989,71 +1989,73 @@
   "combination": [
     {
       "level": {
-        "id": "basic-032",
+        "id": "basic-008",
         "difficulty": "basic",
         "size": 6,
         "regions": [
           1,
-          0,
-          0,
-          2,
-          2,
-          2,
           1,
-          3,
+          1,
+          1,
+          0,
+          0,
+          1,
+          1,
+          4,
+          1,
+          1,
+          0,
+          1,
+          1,
+          4,
           2,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          2,
-          2,
-          2,
-          3,
-          3,
-          3,
-          2,
-          2,
-          2,
-          3,
-          3,
+          0,
+          0,
           4,
           4,
           4,
           4,
           3,
           3,
-          3,
+          4,
+          4,
+          4,
+          4,
+          4,
           3,
           5,
-          5
+          5,
+          4,
+          4,
+          3,
+          3
         ],
         "solution": [
-          2,
-          0,
           4,
           1,
           3,
-          5
+          5,
+          2,
+          0
         ],
         "palette": [
-          6,
           1,
-          8,
-          0,
+          5,
+          7,
           4,
-          7
+          0,
+          6
         ],
         "revision": 5,
-        "title": "基礎 6×6 · 032"
+        "title": "基礎 6×6 · 008"
       },
+      "endgame": true,
       "board": [
         "empty",
         "empty",
         "empty",
         "empty",
+        "jelly",
         "empty",
         "empty",
         "empty",
@@ -2064,6 +2066,7 @@
         "empty",
         "empty",
         "empty",
+        "jelly",
         "empty",
         "empty",
         "empty",
@@ -2071,9 +2074,7 @@
         "empty",
         "empty",
         "empty",
-        "empty",
-        "empty",
-        "empty",
+        "jelly",
         "empty",
         "empty",
         "empty",
@@ -2088,90 +2089,85 @@
         "empty"
       ],
       "sources": [
-        1,
-        2,
-        0,
-        6
+        6,
+        7
       ],
       "targets": [
-        9,
-        10
+        6
       ],
       "groups": [
         [
-          1,
-          2
-        ],
-        [
-          0,
-          6
+          6,
+          7
         ]
       ]
     },
     {
       "level": {
-        "id": "basic-074",
+        "id": "basic-010",
         "difficulty": "basic",
         "size": 6,
         "regions": [
-          3,
-          3,
+          2,
           0,
+          1,
+          1,
+          1,
+          1,
+          2,
+          2,
+          2,
+          1,
+          1,
+          1,
+          2,
           2,
           1,
           1,
           3,
           3,
-          0,
-          2,
-          1,
-          1,
-          3,
-          3,
           2,
           2,
-          4,
+          2,
           1,
           3,
-          4,
-          4,
-          4,
-          4,
-          4,
-          3,
-          3,
           3,
           4,
           4,
           4,
           3,
-          5,
-          5,
+          3,
+          3,
           4,
           4,
-          4
+          4,
+          4,
+          4,
+          5
         ],
         "solution": [
-          2,
-          5,
+          1,
           3,
           0,
           4,
-          1
+          2,
+          5
         ],
         "palette": [
-          1,
-          4,
+          8,
           0,
           6,
-          8,
-          3
+          5,
+          2,
+          7
         ],
         "revision": 5,
-        "title": "基礎 6×6 · 074"
+        "title": "基礎 6×6 · 010"
       },
+      "endgame": true,
       "board": [
         "empty",
+        "jelly",
         "empty",
         "empty",
         "empty",
@@ -2196,6 +2192,7 @@
         "empty",
         "empty",
         "empty",
+        "jelly",
         "empty",
         "empty",
         "empty",
@@ -2204,28 +2201,19 @@
         "empty",
         "empty",
         "empty",
-        "empty",
-        "empty",
-        "empty"
+        "jelly"
       ],
       "sources": [
-        2,
-        8,
-        31,
-        32
+        18,
+        12
       ],
       "targets": [
-        13,
-        19
+        18
       ],
       "groups": [
         [
-          2,
-          8
-        ],
-        [
-          31,
-          32
+          18,
+          12
         ]
       ]
     }

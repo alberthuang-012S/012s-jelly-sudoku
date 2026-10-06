@@ -1,11 +1,13 @@
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
+import { getConstraintOverlay } from '../game/rules'
 import { AcademyScreen } from './AcademyScreen'
-import { lessons, teachingScenes, teachingPoses, poseExclusions, quizCell, lessonTierFor, inspectTrial, TRIAL_STAGES, type LessonTechnique } from '../data/lessons'
+import { lessons, teachingScenes, teachingPoses, poseExclusions, quizCell, lessonTierFor, trialFrames, confirmedCells, outsideProof, shapeFrames, type LessonTechnique } from '../data/lessons'
 
 let host: HTMLDivElement, root: Root
 const exit = vi.fn(), play = vi.fn()
+function displayedCrosses() { return [...host.querySelectorAll('.teaching-cell:has(.teaching-x)')].map((el) => Number(el.getAttribute('data-cell'))).sort((a, b) => a - b) }
 const click = (selector: string) => act(() => host.querySelector<HTMLButtonElement>(selector)!.click())
 function choose(technique: LessonTechnique) {
   click(`[data-tier="${lessonTierFor(technique).id}"]`)
@@ -13,16 +15,21 @@ function choose(technique: LessonTechnique) {
 }
 function finishDemo() {
   let guard = 0
-  while (!host.querySelector('.next-step')?.textContent?.includes('判斷一格') && guard++ < 50) click('.next-step')
+  while (!host.querySelector('.next-step')?.textContent?.match(/判斷一格|換你解殘局|兩種都看了/) && guard++ < 50) click('.next-step')
   expect(guard).toBeLessThan(50)
 }
 function inspectPractice() {
   if (host.querySelector('.trial-place')) { click('.trial-place'); click('.trial-check'); click('.trial-restore') }
 }
+function finishEndgame() {
+  let guard = 0
+  while (host.querySelector('.continue-practice')?.textContent === '接著推導 →' && guard++ < 10) click('.continue-practice')
+  expect(guard).toBeLessThan(10)
+}
 function finishLesson(technique: LessonTechnique) {
-  choose(technique); finishDemo(); click('.next-step'); inspectPractice(); click('.answer-yes'); click('.continue-practice'); inspectPractice()
+  choose(technique); finishDemo(); click('.next-step'); inspectPractice(); click('.answer-yes'); finishEndgame(); click('.continue-practice'); inspectPractice()
   const scene = teachingScenes[technique][1]
-  click(scene.targets.includes(quizCell(scene, technique, 1)) ? '.answer-yes' : '.answer-no')
+  click(scene.targets.includes(quizCell(scene, technique, 1)) ? '.answer-yes' : '.answer-no'); finishEndgame()
 }
 beforeEach(() => {
   Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
@@ -103,7 +110,7 @@ it('starts at basic difficulty and supports full-board autoplay, pause, previous
   expect(host.querySelector('.demo-progress small')?.textContent).toContain('第 2')
 })
 it('requires two one-cell answers for every lesson and saves completion separately from the game', () => {
-  for (const lesson of lessons) {
+  for (const lesson of lessons.filter((l) => l.technique !== 'combination')) {
     choose(lesson.technique)
     expect(host.querySelectorAll('.teaching-cell')).toHaveLength(teachingScenes[lesson.technique][0].level.size ** 2)
     expect(host.querySelectorAll('.teaching-x')).toHaveLength(0)
@@ -131,6 +138,7 @@ it('requires two one-cell answers for every lesson and saves completion separate
     expect(host.querySelector('.quiz-feedback')?.textContent).toContain('判斷正確')
     expect(host.querySelector('.lesson-caution')).not.toBeNull()
   }
+  finishLesson('combination')
   expect(JSON.parse(localStorage.getItem('jellySudokuAcademy.v1')!)).toHaveLength(9)
   expect(localStorage.getItem('jellySudokuSave.v1')).toBeNull()
   act(() => root.render(<AcademyScreen key="reload" onExit={exit} onPlay={play} />))
@@ -183,7 +191,9 @@ it('allows any difficulty without unlocking and clears an unfinished exercise wh
 it('explains all three L exclusions and labels the applicable rule for each possibility', () => {
   choose('bend'); finishDemo()
   expect(host.querySelectorAll('.teaching-board')).toHaveLength(1)
-  expect(host.querySelectorAll('.comparison-switcher button')).toHaveLength(4)
+  expect(host.querySelectorAll('.comparison-switcher [data-pose]')).toHaveLength(4)
+  click('.view-colour')
+  expect(host.querySelector('.view-outside')?.textContent).toBe('從旁邊看')
   const labels: (string | null)[] = []
   for (let pose = 0; pose < 3; pose++) {
     click(`[data-pose="${pose}"]`)
@@ -211,62 +221,72 @@ it('pauses playback while choosing a course and closes the picker on selection o
   act(() => vi.advanceTimersByTime(3500))
   expect(host.querySelector('.demo-progress small')?.textContent).toContain('第 2')
 })
-it('teaches rule order, checks a contradiction, restores the board and keeps only the proven cross', () => {
+it('shows the A branch, restores every temporary placement, then confirms B and completes the endgame', () => {
   choose('combination')
-  expect(host.querySelector('.teaching-caption')?.textContent).toContain('先找基礎、進階定石')
-  const scene = teachingScenes.combination[0], q = quizCell(scene, 'combination', 0)
-  click('.next-step')
-  expect(host.querySelectorAll('.hypothesis')).toHaveLength(1)
-  expect(host.querySelectorAll('.teaching-x')).toHaveLength(0)
-  let previousCount = 0
-  for (const name of TRIAL_STAGES.slice(2, 6)) {
+  const scene = teachingScenes.combination[0], frames = trialFrames(scene), confirmed = confirmedCells(scene)
+  expect(host.querySelectorAll('.known-jelly')).toHaveLength(confirmed.length)
+  expect(host.querySelectorAll('.candidate-letter')).toHaveLength(2)
+  expect(displayedCrosses()).toEqual([...getConstraintOverlay(scene.board, scene.level)].sort((a, b) => a - b))
+  expect(host.querySelector('.board-context')?.textContent).toContain('輔助開')
+  for (const frame of frames.slice(1)) {
     click('.next-step')
-    expect(host.querySelector('.demo-progress small')?.textContent).toContain(name)
-    expect(host.querySelectorAll('.teaching-x').length).toBeGreaterThanOrEqual(previousCount)
-    previousCount = host.querySelectorAll('.teaching-x').length
-    expect(host.querySelector('.board-context')?.textContent).toContain('暫時排除')
+    expect(host.querySelector('.demo-progress small')?.textContent).toContain(frame.name)
+    expect(host.querySelector('.teaching-caption')?.textContent).toContain(frame.caption)
+    expect(host.querySelectorAll('.known-jelly')).toHaveLength(confirmed.length)
+    const visible = scene.board.map((cell, i) => frame.pose.includes(i) ? 'jelly' as const : cell)
+    const excluded = new Set([...getConstraintOverlay(visible, scene.level), ...frame.blocked])
+    expect(displayedCrosses()).toEqual([...excluded].filter((i) => visible[i] !== 'jelly').sort((a, b) => a - b))
+    expect(host.querySelector('.teaching-cell:has(img):has(.teaching-x)')).toBeNull()
+    if (frame.kind === 'restore') {
+      expect(host.querySelector('.hypothesis, .trial')).toBeNull()
+      expect(displayedCrosses()).toEqual([...getConstraintOverlay(scene.board, scene.level)].sort((a, b) => a - b))
+      expect(host.querySelectorAll('.candidate-ring')).toHaveLength(2)
+      expect(host.querySelectorAll('.teaching-cell img')).toHaveLength(confirmed.length)
+    }
+    if (frame.confirmed) expect(host.querySelector('.hypothesis, .trial')).toBeNull()
   }
-  click('.next-step')
-  expect(host.querySelector('.teaching-caption')?.textContent).toContain(inspectTrial(scene, q).reason)
-  click('.next-step')
-  expect(host.querySelector('.teaching-caption')?.textContent).toContain('回到原盤面')
-  expect(host.querySelector('.hypothesis, .teaching-x, .trial')).toBeNull()
-  expect(host.querySelectorAll('.candidate-ring')).toHaveLength(scene.sources.length)
-  click('.next-step')
-  expect(host.querySelectorAll('.teaching-x')).toHaveLength(1)
-  expect(host.querySelector(`[data-cell="${q}"] .teaching-x`)).not.toBeNull()
-  expect(host.querySelector('.teaching-caption')?.textContent).toContain('可以確定畫叉')
-  click('.previous-step')
-  expect(host.querySelectorAll('.teaching-x')).toHaveLength(0)
+  expect(host.querySelectorAll('.teaching-cell img')).toHaveLength(scene.level.size)
+  click('.playback-toggle')
+  expect(host.querySelectorAll('.teaching-cell img')).toHaveLength(confirmed.length)
+  expect(host.querySelector('.hypothesis, .trial')).toBeNull()
 })
-it('requires restoration before answering and keeps a noncontradictory assumption unconfirmed', () => {
+it('requires restoring A before selecting B and finishing both endgames before saving completion', () => {
   choose('combination'); finishDemo(); click('.next-step')
-  expect(host.querySelector<HTMLButtonElement>('.answer-yes')?.disabled).toBe(true)
-  expect(host.querySelector<HTMLButtonElement>('.trial-check')?.disabled).toBe(true)
-  click('.trial-place')
-  expect(host.querySelector('.hypothesis')).not.toBeNull()
-  expect(host.querySelector<HTMLButtonElement>('.trial-restore')?.disabled).toBe(true)
-  click('.trial-check')
-  expect(host.querySelector<HTMLButtonElement>('.answer-yes')?.disabled).toBe(true)
-  click('.trial-restore')
-  expect(host.querySelector('.hypothesis, .teaching-x')).toBeNull()
-  expect(host.querySelector<HTMLButtonElement>('.answer-yes')?.disabled).toBe(false)
-  click('.answer-yes'); click('.continue-practice')
-  expect(host.querySelector<HTMLButtonElement>('.answer-no')?.disabled).toBe(true)
-  expect(JSON.parse(localStorage.getItem('jellySudokuAcademy.v1') ?? '[]')).not.toContain('combination')
-  click('.trial-place'); click('.trial-check')
-  expect(host.querySelector('.teaching-caption')?.textContent).toContain('暫時沒有矛盾')
-  click('.trial-restore'); click('.answer-yes')
-  expect(host.querySelector('.quiz-feedback.correct')).toBeNull()
-  click('.answer-no')
-  expect(host.querySelector('.quiz-feedback.correct')?.textContent).toContain('不能直接認定水母')
+  for (let exercise = 0; exercise < 2; exercise++) {
+    const scene = teachingScenes.combination[exercise], confirmed = confirmedCells(scene)
+    expect(host.querySelectorAll('.question-bubble')).toHaveLength(0)
+    expect(host.querySelector<HTMLButtonElement>('.answer-yes')?.disabled).toBe(true)
+    expect(host.querySelector<HTMLButtonElement>('.trial-check')?.disabled).toBe(true)
+    click('.trial-place')
+    expect(host.querySelectorAll('.trial').length).toBeGreaterThan(1)
+    expect(host.querySelector<HTMLButtonElement>('.trial-restore')?.disabled).toBe(true)
+    click('.trial-check')
+    expect(host.querySelector('.teaching-caption')?.textContent).toContain('沒有任何位置能住')
+    expect(host.querySelector<HTMLButtonElement>('.answer-yes')?.disabled).toBe(true)
+    click('.trial-restore')
+    expect(host.querySelector('.hypothesis, .trial')).toBeNull()
+    expect(host.querySelectorAll('.teaching-cell img')).toHaveLength(confirmed.length)
+    expect(displayedCrosses()).toEqual([...getConstraintOverlay(scene.board, scene.level)].sort((a, b) => a - b))
+    expect(host.querySelector<HTMLButtonElement>('.answer-yes')?.disabled).toBe(false)
+    click('.answer-no')
+    expect(host.querySelector('.quiz-feedback.correct')).toBeNull()
+    click('.trial-place')
+    expect(host.querySelector('.quiz-feedback')).toBeNull()
+    click('.trial-check'); click('.trial-restore')
+    click('.answer-yes')
+    expect(host.querySelector('.quiz-feedback.correct')?.textContent).toContain('B 一定住水母')
+    expect(host.querySelectorAll('.confirmed-placement')).toHaveLength(1)
+    expect(JSON.parse(localStorage.getItem('jellySudokuAcademy.v1') ?? '[]')).not.toContain('combination')
+    finishEndgame()
+    expect(host.querySelectorAll('.teaching-cell img')).toHaveLength(scene.level.size)
+    if (!exercise) click('.continue-practice')
+  }
   expect(JSON.parse(localStorage.getItem('jellySudokuAcademy.v1') ?? '[]')).toContain('combination')
   click('.replay-example')
-  expect(host.querySelector('.hypothesis, .teaching-x')).toBeNull()
+  expect(host.querySelector('.hypothesis, .trial')).toBeNull()
+  expect(host.querySelectorAll('.known-jelly')).toHaveLength(confirmedCells(teachingScenes.combination[1]).length)
   finishDemo()
-  expect(host.querySelector('.teaching-caption')?.textContent).toContain('先保留這格')
-  expect(host.querySelector('.mobile-takeaway')?.textContent).toContain('先保留這格')
-  expect(host.querySelector('.trial, .teaching-x')).toBeNull()
+  expect(host.querySelector('.mobile-takeaway')?.textContent).toContain('都找到了')
 })
 it('starts with the entire Z colour and preserves demonstration crosses, clues and practice answers', () => {
   choose('zigzag')
@@ -312,4 +332,87 @@ it('ignores removed lessons in the displayed total but retains their saved recor
   const scene = teachingScenes.pair[1]
   click(scene.targets.includes(quizCell(scene, 'pair', 1)) ? '.answer-yes' : '.answer-no')
   expect(JSON.parse(localStorage.getItem('jellySudokuAcademy.v1')!)).toEqual(expect.arrayContaining(['placed', 'single', 'common', 'line', 'pair']))
+})
+
+it.each(['bend', 'zigzag'] as const)('guides %s through both views before practice, with full assistance for outside trials', (technique) => {
+  choose(technique)
+  const scene = teachingScenes[technique][0], snapshot = JSON.stringify(scene), frames = shapeFrames(scene, technique)
+  expect(host.querySelector('.view-outside')).toBeNull()
+  expect(host.querySelector('.proof-directions [aria-current=step]')?.textContent).toContain('從顏色看')
+  expect(displayedCrosses()).toEqual([])
+  for (const [index, frame] of frames.entries()) {
+    if (index) click('.next-step')
+    expect(host.querySelector('.phase-practice')).toBeNull()
+    expect(host.querySelector('.teaching-caption')?.textContent).toContain(frame.caption)
+    if (frame.view === 'outside' && frame.hypothesis !== undefined) {
+      const visible = scene.board.map((cell, i) => frame.pose.includes(i) ? 'jelly' as const : cell)
+      expect(displayedCrosses()).toEqual([...getConstraintOverlay(visible, scene.level)].sort((a, b) => a - b))
+      expect(scene.sources.every((i) => displayedCrosses().includes(i))).toBe(true)
+      expect(host.querySelector('.board-context')?.textContent).toContain('輔助開')
+      expect(host.querySelectorAll('.teaching-cell img')).toHaveLength(1)
+      expect(host.querySelectorAll('.teaching-rule')).toHaveLength(scene.sources.length)
+      expect(host.querySelector('.teaching-cell:has(img):has(.teaching-x)')).toBeNull()
+    }
+    if (frame.view === 'colour' && frame.kind === 'conclusion') {
+      expect(host.querySelector('.next-step')?.textContent).toBe('接著看另一種方法 →')
+      expect(host.querySelector('.view-outside')).toBeNull()
+    }
+    if (frame.view === 'outside' && frame.kind === 'intro') {
+      expect(displayedCrosses()).toEqual([])
+      expect(host.querySelector('.hypothesis, .trial')).toBeNull()
+      expect(host.querySelector('.proof-directions')?.textContent).toContain('✓')
+    }
+  }
+  expect(host.querySelector('.next-step')?.textContent).toBe('兩種都看了，試試看')
+  expect(displayedCrosses()).toEqual([...scene.targets].sort((a, b) => a - b))
+  expect(host.querySelectorAll('.candidate-ring')).toHaveLength(scene.sources.length)
+  click('[data-pose="0"]')
+  expect(host.querySelector(`[data-cell="${scene.targets[0]}"] img`)).not.toBeNull()
+  click('[data-pose="common"]')
+  expect(host.querySelector('.hypothesis')).toBeNull()
+  click('.view-colour')
+  expect(host.querySelector('.demo-progress small')?.textContent).toContain('兩種都看了')
+  expect(host.querySelector('.assist-cell')).toBeNull()
+  click('.view-outside')
+  click('.next-step')
+  expect(host.querySelector('.phase-practice')).not.toBeNull()
+  expect(JSON.stringify(scene)).toBe(snapshot)
+})
+it.each(['bend', 'zigzag'] as const)('autoplays both %s views and restores the first direction on replay', (technique) => {
+  vi.useFakeTimers(); choose(technique)
+  const frames = shapeFrames(teachingScenes[technique][0], technique)
+  for (let i = 1; i < frames.length; i++) act(() => vi.advanceTimersByTime(3500))
+  expect(host.querySelector('.next-step')?.textContent).toBe('兩種都看了，試試看')
+  expect(host.querySelector('.hypothesis')).toBeNull()
+  click('.playback-toggle')
+  expect(host.querySelector('.demo-progress small')?.textContent).toContain('① 從顏色看')
+  expect(displayedCrosses()).toEqual([])
+  expect(host.querySelector('.proof-directions [aria-current=step]')?.textContent).toContain('從顏色看')
+})
+it.each(['bend', 'zigzag'] as const)('uses the opposite view for %s practice without rejecting surviving colour positions', (technique) => {
+  choose(technique); finishDemo(); click('.next-step')
+  const first = teachingScenes[technique][0]
+  click('.view-outside')
+  const assumed = quizCell(first, technique, 0)
+  expect(displayedCrosses()).toEqual([...getConstraintOverlay(first.board.map((cell, i) => i === assumed ? 'jelly' as const : cell), first.level)].sort((a, b) => a - b))
+  expect(host.querySelector('.board-context')?.textContent).toContain('輔助開')
+  click('.view-colour')
+  expect(displayedCrosses()).toEqual([])
+  expect(host.querySelectorAll('.question-bubble')).toHaveLength(1)
+  click('.view-outside'); click('.answer-yes')
+  expect(host.querySelector('.hypothesis')).toBeNull()
+  click('.continue-practice')
+  const second = teachingScenes[technique][1], q = quizCell(second, technique, 1)
+  expect(second.targets).not.toContain(q)
+  click('.view-outside')
+  expect(displayedCrosses()).toEqual([...getConstraintOverlay(second.board.map((cell, i) => i === q ? 'jelly' as const : cell), second.level)].sort((a, b) => a - b))
+  expect(host.querySelectorAll('.source.blocked')).toHaveLength(outsideProof(second, q).blocked.length)
+  expect(host.querySelectorAll('.candidate-ring').length).toBeGreaterThan(0)
+  expect(host.querySelector('.teaching-caption')?.textContent).toContain('還不能排除')
+  click('.answer-no')
+  expect(host.querySelector('.quiz-feedback.correct')).not.toBeNull()
+  expect(host.querySelector('.hypothesis')).toBeNull()
+  click('.replay-example')
+  expect(displayedCrosses()).toEqual([])
+  expect(host.querySelector('.proof-directions [aria-current=step]')?.textContent).toContain('從顏色看')
 })
