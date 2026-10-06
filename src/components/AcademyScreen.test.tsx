@@ -18,18 +18,18 @@ function finishDemo() {
   while (!host.querySelector('.next-step')?.textContent?.match(/判斷一格|換你解殘局|兩種都看了/) && guard++ < 50) click('.next-step')
   expect(guard).toBeLessThan(50)
 }
-function inspectPractice() {
-  if (host.querySelector('.trial-place')) { click('.trial-place'); click('.trial-check'); click('.trial-restore') }
-}
 function finishEndgame() {
   let guard = 0
-  while (host.querySelector('.continue-practice')?.textContent === '接著推導 →' && guard++ < 10) click('.continue-practice')
-  expect(guard).toBeLessThan(10)
+  while (host.querySelector('.trial-next') && guard++ < 20) click('.trial-next')
+  expect(guard).toBeLessThan(20)
 }
 function finishLesson(technique: LessonTechnique) {
-  choose(technique); finishDemo(); click('.next-step'); inspectPractice(); click('.answer-yes'); finishEndgame(); click('.continue-practice'); inspectPractice()
+  choose(technique); finishDemo(); click('.next-step')
+  if (technique === 'combination') finishEndgame(); else click('.answer-yes')
+  click('.continue-practice')
   const scene = teachingScenes[technique][1]
-  click(scene.targets.includes(quizCell(scene, technique, 1)) ? '.answer-yes' : '.answer-no'); finishEndgame()
+  if (technique === 'combination') finishEndgame()
+  else click(scene.targets.includes(quizCell(scene, technique, 1)) ? '.answer-yes' : '.answer-no')
 }
 beforeEach(() => {
   Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
@@ -121,7 +121,6 @@ it('requires two one-cell answers for every lesson and saves completion separate
     expect(host.querySelectorAll('.earlier-jelly')).toHaveLength(teachingScenes[lesson.technique][0].board.filter((cell) => cell === 'jelly').length)
     expect(host.querySelectorAll('.teaching-cell')).toHaveLength(teachingScenes[lesson.technique][0].level.size ** 2)
     expect(host.querySelector('.lesson-caution')).toBeNull()
-    inspectPractice()
     click('.answer-no')
     expect(host.querySelector('.quiz-feedback')?.textContent).toContain('再看一次')
     expect(JSON.parse(localStorage.getItem('jellySudokuAcademy.v1') ?? '[]')).not.toContain(lesson.technique)
@@ -132,7 +131,6 @@ it('requires two one-cell answers for every lesson and saves completion separate
     const scene = teachingScenes[lesson.technique][1]
     expect(host.querySelectorAll('.teaching-x')).toHaveLength(0)
     expect(host.querySelectorAll('.candidate-ring')).toHaveLength(scene.sources.length)
-    inspectPractice()
     const expected = scene.targets.includes(quizCell(scene, lesson.technique, 1))
     click(expected ? '.answer-yes' : '.answer-no')
     expect(host.querySelector('.quiz-feedback')?.textContent).toContain('判斷正確')
@@ -250,43 +248,68 @@ it('shows the A branch, restores every temporary placement, then confirms B and 
   expect(host.querySelectorAll('.teaching-cell img')).toHaveLength(confirmed.length)
   expect(host.querySelector('.hypothesis, .trial')).toBeNull()
 })
-it('requires restoring A before selecting B and finishing both endgames before saving completion', () => {
+it('guides both endgames with one action, allowing board choices only after the correct rollback stage', () => {
   choose('combination'); finishDemo(); click('.next-step')
   for (let exercise = 0; exercise < 2; exercise++) {
-    const scene = teachingScenes.combination[exercise], confirmed = confirmedCells(scene)
-    expect(host.querySelectorAll('.question-bubble')).toHaveLength(0)
-    expect(host.querySelector<HTMLButtonElement>('.answer-yes')?.disabled).toBe(true)
-    expect(host.querySelector<HTMLButtonElement>('.trial-check')?.disabled).toBe(true)
-    click('.trial-place')
-    expect(host.querySelectorAll('.trial').length).toBeGreaterThan(1)
-    expect(host.querySelector<HTMLButtonElement>('.trial-restore')?.disabled).toBe(true)
-    click('.trial-check')
-    expect(host.querySelector('.teaching-caption')?.textContent).toContain('沒有任何位置能住')
-    expect(host.querySelector<HTMLButtonElement>('.answer-yes')?.disabled).toBe(true)
-    click('.trial-restore')
+    const scene = teachingScenes.combination[exercise], confirmed = confirmedCells(scene), frames = trialFrames(scene)
+    const failure = frames.findIndex((frame) => frame.kind === 'failure')
+    expect(host.querySelector('.answer-yes, .answer-no, .trial-place')).toBeNull()
+    expect(host.querySelectorAll('.trial-progress li')).toHaveLength(4)
+    expect(host.querySelector('.trial-progress button')).toBeNull()
+    expect(host.querySelector('.trial-progress [aria-current=step]')?.textContent).toContain('試放')
+    expect(host.querySelector('.trial-next')?.textContent).toBe('試放 A 這格')
+    expect(host.querySelectorAll('button.teaching-cell')).toHaveLength(1)
+    expect(host.querySelector(`button[data-cell="${scene.sources[1]}"]`)).toBeNull()
+    expect(host.querySelector('.teaching-board')?.getAttribute('role')).toBe('group')
+    click(exercise === 0 ? `button[data-cell="${scene.sources[0]}"]` : '.trial-next')
+    if (exercise === 0) expect(document.activeElement).toBe(host.querySelector('.trial-next'))
+    expect(host.querySelectorAll('.trial')).toHaveLength(1)
+    expect(host.querySelector('.trial-next')?.textContent).toBe('繼續推導')
+    expect(host.querySelector('.trial-progress [aria-current=step]')?.textContent).toContain('找矛盾')
+    for (const frame of frames.slice(frames.findIndex((f) => f.kind === 'trial') + 1, failure + 1)) {
+      click('.trial-next')
+      expect(host.querySelector('.teaching-caption')?.textContent).toContain(frame.caption)
+      expect(host.querySelectorAll('.trial')).toHaveLength(frame.pose.length)
+      expect(host.querySelector('button.teaching-cell')).toBeNull()
+    }
+    expect(host.querySelector('.trial-next')?.textContent).toBe('撤回這次試放')
+    expect(host.querySelector('.trial-progress [aria-current=step]')?.textContent).toContain('撤回')
+    click('.trial-next')
     expect(host.querySelector('.hypothesis, .trial')).toBeNull()
     expect(host.querySelectorAll('.teaching-cell img')).toHaveLength(confirmed.length)
     expect(displayedCrosses()).toEqual([...getConstraintOverlay(scene.board, scene.level)].sort((a, b) => a - b))
-    expect(host.querySelector<HTMLButtonElement>('.answer-yes')?.disabled).toBe(false)
-    click('.answer-no')
-    expect(host.querySelector('.quiz-feedback.correct')).toBeNull()
-    click('.trial-place')
-    expect(host.querySelector('.quiz-feedback')).toBeNull()
-    click('.trial-check'); click('.trial-restore')
-    click('.answer-yes')
-    expect(host.querySelector('.quiz-feedback.correct')?.textContent).toContain('B 一定住水母')
+    expect(host.querySelector('.trial-next')?.textContent).toBe('改選 B 這格')
+    expect(host.querySelector('.trial-progress [aria-current=step]')?.textContent).toContain('改選')
+    expect(host.querySelector(`button[data-cell="${scene.sources[0]}"]`)).toBeNull()
+    click(exercise === 0 ? `button[data-cell="${scene.sources[1]}"]` : '.trial-next')
     expect(host.querySelectorAll('.confirmed-placement')).toHaveLength(1)
+    expect(host.querySelector('.trial-next')?.textContent).toBe('接著完成盤面')
     expect(JSON.parse(localStorage.getItem('jellySudokuAcademy.v1') ?? '[]')).not.toContain('combination')
     finishEndgame()
     expect(host.querySelectorAll('.teaching-cell img')).toHaveLength(scene.level.size)
-    if (!exercise) click('.continue-practice')
+    expect(host.querySelector('.trial-complete')?.textContent).toContain('殘局完成')
+    if (!exercise) {
+      expect(host.querySelectorAll('.trial-progress .is-done')).toHaveLength(4)
+      click('.continue-practice')
+    }
   }
   expect(JSON.parse(localStorage.getItem('jellySudokuAcademy.v1') ?? '[]')).toContain('combination')
   click('.replay-example')
   expect(host.querySelector('.hypothesis, .trial')).toBeNull()
   expect(host.querySelectorAll('.known-jelly')).toHaveLength(confirmedCells(teachingScenes.combination[1]).length)
-  finishDemo()
-  expect(host.querySelector('.mobile-takeaway')?.textContent).toContain('都找到了')
+  finishDemo(); click('.next-step')
+  expect(host.querySelector('.trial-next')?.textContent).toBe('試放 A 這格')
+})
+it('clears the entire unfinished trial on replay or course selection', () => {
+  choose('combination'); finishDemo(); click('.next-step'); click('.trial-next'); click('.trial-next')
+  expect(host.querySelectorAll('.trial').length).toBeGreaterThan(1)
+  click('.replay-example'); finishDemo(); click('.next-step')
+  expect(host.querySelector('.trial-next')?.textContent).toBe('試放 A 這格')
+  expect(host.querySelector('.hypothesis, .trial')).toBeNull()
+  click('.trial-next'); choose('pair')
+  expect(host.querySelector('.trial-progress, .guided-choice, .hypothesis, .trial-next')).toBeNull()
+  expect(displayedCrosses()).toEqual([])
+  expect(localStorage.getItem('jellySudokuAcademy.v1')).toBeNull()
 })
 it('starts with the entire Z colour and preserves demonstration crosses, clues and practice answers', () => {
   choose('zigzag')

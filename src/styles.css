@@ -737,3 +737,17 @@ button { touch-action: manipulation; }
 .proof-directions { display: flex; gap: 4px; height: 100%; }
 .proof-directions span { flex: 1; display: grid; place-items: center; font-size: 12px; border: 1px solid #e4d9e5; border-radius: 10px; background: #fffafc; color: #806c91; }
 .proof-directions span[aria-current=step] { background: #eadef4; border-color: #9674b2; color: #564466; font-weight: 700; }
+
+.teaching-cell.guided-choice { padding: 0; font: inherit; color: inherit; cursor: pointer; outline: 4px solid #694091; outline-offset: -4px; z-index: 4; }
+.teaching-cell.guided-choice:hover { box-shadow: inset 0 0 0 7px #ffffff70; }
+.teaching-cell.guided-choice:focus-visible { outline: 4px double #25113c; outline-offset: -4px; }
+.trial-progress { display: flex; gap: 4px; height: 100%; list-style: none; margin: 0; padding: 0; }
+.trial-progress li { flex: 1; display: flex; align-items: center; justify-content: center; gap: 4px; border: 1px solid #e4d9e5; border-radius: 10px; font-size: 12px; color: #806c91; background: #fffafc; }
+.trial-progress li[aria-current=step] { background: #eadef4; border-color: #9674b2; color: #564466; font-weight: 700; }
+.trial-progress li.is-done { color: #33735f; background: #eef7f1; }
+.lesson-card .trial-next { width: 100%; min-height: 48px; }
+@media (max-width: 899px) {
+  .trial-progress li { font-size: 11px; }
+  .lesson-card .trial-next + .practice-controls { justify-content: center; margin-top: 0; }
+  .lesson-card .trial-next + .practice-controls .replay-example { min-height: 24px; padding: 2px 4px; }
+}
